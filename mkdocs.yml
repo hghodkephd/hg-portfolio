@@ -1,36 +1,13 @@
-## FILE: mkdocs.yml
-```yaml
 site_name: Harshad Ghodke — Portfolio
 site_url: https://hghodkephd.github.io/hg-portfolio/
-site_description: Portfolio site with résumé and data science projects.
 theme:
   name: material
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - content.code.copy
-    - toc.integrate
-    - header.autohide
-  palette:
-    scheme: default
-    primary: indigo
-    accent: teal
-repo_url: https://github.com/hghodkephd/hg-portfolio
 nav:
   - Home: index.md
   - Résumé: resume.md
   - Projects: projects.md
 markdown_extensions:
-  - attr_list
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
   - toc:
       permalink: true
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/hghodkephd
-    - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/in/harshadg
-```
+  - admonition
+  - attr_list
