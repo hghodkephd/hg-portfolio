@@ -7,7 +7,7 @@ A concise collection of outcome-oriented work showing how I apply data science, 
 ## Potteryverse: Studio Economics Analytics
 **Stack:** Python, Pandas, Streamlit  
 **Summary:** Developed a complete analytics workflow for modeling revenue and membership growth in community ceramics studios. Implemented Monte Carlo simulations to estimate break-even points, churn effects, and confidence bands for studio financial self-sufficiency.  
-**Links:** [Code](https://github.com/hghodkephd/potteryverse) · [Notebook](https://nbviewer.org/github/hghodkephd/potteryverse/blob/main/analysis/notebook.ipynb) · [Demo](https://huggingface.co/spaces/potteryverse/potteryverse-survey)
+**Links:** [Demo](https://huggingface.co/spaces/potteryverse/potteryverse-survey)
 
 ---
 
