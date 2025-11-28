@@ -6,7 +6,7 @@ Hopkinton, MA
 ---
 
 ## Professional Summary
-Scientist and engineering leader with 15+ years of experience spanning **protein engineering**, **single-molecule biophysics**, and **AI-enabled assay development**. Demonstrated success in both academia and industry, with deep expertise in structure–function analysis, enzyme and biosensor engineering, high-throughput workflows, and the integration of data modeling with experimental design. Led multi-disciplinary scientific teams, architected robust molecular design platforms, and delivered IP-generating technologies that advanced discovery and product development pipelines. Published **30+ peer-reviewed papers**, including *Nature Communications*, *PNAS*, *eLife*, *NAR*, and *Angewandte Chemie*.
+Scientist and engineering leader with 15+ years at the intersection of protein engineering, single-molecule biophysics, and high-throughput quantitative biology. I specialize in building data-rich, automation-enabled experimental platforms that accelerate AI-driven molecular design—linking mechanistic biochemistry, directed evolution, and structure–function analysis with machine-learning-ready datasets. My work focuses on generating clean, interpretable sequence-to-function data, partnering closely with computational groups to refine feature engineering, model training inputs, and validation strategies. I’ve led multidisciplinary teams to architect scalable workflows, reduce DBTL cycle times, and deliver IP-generating enzyme, biosensor, and analytical technologies. My academic and industry research has produced 30+ peer-reviewed publications, including Nature Communications, PNAS, eLife, NAR, and Angewandte Chemie.
 
 ---
 
