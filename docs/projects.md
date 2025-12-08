@@ -18,22 +18,21 @@ A concise collection of outcome-oriented work showing how I apply data science, 
 **Links:** [Demo](https://huggingface.co/spaces/potteryverse/potteryverse-survey)
 
 ---
-
-## PhotoSorter: Image Grouping for Product Photography
+## PhotoSorter: Image Grouping for Product Photography (coming soon)
 **Stack:** OpenCV, scikit-learn, Pandas  
 **Summary:** Built a hybrid visual + temporal clustering system to group ceramic product photos (macro and full-pot shots). Outputs a CSV mapping of image-to-group relationships, reducing manual curation time by 70%.  
 **Links:** [Code](https://github.com/hghodkephd/photo-sorter) · [Notebook](https://nbviewer.org/github/hghodkephd/photo-sorter/blob/main/notebooks/01_grouping.ipynb)
 
 ---
 
-## Protein Stability Toolkit: Kinetics & Design A/B Tests
+## Protein Stability Toolkit: Kinetics & Design A/B Tests (coming soon)
 **Stack:** NumPy, SciPy, Altair  
 **Summary:** Created a lightweight analysis toolkit for kinetic fitting, thermal stability modeling, and ranking of protein variants with uncertainty estimates. Designed for high-throughput screening workflows in enzyme engineering.  
 **Links:** [Code](https://github.com/hghodkephd/protein-stability-toolkit) · [Notebook](https://nbviewer.org/github/hghodkephd/protein-stability-toolkit/blob/main/examples/stability_demo.ipynb)
 
 ---
 
-## Firebox Studio Simulator
+## Membership-based Ceramics Studio Finances Simulator (coming soon)
 **Stack:** Python, Pandas, Streamlit, Monte Carlo Simulation  
 **Summary:** Modeled studio membership and event economics for a 5-year planning horizon. Simulates multiple revenue streams and visualizes confidence intervals for break-even and cash-flow stability.  
 **Links:** [Code](https://github.com/hghodkephd/firebox-financial-model)
