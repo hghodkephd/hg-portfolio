@@ -4,6 +4,14 @@ A concise collection of outcome-oriented work showing how I apply data science, 
 
 ---
 
+
+## Govee-monitor
+**Stack:** Python, Bleak (BLE), SQLite, Pandas, Streamlit, Altair, psutil  
+**Summary:** Engineered a production-grade environmental monitoring platform that turns low-cost Govee H5075 Bluetooth sensors into a 24/7 self-healing data collection service, suitable for home, lab, or greenhouse use.  A multi-page Streamlit dashboard orchestrates a dedicated BLE scanner process and watchdog thread that detect silent Bluetooth failures, automatically restart the service, and stream decoded readings into a time-series SQLite store (WAL mode) with configurable, gzip-compressed archiving to bound database growth.  Users can discover and name sensors, configure per-sensor temperature, battery, and offline alerts, and explore live and historical conditions via Altair-based charts that support multi-sensor comparison and overlay external Open-Meteo weather data for context.  Designed for lightweight deployment on devices like Raspberry Pi or a home NAS, the system cleanly separates UI, process management, BLE decoding, and storage, showcasing full-stack data engineering and reliability-focused systems design.   
+**Links:** [Demo](https://govee-monitor.streamlit.app/)
+
+---
+
 ## Potteryverse: Studio Economics Analytics
 **Stack:** Python, Pandas, Streamlit  
 **Summary:** Developed a complete analytics workflow for modeling revenue and membership growth in community ceramics studios. Implemented Monte Carlo simulations to estimate break-even points, churn effects, and confidence bands for studio financial self-sufficiency.  
