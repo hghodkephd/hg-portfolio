@@ -1,3 +1,11 @@
+<!-- Headshot -->
+<p align="center">
+  <img src="assets/HarshadGhodke.png"
+       alt="Harshad Ghodke"
+       width="200"
+       style="border-radius:50%;">
+</p>
+
 # Welcome
 
 Hi, I’m Harshad Ghodke — a scientist–engineer who integrates mechanistic biology with engineering principles to build functional, end-to-end systems. My work spans protein engineering, quantitative modeling, experimental design, and applied scientific computing. I focus on solving real-world problems by translating complex biological or operational challenges into robust, implementable solutions.
