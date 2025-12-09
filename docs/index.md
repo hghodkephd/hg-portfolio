@@ -2,8 +2,7 @@
 <p align="center">
   <img src="assets/HarshadGhodke.png"
        alt="Harshad Ghodke"
-       width="200"
-       style="border-radius:50%;">
+       width="200">
 </p>
 
 # Welcome
