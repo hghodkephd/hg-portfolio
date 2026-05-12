@@ -1,9 +1,23 @@
 # Selected Projects
 
-A concise collection of outcome-oriented work showing how I apply data science, ML, and scientific computing to real-world problems.
+A collection of computational, analytical, and mechanistic modeling projects spanning scientific computing, process simulation, experimental infrastructure, and quantitative data analysis. These projects focus on building practical systems and modeling frameworks that connect experimental observables to real-world operational decision-making.
+
+---
+## Themes
+
+Across these projects, common themes include mechanistic modeling, operational systems design, scientific computing, workflow automation, and quantitative decision-making under real-world experimental and infrastructure constraints.
 
 ---
 
+## Mechanistic PETase Process Simulator
+
+**Stack:** Python, NumPy, SciPy, ODE Modeling, Scientific Computing  
+
+**Summary:** Developed a mechanistic simulation framework for enzymatic PET depolymerization under industrially relevant conditions, integrating heterogeneous surface catalysis, enzyme adsorption/inactivation dynamics, particle-size effects, crystallinity evolution, and pH-stat process observables into a unified reactor-scale ODE model. Designed as a hypothesis-generation and parameter-fitting scaffold to support experimental design and process reasoning in enzymatic plastic biorecycling workflows. Explores how competing mechanisms — including surface accessibility, thermal enzyme decay, and substrate recrystallization — shape conversion dynamics and process performance.
+
+**Links:** [Code](#) · [Technical Documentation](#)
+
+---
 
 ## Govee-monitor
 **Stack:** Python, Bleak (BLE), SQLite, Pandas, Streamlit, Altair, psutil  
@@ -24,10 +38,9 @@ A concise collection of outcome-oriented work showing how I apply data science, 
 **Links:** [Code](https://github.com/hghodkephd/photo-sorter) · [Notebook](https://nbviewer.org/github/hghodkephd/photo-sorter/blob/main/notebooks/01_grouping.ipynb)
 
 ---
-
-## Protein Stability Toolkit: Kinetics & Design A/B Tests (coming soon)
+## Protein Stability Toolkit: Kinetics & Variant Analysis (coming soon)
 **Stack:** NumPy, SciPy, Altair  
-**Summary:** Created a lightweight analysis toolkit for kinetic fitting, thermal stability modeling, and ranking of protein variants with uncertainty estimates. Designed for high-throughput screening workflows in enzyme engineering.  
+**Summary:** Developed a lightweight computational toolkit for analyzing enzyme kinetics, thermal stability, and variant performance across high-throughput protein engineering campaigns. Includes nonlinear kinetic fitting, thermal denaturation modeling, uncertainty estimation, and comparative ranking workflows designed for rapid interpretation of screening and characterization datasets.
 **Links:** [Code](https://github.com/hghodkephd/protein-stability-toolkit) · [Notebook](https://nbviewer.org/github/hghodkephd/protein-stability-toolkit/blob/main/examples/stability_demo.ipynb)
 
 ---
