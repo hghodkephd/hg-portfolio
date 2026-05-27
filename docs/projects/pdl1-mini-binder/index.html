@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Novo Mini Binder Design Against PD-L1</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.6/3Dmol-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+a:hover{border-bottom-color:var(--accent)}
+
+.subtitle{font-size:1.05rem;color:var(--tx2);margin-bottom:2rem;font-family:var(--serif);font-style:italic}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2rem}
+.tag{font-size:.75rem;font-weight:500;padding:3px 10px;border-radius:20px;border:1px solid var(--bg3);color:var(--tx3);background:var(--bg2)}
+.tag.primary{background:var(--accent-light);color:var(--accent2);border-color:var(--accent-light)}
+
+.pipeline-strip{display:flex;align-items:center;gap:0;margin:1.5rem 0 2rem;overflow-x:auto;padding-bottom:4px}
+.pipe-step{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:120px;flex:1;position:relative;cursor:pointer;padding:12px 8px;border-radius:var(--radius-lg);transition:background .2s}
+.pipe-step:hover{background:var(--bg2)}
+.pipe-step.active{background:var(--accent-light)}
+.pipe-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;margin-bottom:6px;border:2px solid var(--bg3);color:var(--tx3);transition:all .25s}
+.pipe-step.active .pipe-icon,.pipe-step.done .pipe-icon{border-color:var(--accent);color:#fff;background:var(--accent)}
+.pipe-step.done .pipe-icon{background:var(--accent);opacity:.7}
+.pipe-label{font-size:.72rem;font-weight:500;color:var(--tx3);line-height:1.3}
+.pipe-step.active .pipe-label{color:var(--accent2);font-weight:600}
+.pipe-arrow{color:var(--bg3);font-size:1.2rem;margin:0 -6px;flex-shrink:0}
+
+.detail-panel{background:var(--bg2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:2rem;border:1px solid var(--bg3);min-height:80px;transition:opacity .2s}
+.detail-panel h3{margin-top:0}
+.detail-panel p{font-size:.875rem;margin-bottom:.5rem}
+.detail-panel code{font-family:var(--mono);font-size:.8rem;background:var(--bg);padding:1px 5px;border-radius:3px}
+
+.viewer-container{position:relative;width:100%;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--bg3);margin:1.5rem 0;background:#1a1a2e}
+.viewer-3d{width:100%;height:420px}
+.viewer-controls{position:absolute;bottom:12px;left:12px;display:flex;gap:6px;z-index:10}
+.viewer-btn{font-family:var(--sans);font-size:.72rem;font-weight:500;padding:5px 12px;border-radius:20px;border:none;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.88);color:#1a1a2e;backdrop-filter:blur(8px)}
+.viewer-btn:hover{background:#fff}
+.viewer-btn.active{background:var(--accent);color:#fff}
+.viewer-label{position:absolute;top:12px;left:12px;font-size:.72rem;font-weight:500;color:rgba(255,255,255,.6);z-index:10;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:1.5rem 0}
+.metric-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;text-align:center}
+.metric-value{font-size:1.5rem;font-weight:600;color:var(--tx);font-family:var(--mono)}
+.metric-label{font-size:.7rem;color:var(--tx3);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.metric-card.pass{background:var(--accent-light)}
+.metric-card.pass .metric-value{color:var(--accent2)}
+.metric-card.fail{background:var(--coral-light)}
+.metric-card.fail .metric-value{color:var(--coral)}
+
+.chart-container{position:relative;width:100%;margin:1.5rem 0}
+.chart-wrap{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem 1rem .5rem;border:1px solid var(--bg3)}
+.chart-wrap canvas{width:100%!important}
+.chart-title{font-size:.8rem;font-weight:600;color:var(--tx2);margin-bottom:.75rem}
+
+.design-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0}
+.design-table th{text-align:left;font-weight:600;color:var(--tx3);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--bg3)}
+.design-table td{padding:8px 10px;border-bottom:1px solid var(--bg3);color:var(--tx2);font-family:var(--mono);font-size:.78rem}
+.design-table tr:hover{background:var(--bg2)}
+.design-table tr.validated{background:var(--accent-light)}
+.design-table tr.validated td{color:var(--accent2)}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.status-dot.pass{background:var(--accent)}
+.status-dot.fail{background:var(--coral)}
+
+.callout{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:.75rem 1rem;margin:1.5rem 0;font-size:.875rem;color:var(--tx2)}
+.callout.insight{background:var(--amber-light);border-left-color:var(--amber)}
+
+.code-block{background:#1e1e22;color:#d4d4d4;border-radius:var(--radius);padding:1rem 1.25rem;font-family:var(--mono);font-size:.78rem;line-height:1.6;overflow-x:auto;margin:1rem 0}
+.code-block .comment{color:#6a9955}
+.code-block .keyword{color:#569cd6}
+.code-block .string{color:#ce9178}
+
+.section-nav{display:flex;gap:8px;margin:2rem 0 1rem;flex-wrap:wrap}
+.section-nav a{font-size:.78rem;font-weight:500;padding:4px 14px;border-radius:20px;background:var(--bg2);color:var(--tx3);border:1px solid var(--bg3);transition:all .2s}
+.section-nav a:hover,.section-nav a.active{background:var(--accent-light);color:var(--accent2);border-color:var(--accent-light);border-bottom-color:var(--accent-light)}
+
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);font-size:.78rem;color:var(--tx3);text-align:center}
+footer a{color:var(--tx3)}
+
+@media(max-width:640px){
+.page{padding:1rem}
+h1{font-size:1.5rem}
+.viewer-3d{height:300px}
+.metrics-grid{grid-template-columns:repeat(2,1fr)}
+.pipeline-strip{gap:0}
+.pipe-step{min-width:80px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="../" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to projects</a>
+
+<h1>De novo mini binder design against PD-L1</h1>
+<p class="subtitle">Computational design of novel mini protein binders using the RFdiffusion → ProteinMPNN → AlphaFold pipeline</p>
+
+<div class="tag-row">
+<span class="tag primary">RFdiffusion</span>
+<span class="tag primary">ProteinMPNN</span>
+<span class="tag primary">ESMFold</span>
+<span class="tag">PyMOL</span>
+<span class="tag">BioPython</span>
+<span class="tag">Python</span>
+<span class="tag">Google Colab</span>
+</div>
+
+<h2>Objective</h2>
+<p>Design de novo mini protein binders (~70 residues) targeting the PD-1 binding surface of PD-L1, using modern generative protein design tools. PD-L1 is a key immune checkpoint target in oncology — blocking its interaction with PD-1 restores T cell anti-tumor activity. This project demonstrates end-to-end computational protein design: from target structure analysis through backbone generation, sequence design, and in silico validation.</p>
+
+<div class="callout">
+This is a portfolio project demonstrating computational protein design methodology. The in silico pass candidates are computationally promising but have not been experimentally tested — confirming function would require gene synthesis, expression, binding assays, and biophysical characterization.
+</div>
+
+<h2>Computational methods landscape</h2>
+<p>Computational protein engineering draws from three complementary methodological domains. Each captures different information about proteins — evolutionary history, physical constraints, or generative capacity — and is suited to different design questions. Knowing which tool to reach for, and why, matters more than knowing how to run any single tool.</p>
+
+<div id="methods-landscape" style="margin:1.5rem 0">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
+
+<div id="meth-seq" onclick="showMethod('seq')" style="background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:.75rem 1rem;cursor:pointer;transition:all .2s">
+<div style="font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin-bottom:4px">Domain 1</div>
+<div style="font-weight:600;font-size:.9rem;margin-bottom:4px">Sequence-based</div>
+<div style="font-size:.78rem;color:var(--tx2)">What has evolution explored?</div>
+</div>
+
+<div id="meth-struct" onclick="showMethod('struct')" style="background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:.75rem 1rem;cursor:pointer;transition:all .2s">
+<div style="font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin-bottom:4px">Domain 2</div>
+<div style="font-weight:600;font-size:.9rem;margin-bottom:4px">Structure-based</div>
+<div style="font-size:.78rem;color:var(--tx2)">What is physically feasible?</div>
+</div>
+
+<div id="meth-gen" onclick="showMethod('gen')" style="background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:.75rem 1rem;cursor:pointer;transition:all .2s">
+<div style="font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--accent2);margin-bottom:4px">Domain 3</div>
+<div style="font-weight:600;font-size:.9rem;color:var(--accent2);margin-bottom:4px">Generative / de novo</div>
+<div style="font-size:.78rem;color:var(--accent2)">What can we create beyond nature?</div>
+</div>
+
+</div>
+
+<div class="detail-panel" id="method-detail">
+<h3>Generative / de novo methods</h3>
+<p>Creating new proteins that don't exist in nature. Includes diffusion models (RFdiffusion — generate novel backbones from noise), inverse folding (ProteinMPNN — design sequences for a given backbone), and language model-guided generation. These methods explore regions of sequence and structure space that evolution never visited. <strong>This project sits primarily here</strong>, using RFdiffusion for backbone generation and ProteinMPNN for sequence design, with structure-based validation (ESMFold) and sequence-based analysis (per-position entropy).</p>
+</div>
+</div>
+
+<h3>When to use which approach</h3>
+<p>The strategic question is always: what do I know, and what do I need? The starting point determines the method.</p>
+
+<div style="margin:1rem 0;font-size:.82rem">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid var(--bg3);border-radius:var(--radius-lg);overflow:hidden">
+<div style="background:var(--bg2);padding:8px 12px;font-weight:600;border-bottom:1px solid var(--bg3)">Starting point</div>
+<div style="background:var(--bg2);padding:8px 12px;font-weight:600;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3)">Appropriate method</div>
+<div style="background:var(--bg2);padding:8px 12px;font-weight:600;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3)">Not appropriate</div>
+
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);color:var(--tx2)">Target structure, no known binder</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx2)">De novo generative (RFdiffusion)</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx3)">Homology modeling (no template exists)</div>
+
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);color:var(--tx2)">Known scaffold, need better sequence</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx2)">Inverse folding (ProteinMPNN), CDR design</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx3)">Full de novo (overkill — scaffold is already validated)</div>
+
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);color:var(--tx2)">Large protein family, many natural sequences</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx2)">Covariation analysis, MSA-based methods</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx3)">De novo generative (ignores available evolutionary data)</div>
+
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);color:var(--tx2)">Known protein, assessing point mutations</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx2)">Language model log-likelihoods, Rosetta ΔΔG</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx3)">AlphaFold alone (predicts structure, not stability change)</div>
+
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);color:var(--tx2)">Candidate designs, need validation</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx2)">Structure prediction (ESMFold), MD simulation, docking</div>
+<div style="padding:8px 12px;border-bottom:1px solid var(--bg3);border-left:1px solid var(--bg3);color:var(--tx3)">ProteinMPNN score alone (necessary but not sufficient)</div>
+
+<div style="padding:8px 12px;color:var(--tx2)">Known binder + co-crystal, want higher affinity</div>
+<div style="padding:8px 12px;border-left:1px solid var(--bg3);color:var(--tx2)">Rosetta interface design, affinity maturation</div>
+<div style="padding:8px 12px;border-left:1px solid var(--bg3);color:var(--tx3)">RFdiffusion (you already have the binding mode)</div>
+</div>
+</div>
+
+<h2>Project phases</h2>
+<p>Every experimental screening campaign faces the same constraint: a finite budget buys a finite number of variants, and each well, droplet, or display cycle costs real money. The cost per variant is aggressively minimized during assay development, but there is always a ceiling. The strategic question has remained the same for 30+ years: given the available spots, how do I pack them with the best guesses for the most optimal candidates, so I'm not spending good money on dead wells?</p>
+
+<p>In the absence of a good prediction, you go with randomness — error-prone PCR, NNK saturation, random mutagenesis — and let the screen do the work. This is a defensible strategy when you truly have no prior information, but it means the vast majority of your screening capacity is consumed by variants that were never going to work. The question has always been: can we do better than random? That is where AI-based approaches now sit. The tools are new — RFdiffusion, ProteinMPNN, protein language models — but the framework they serve is not. They are the current generation's answer to the same question that drove rational design, consensus sequence analysis, and structure-guided mutagenesis before them. What changes is the quality of the prediction. What stays the same is the goal: enrich the library for viable candidates so that experimental throughput is spent on sequences that have a reasonable chance of working.</p>
+
+<p>This project's three-phase structure reflects that logic. Each phase filters candidates more aggressively, at increasing cost per candidate. The goal of upstream computation is to reduce the number of candidates that enter expensive downstream experimental work.</p>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:1.5rem 0">
+<div style="background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius-lg) 0 0 var(--radius-lg);padding:1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--accent2);margin-bottom:6px">Phase 1</div>
+<div style="font-weight:600;font-size:.95rem;color:var(--accent2);margin-bottom:4px">In silico design</div>
+<div style="font-size:.75rem;color:var(--accent2)">Generate candidates</div>
+<div style="font-size:.7rem;color:var(--accent);margin-top:6px">Cost: compute time</div>
+<div style="font-size:.7rem;color:var(--accent)">Throughput: 10²–10³</div>
+</div>
+<div style="background:var(--blue-light);border:1px solid var(--blue);border-left:none;padding:1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--blue);margin-bottom:6px">Phase 2</div>
+<div style="font-weight:600;font-size:.95rem;color:var(--blue);margin-bottom:4px">Computational validation</div>
+<div style="font-size:.75rem;color:var(--blue)">Filter aggressively</div>
+<div style="font-size:.7rem;color:var(--blue);margin-top:6px">Cost: compute time</div>
+<div style="font-size:.7rem;color:var(--blue)">Throughput: 10¹–10²</div>
+</div>
+<div style="background:var(--coral-light);border:1px solid var(--coral);border-left:none;border-radius:0 var(--radius-lg) var(--radius-lg) 0;padding:1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--coral);margin-bottom:6px">Phase 3</div>
+<div style="font-weight:600;font-size:.95rem;color:var(--coral);margin-bottom:4px">Experimental screening</div>
+<div style="font-size:.75rem;color:var(--coral)">Validate in the lab</div>
+<div style="font-size:.7rem;color:var(--coral);margin-top:6px">Cost: $$$ per candidate</div>
+<div style="font-size:.7rem;color:var(--coral)">Throughput: gene synthesis → uHTS</div>
+</div>
+</div>
+
+<div style="font-size:.82rem;color:var(--tx2);margin-bottom:2rem">
+<p>This project covers Phase 1 (RFdiffusion → ProteinMPNN → ESMFold) with elements of Phase 2 (structural validation, per-position entropy analysis, developability considerations). Phase 3 — gene synthesis, display-based screening, biophysical characterization — is where computational designs meet experimental reality. Every candidate killed computationally in Phases 1–2 is a candidate you don't synthesize, express, and screen.</p>
+</div>
+
+<h2>Pipeline overview — Phase 1 detail</h2>
+<p>Click each stage to see details about the tools, inputs, outputs, and decision points.</p>
+
+<div class="pipeline-strip" id="pipeline">
+<div class="pipe-step done" onclick="showStage(0)">
+<div class="pipe-icon">1</div>
+<div class="pipe-label">Target<br>preparation</div>
+</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe-step done" onclick="showStage(1)">
+<div class="pipe-icon">2</div>
+<div class="pipe-label">RFdiffusion<br>backbone gen</div>
+</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe-step done" onclick="showStage(2)">
+<div class="pipe-icon">3</div>
+<div class="pipe-label">ProteinMPNN<br>sequence design</div>
+</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe-step done" onclick="showStage(3)">
+<div class="pipe-icon">4</div>
+<div class="pipe-label">ESMFold<br>validation</div>
+</div>
+<div class="pipe-arrow">→</div>
+<div class="pipe-step active" onclick="showStage(4)">
+<div class="pipe-icon">5</div>
+<div class="pipe-label">Analysis &<br>filtering</div>
+</div>
+</div>
+
+<div class="detail-panel" id="stage-detail">
+<h3>Stage 5: Analysis & filtering</h3>
+<p>Merge all metrics (backbone geometry, ProteinMPNN scores, ESMFold pLDDT, RMSD to design) into a unified ranking. Apply dual threshold: <strong>pLDDT &gt; 80</strong> (confident fold) AND <strong>RMSD &lt; 2.0 Å</strong> (matches designed backbone). 4 of 10 candidates passed both structural filters. These are not confirmed binders — they are the subset whose designed sequences are predicted to adopt folds close to the intended backbones.</p>
+</div>
+
+<h2>3D structure viewer</h2>
+<p>Interactive view of PD-L1 target (PDB 4ZQK) with the PD-1 binding interface highlighted. Rotate by dragging, zoom with scroll. Toggle views to explore the binding surface your designed binders target.</p>
+
+<div class="viewer-container">
+<div class="viewer-label">PDB 4ZQK · PD-1 / PD-L1 complex</div>
+<div id="viewer" class="viewer-3d"></div>
+<div class="viewer-controls">
+<button class="viewer-btn active" onclick="viewComplex(this)">Complex</button>
+<button class="viewer-btn" onclick="viewPDL1(this)">PD-L1 only</button>
+<button class="viewer-btn" onclick="viewInterface(this)">Interface</button>
+<button class="viewer-btn" onclick="viewSurface(this)">Surface</button>
+</div>
+</div>
+
+<h2>Validation results</h2>
+
+<div class="metrics-grid">
+<div class="metric-card">
+<div class="metric-value">24</div>
+<div class="metric-label">Backbones generated</div>
+</div>
+<div class="metric-card">
+<div class="metric-value">10</div>
+<div class="metric-label">Sequences scored</div>
+</div>
+<div class="metric-card pass">
+<div class="metric-value">4</div>
+<div class="metric-label">In silico pass candidates</div>
+</div>
+<div class="metric-card pass">
+<div class="metric-value">40%</div>
+<div class="metric-label">Hit rate</div>
+</div>
+</div>
+
+<h3>Candidate ranking</h3>
+<p>Designs passing both structural filters (pLDDT &gt; 80, RMSD &lt; 2.0 Å) are highlighted. These are not confirmed binders — they are the subset whose designed sequences are predicted to adopt folds close to the intended backbones. ProteinMPNN score reflects inverse-folding confidence; higher means the model is more certain the sequence matches the backbone.</p>
+
+<table class="design-table" id="results-table">
+<thead>
+<tr><th>Design</th><th>pLDDT</th><th>RMSD (Å)</th><th>MPNN score</th><th>Status</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<h3>Validation scatter: pLDDT vs RMSD</h3>
+<p>The quadrant plot below separates in silico pass candidates (high confidence, low deviation) from failures. Designs in the upper-left quadrant pass both structural filters.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Structure prediction confidence vs design recapitulation</div>
+<div style="position:relative;height:340px"><canvas id="scatterChart"></canvas></div>
+</div>
+</div>
+
+<h3>ProteinMPNN score vs structural accuracy</h3>
+<p>Does higher ProteinMPNN confidence predict better structural recapitulation? In this small sample, the correlation is weak — high MPNN scores don't guarantee low RMSD, reinforcing that structure-prediction validation is essential and MPNN score alone is insufficient for filtering.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Design score vs RMSD (color = pLDDT)</div>
+<div style="position:relative;height:300px"><canvas id="mpnnChart"></canvas></div>
+</div>
+</div>
+
+<div class="callout insight">
+<strong>Key insight:</strong> ProteinMPNN score does not reliably predict whether a design will pass structure-prediction validation. The inverse-folding model optimizes for sequence-backbone compatibility, but the predicted fold from ESMFold may find a different, lower-energy conformation. This underscores the importance of the full pipeline — no single metric is sufficient.
+</div>
+
+<h2>Design decisions & scientific reasoning</h2>
+
+<h3>Why PD-L1?</h3>
+<p>PD-L1 was chosen because high-resolution crystal structures exist (PDB 4ZQK, 2.45 Å), the PD-1/PD-L1 binding interface is extensively characterized in the literature, the Baker lab has published de novo binder designs against this exact target using the same tools, and it carries immediate therapeutic relevance — enabling direct benchmarking against known results.</p>
+
+<h3>Why helical bundles?</h3>
+<p>RFdiffusion was not constrained to any particular topology. Given a 70-residue length and the flat PD-L1 binding surface, the model independently converged on three-helix bundles — consistent with published results showing that helical scaffolds are thermodynamically favorable at this size and present good complementary surfaces for flat protein-protein interfaces.</p>
+
+<h3>On developability</h3>
+<p>The RFdiffusion → ProteinMPNN → AlphaFold pipeline optimizes for two objectives: folding and binding geometry. It says nothing about expression yield, aggregation propensity, immunogenicity, or manufacturing feasibility. In a real drug development campaign, in silico pass candidates would enter a developability assessment before any experimental work — scoring for surface hydrophobicity, charge distribution, deamidation motifs, and unpaired cysteines. The computational pipeline constrains the search space; it does not replace experimental validation.</p>
+
+<h3>On library design</h3>
+<p>One of the most practically valuable outputs of ProteinMPNN is not the top-scoring sequence — it's the per-position probability distribution across all 20 amino acids. When you sample 8 sequences from a single backbone at low temperature (T=0.1), positions where the model is confident produce the same amino acid across all samples (low Shannon entropy). Positions where the model is uncertain sample freely across multiple identities (high entropy). This distinction maps directly onto a fundamental choice in experimental protein engineering: what to fix and what to randomize.</p>
+
+<p>In a conventional directed evolution campaign starting from scratch — using NNK codons, error-prone PCR, or random mutagenesis — every position is treated as equally uncertain. For a 70-residue mini binder, this produces a theoretical sequence space of 20<sup>70</sup> variants. In practice, the vast majority of this space is dead: sequences that don't fold, don't express, or don't engage the target. The chance of sampling a functional variant is vanishingly small, and most screening throughput is wasted on sequences of no interest.</p>
+
+<p>An AI-informed library compresses this space by fixing the positions ProteinMPNN is confident about — the residues where backbone geometry, packing contacts, and interface interactions strongly constrain amino acid identity — and applying combinatorial diversity only at the tolerant positions. The result is a library enriched for sequences that can actually fold and bind, while remaining large enough for robust screening.</p>
+
+<div id="library-funnel-container" style="margin:1.5rem 0;background:var(--bg2);border-radius:10px;padding:1rem;border:1px solid var(--bg3)">
+<p style="font-size:.78rem;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.75rem">AI-informed vs random library — screening funnel</p>
+<svg width="100%" viewBox="0 0 680 700" style="display:block">
+<defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#8a8878" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#0F6E56" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<style>.fl{font-family:"DM Sans",system-ui,sans-serif}.fth{font-size:13px;font-weight:600;fill:#1a1a18}.fts{font-size:11px;fill:#5a5850}</style>
+<text class="fl fth" x="168" y="24" text-anchor="middle">Random library</text>
+<text class="fl fth" x="512" y="24" text-anchor="middle">AI-informed library</text>
+<rect x="60" y="36" width="216" height="108" rx="12" fill="none" stroke="#b0a898" stroke-width="0.5" stroke-dasharray="4 3"/>
+<circle cx="100" cy="66" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="130" cy="79" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="160" cy="62" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="190" cy="89" r="4" fill="#1D9E75" opacity="0.9"/><circle cx="220" cy="72" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="115" cy="99" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="145" cy="114" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="175" cy="102" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="205" cy="112" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="240" cy="94" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="88" cy="86" r="4" fill="#B4B2A9" opacity="0.6"/><circle cx="248" cy="66" r="4" fill="#1D9E75" opacity="0.9"/>
+<text class="fl fts" x="168" y="132" text-anchor="middle">NNK / error-prone PCR /</text>
+<text class="fl fts" x="168" y="146" text-anchor="middle">random mutagenesis</text>
+<rect x="404" y="36" width="216" height="108" rx="12" fill="none" stroke="#1D9E75" stroke-width="0.5" stroke-dasharray="4 3"/>
+<circle cx="444" cy="66" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="474" cy="79" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="504" cy="62" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="534" cy="89" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="564" cy="72" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="459" cy="99" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="489" cy="112" r="5" fill="#1D9E75" opacity="0.9"/><circle cx="519" cy="102" r="4" fill="#5DCAA5" opacity="0.5"/><circle cx="549" cy="112" r="4" fill="#5DCAA5" opacity="0.5"/><circle cx="579" cy="94" r="4" fill="#5DCAA5" opacity="0.5"/><circle cx="432" cy="86" r="4" fill="#5DCAA5" opacity="0.5"/><circle cx="592" cy="66" r="4" fill="#5DCAA5" opacity="0.5"/>
+<text class="fl fts" x="512" y="136" text-anchor="middle">Fixed + NNK at tolerant sites</text>
+<line x1="168" y1="158" x2="340" y2="190" stroke="#888780" stroke-width="0.5" marker-end="url(#arr2)"/>
+<line x1="512" y1="154" x2="340" y2="190" stroke="#0F6E56" stroke-width="0.5" marker-end="url(#arr3)"/>
+<path d="M160 195 L520 195 L480 278 L200 278 Z" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text class="fl fth" x="340" y="224" text-anchor="middle">uHTS</text>
+<text class="fl fts" x="340" y="244" text-anchor="middle">Display, droplets, 10⁶–10⁸</text>
+<line x1="340" y1="283" x2="340" y2="300" stroke="#534AB7" stroke-width="0.5" marker-end="url(#arr2)"/>
+<path d="M200 305 L480 305 L455 378 L225 378 Z" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text class="fl fth" x="340" y="328" text-anchor="middle">High-throughput screen</text>
+<text class="fl fts" x="340" y="348" text-anchor="middle">Plate-based, 10³–10⁵</text>
+<line x1="340" y1="383" x2="340" y2="400" stroke="#534AB7" stroke-width="0.5" marker-end="url(#arr2)"/>
+<path d="M225 405 L455 405 L430 470 L250 470 Z" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text class="fl fth" x="340" y="426" text-anchor="middle">Mid-throughput screen</text>
+<text class="fl fts" x="340" y="447" text-anchor="middle">Biophysical, 10¹–10²</text>
+<line x1="340" y1="475" x2="340" y2="492" stroke="#534AB7" stroke-width="0.5" marker-end="url(#arr2)"/>
+<rect x="270" y="497" width="140" height="40" rx="8" fill="#FAEAE4" stroke="#c85a3a" stroke-width="0.5"/>
+<text class="fl fth" x="340" y="521" text-anchor="middle">Hit identification</text>
+<line x1="340" y1="541" x2="340" y2="558" stroke="#c85a3a" stroke-width="0.5" marker-end="url(#arr2)"/>
+<rect x="270" y="563" width="140" height="40" rx="8" fill="#FAEAE4" stroke="#c85a3a" stroke-width="0.5"/>
+<text class="fl fth" x="340" y="587" text-anchor="middle">Hit validation</text>
+<rect x="30" y="292" width="142" height="76" rx="8" fill="#f0eeea" stroke="#b0a898" stroke-width="0.5"/>
+<text class="fl fth" x="101" y="312" text-anchor="middle">20⁷⁰ variants</text>
+<text class="fl fts" x="101" y="330" text-anchor="middle">70 AA × 20 identities</text>
+<text class="fl fts" x="101" y="348" text-anchor="middle">Mostly dead space</text>
+<line x1="172" y1="330" x2="198" y2="330" stroke="#888780" stroke-width="0.5" marker-end="url(#arr2)"/>
+<rect x="30" y="386" width="142" height="78" rx="8" fill="#e1f0ea" stroke="#1D9E75" stroke-width="0.5"/>
+<text class="fl fth" x="101" y="406" text-anchor="middle">20³⁶–20⁵⁴ variants</text>
+<text class="fl fts" x="101" y="424" text-anchor="middle">16–34 fixed by MPNN</text>
+<text class="fl fts" x="101" y="442" text-anchor="middle">Enriched for viable</text>
+<line x1="172" y1="425" x2="224" y2="425" stroke="#0F6E56" stroke-width="0.5" marker-end="url(#arr3)"/>
+<circle cx="68" cy="650" r="5" fill="#1D9E75" opacity="0.9"/><text class="fl fts" x="80" y="654">Variant of interest</text>
+<circle cx="210" cy="650" r="4" fill="#B4B2A9" opacity="0.6"/><text class="fl fts" x="222" y="654">Random / uncharacterized</text>
+<circle cx="390" cy="650" r="4" fill="#5DCAA5" opacity="0.5"/><text class="fl fts" x="402" y="654">Tolerant position (NNK)</text>
+<text class="fl fts" x="340" y="678" text-anchor="middle">ProteinMPNN entropy analysis (T=0.1): 16–34 fixed, 36–54 tolerant across 4 in silico pass designs</text>
+</svg>
+</div>
+
+<p>Per-position entropy analysis across the 4 in silico pass designs in this project (computed from 8 ProteinMPNN samples per backbone at T=0.1) shows that 16–34 positions are effectively fixed, while 36–54 positions are tolerant — compressing theoretical diversity from 20<sup>70</sup> to 20<sup>36</sup>–20<sup>54</sup> depending on the scaffold. This represents a reduction of 16–34 orders of magnitude in sequence space, with the remaining diversity concentrated in positions the model identifies as computationally permissive.</p>
+
+<p>In practice, this framework integrates AI-guided design with existing high-throughput experimental infrastructure. Fixed positions inform a defined sequence core; tolerant positions are degenerated using NNK codons or tailored degenerate codons (e.g. NDT, VHG) that enrich for the specific subset of amino acids ProteinMPNN identifies as compatible at each site. The resulting gene library feeds directly into display technologies — phage, yeast, or mRNA display — for ultra-high-throughput screening at 10<sup>6</sup>–10<sup>8</sup> variants, followed by plate-based and biophysical screens at progressively higher resolution. The key advantage over naive randomization is not just a smaller library — it is a library where a much higher fraction of members are variants of interest rather than dead sequences sampling irrelevant space.</p>
+
+<p>This approach also connects naturally to developability. Positions identified as tolerant by ProteinMPNN are often solvent-exposed, meaning substitutions there are less likely to disrupt folding but may influence expression, aggregation, or immunogenicity. Rational substitutions at tolerant sites — replacing methionines to reduce oxidation liability, or introducing charged residues to improve solubility — can be incorporated into library design without sacrificing the AI-informed scaffold constraints. The result is a campaign that is simultaneously AI-guided and experimentally tractable.</p>
+
+<h2>Limitations</h2>
+<p>This analysis evaluates monomer fold recapitulation only — whether a designed sequence is predicted to adopt its intended backbone structure. It does not evaluate binding affinity, interface stability, complex formation with PD-L1, expression yield, solubility, aggregation propensity, specificity, or immunogenicity. ESMFold was used for binder-only structure prediction, not for binder–target complex modeling. Passing the in silico structural filters (pLDDT &gt; 80, RMSD &lt; 2.0 Å) means the sequence is predicted to fold as designed — it does not mean the resulting protein will bind PD-L1 or function as a therapeutic.</p>
+
+<p>Experimental validation would require gene synthesis, recombinant expression, binding assays (SPR, BLI, or ELISA against PD-L1), and biophysical characterization (SEC, DLS, thermal stability). In published pipelines using similar tools, 10–30% of computationally passing designs show measurable binding in the lab. The 4 candidates identified here represent a starting point for experimental testing, not an endpoint.</p>
+
+<h2>Planned extensions</h2>
+<p>Molecular dynamics validation of top candidates using OpenMM (fold stability at 300K, interface contact persistence). Disulfide bridge engineering as a discriminating test — if a marginally stable design unravels even with a covalent crosslink, the fold was never a real energy minimum. VHH scaffold-constrained design against the same target as a second project demonstrating range across design paradigms.</p>
+
+<h2>Code & data</h2>
+<div class="code-block">
+<span class="comment"># Project repository</span><br>
+<span class="keyword">git clone</span> <span class="string">https://github.com/hghodkephd/pdl1-mini-binder-design</span><br><br>
+<span class="comment"># Structure</span><br>
+├── notebooks/<br>
+│   ├── 00_environment_test.ipynb<br>
+│   ├── 01_target_preparation.ipynb<br>
+│   ├── 02_rfdiffusion_binder_generation.ipynb<br>
+│   ├── 03_proteinmpnn_sequence_design.ipynb<br>
+│   ├── 04_esmfold_validation.ipynb<br>
+│   └── 05_analysis_and_filtering.ipynb<br>
+├── data/<br>
+│   ├── structures/<br>
+│   ├── sequences/<br>
+│   └── results/<br>
+│       └── esmfold_predictions/<br>
+├── figures/<br>
+├── scripts/<br>
+├── docs/<br>
+└── environment.yml
+</div>
+
+<footer>
+Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a>
+</footer>
+
+</div>
+
+<script>
+const designData = [
+  { id: "design_1_0", plddt: 95.09, rmsd: 0.44, mpnn: 0.9583, validated: true },
+  { id: "design_7_0", plddt: 96.69, rmsd: 0.88, mpnn: 0.8931, validated: true },
+  { id: "design_23_0", plddt: 95.62, rmsd: 0.90, mpnn: 0.9519, validated: true },
+  { id: "design_6_0", plddt: 93.39, rmsd: 0.97, mpnn: 0.9113, validated: true },
+  { id: "design_18_0", plddt: 95.15, rmsd: 3.35, mpnn: 0.9340, validated: false },
+  { id: "design_4_0", plddt: 82.02, rmsd: 11.89, mpnn: 0.9173, validated: false },
+  { id: "design_0_0", plddt: 79.98, rmsd: 2.93, mpnn: 0.8645, validated: false },
+  { id: "design_22_0", plddt: 76.68, rmsd: 1.04, mpnn: 0.9394, validated: false },
+  { id: "design_19_0", plddt: 67.66, rmsd: 2.89, mpnn: 0.8493, validated: false },
+  { id: "design_9_0", plddt: 67.59, rmsd: 2.59, mpnn: 0.8210, validated: false },
+];
+
+const tbody = document.querySelector("#results-table tbody");
+designData.forEach(d => {
+  const tr = document.createElement("tr");
+  if (d.validated) tr.className = "validated";
+  tr.innerHTML = `
+    <td>${d.id}</td>
+    <td>${d.plddt.toFixed(1)}</td>
+    <td>${d.rmsd.toFixed(1)}</td>
+    <td>${d.mpnn.toFixed(2)}</td>
+    <td><span class="status-dot ${d.validated ? 'pass' : 'fail'}"></span>${d.validated ? 'Pass' : 'Fail'}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+const stageInfo = [
+  { title: "Stage 1: Target preparation", desc: "Downloaded PD-L1/PD-1 complex (PDB 4ZQK). Identified the PD-1 binding interface on PD-L1 using a 5Å distance cutoff — 15 interface residues. Selected 6 core hotspot residues (Tyr56, Ala115, Ile121, Asp122, Tyr123, Arg125) based on contact density and centrality. Extracted clean PD-L1 chain for RFdiffusion input." },
+  { title: "Stage 2: RFdiffusion backbone generation", desc: "Generated 24 de novo 70-residue backbone scaffolds targeting the PD-L1 hotspot surface using RFdiffusion on Google Colab (T4 GPU). The model independently converged on three-helix bundle topologies. Backbones were filtered for target contact density — designs with fewer than 5 interface contacts were flagged but carried forward for the learning exercise." },
+  { title: "Stage 3: ProteinMPNN sequence design", desc: "For each backbone, ProteinMPNN generated 8 candidate sequences at temperature 0.1 (conservative sampling). The target chain (PD-L1) was held fixed — only the binder chain was redesigned. Top-scoring sequence per backbone was selected based on average log-probability (MPNN score). 10 candidates advanced to validation." },
+  { title: "Stage 4: ESMFold validation", desc: "Each designed sequence was predicted by ESMFold (no structural input — sequence only). Two tests: (1) mean pLDDT > 80 confirms confident fold prediction, (2) Cα RMSD < 2.0 Å to the designed backbone confirms the sequence folds into the intended structure. 4 of 10 designs passed both thresholds." },
+  { title: "Stage 5: Analysis & filtering", desc: "Merged all metrics into a unified ranking. 4 of 10 candidates passed both structural filters. These are not confirmed binders; they are the subset whose designed sequences are predicted to adopt folds close to the intended backbones. Key finding: ProteinMPNN score does not predict pass/fail outcome — structure-prediction validation is essential and cannot be replaced by sequence-level confidence." },
+];
+
+function showStage(idx) {
+  document.querySelectorAll(".pipe-step").forEach((s, i) => {
+    s.classList.toggle("active", i === idx);
+  });
+  const panel = document.getElementById("stage-detail");
+  const info = stageInfo[idx];
+  panel.innerHTML = `<h3>${info.title}</h3><p>${info.desc}</p>`;
+}
+
+const methodInfo = {
+  seq: {
+    title: "Sequence-based methods",
+    desc: "Working from amino acid sequence alone — no structural information needed. Includes homology modeling (transfer properties from a similar known protein), evolutionary coupling and covariation analysis (infer contacts and constraints from thousands of natural sequences), protein language models (ESM-2, ProtBERT — learned representations from millions of proteins), and sequence-based property prediction (solubility, expression, stability from sequence features). These methods capture what evolution has already explored. Best when you have a large protein family with many natural homologs, or want to assess the impact of point mutations.",
+    highlight: "meth-seq"
+  },
+  struct: {
+    title: "Structure-based methods",
+    desc: "Working from 3D atomic coordinates. Includes structure prediction (AlphaFold, ESMFold — sequence to structure), molecular docking (scoring binding poses), physics-based simulation (molecular dynamics, energy minimization), Rosetta-based design (energy function optimization over sequence-structure space), and structure-based property prediction (interface energy, buried surface area, shape complementarity). These methods capture physical constraints — what is geometrically and energetically feasible. Best for validating designs, assessing binding modes, and evaluating dynamic stability.",
+    highlight: "meth-struct"
+  },
+  gen: {
+    title: "Generative / de novo methods",
+    desc: "Creating new proteins that don't exist in nature. Includes diffusion models (RFdiffusion — generate novel backbones from noise), inverse folding (ProteinMPNN — design sequences for a given backbone), and language model-guided generation. These methods go beyond what nature has explored — designing in regions of sequence and structure space that evolution never visited. <strong>This project sits primarily here</strong>, using RFdiffusion for backbone generation and ProteinMPNN for sequence design, with structure-based validation (ESMFold) and sequence-based analysis (per-position entropy).",
+    highlight: "meth-gen"
+  }
+};
+
+function showMethod(key) {
+  const info = methodInfo[key];
+  const panel = document.getElementById("method-detail");
+  panel.innerHTML = `<h3>${info.title}</h3><p>${info.desc}</p>`;
+  ["meth-seq","meth-struct","meth-gen"].forEach(id => {
+    const el = document.getElementById(id);
+    if (id === info.highlight) {
+      el.style.background = "var(--accent-light)";
+      el.style.borderColor = "var(--accent)";
+    } else {
+      el.style.background = "var(--bg2)";
+      el.style.borderColor = "var(--bg3)";
+    }
+  });
+}
+
+let glviewer;
+function initViewer() {
+  const el = document.getElementById("viewer");
+  glviewer = $3Dmol.createViewer(el, { backgroundColor: "#1a1a2e" });
+  $3Dmol.download("pdb:4ZQK", glviewer, {}, function() {
+    viewComplex(document.querySelector(".viewer-btn"));
+  });
+}
+
+function clearActive() {
+  document.querySelectorAll(".viewer-btn").forEach(b => b.classList.remove("active"));
+}
+
+function viewComplex(btn) {
+  clearActive(); btn.classList.add("active");
+  glviewer.setStyle({}, {});
+  glviewer.setStyle({ chain: "A" }, { cartoon: { color: "#4a90c4", opacity: 0.9 } });
+  glviewer.setStyle({ chain: "B" }, { cartoon: { color: "#c85a3a", opacity: 0.9 } });
+  glviewer.zoomTo();
+  glviewer.render();
+}
+
+function viewPDL1(btn) {
+  clearActive(); btn.classList.add("active");
+  glviewer.setStyle({}, {});
+  glviewer.setStyle({ chain: "A" }, { cartoon: { color: "#4a90c4" } });
+  glviewer.setStyle({ chain: "A", resi: [56,115,121,122,123,125] }, {
+    cartoon: { color: "#e8b730" },
+    stick: { color: "#e8b730", radius: 0.15 }
+  });
+  glviewer.zoomTo({ chain: "A" });
+  glviewer.render();
+}
+
+function viewInterface(btn) {
+  clearActive(); btn.classList.add("active");
+  glviewer.setStyle({}, {});
+  glviewer.setStyle({ chain: "A" }, { cartoon: { color: "#4a90c4", opacity: 0.5 } });
+  glviewer.setStyle({ chain: "B" }, { cartoon: { color: "#c85a3a", opacity: 0.5 } });
+  glviewer.setStyle({ chain: "A", resi: [18,19,20,23,26,56,66,76,113,115,120,122,123,124,125] }, {
+    stick: { color: "#e8b730", radius: 0.14 },
+    cartoon: { color: "#e8b730" }
+  });
+  glviewer.setStyle({ chain: "B", resi: [33,34,35,36,37,58,59,64,66,68,75,76,77,78,84,86,87,88,89,126,127,128,130,131,132,134] }, {
+    stick: { color: "#6ec87a", radius: 0.14 },
+    cartoon: { color: "#6ec87a" }
+  });
+  glviewer.zoomTo({ resi: [56,115,121,122,123,125], chain: "A" });
+  glviewer.render();
+}
+
+function viewSurface(btn) {
+  clearActive(); btn.classList.add("active");
+  glviewer.setStyle({}, {});
+  glviewer.setStyle({ chain: "A" }, { cartoon: { color: "#4a90c4", opacity: 0.3 } });
+  glviewer.addSurface($3Dmol.SurfaceType.VDW, {
+    opacity: 0.7,
+    color: "#4a90c4"
+  }, { chain: "A" });
+  glviewer.setStyle({ chain: "A", resi: [56,115,121,122,123,125] }, {
+    stick: { color: "#e8b730", radius: 0.15 }
+  });
+  glviewer.zoomTo({ chain: "A" });
+  glviewer.render();
+}
+
+const validated = designData.filter(d => d.validated);
+const failed = designData.filter(d => !d.validated);
+
+new Chart(document.getElementById("scatterChart"), {
+  type: "scatter",
+  data: {
+    datasets: [
+      {
+        label: "In silico pass",
+        data: validated.map(d => ({ x: d.rmsd, y: d.plddt })),
+        backgroundColor: "#1d6b52",
+        borderColor: "#0f4a38",
+        borderWidth: 1.5,
+        pointRadius: 7,
+        pointHoverRadius: 9,
+      },
+      {
+        label: "Failed",
+        data: failed.map(d => ({ x: d.rmsd, y: d.plddt })),
+        backgroundColor: "#b0a898",
+        borderColor: "#8a8878",
+        borderWidth: 1,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      annotation: {}
+    },
+    scales: {
+      x: { title: { display: true, text: "RMSD to design (Å)", font: { size: 12 } }, min: 0, max: 14, grid: { color: "rgba(0,0,0,0.06)" } },
+      y: { title: { display: true, text: "Mean pLDDT", font: { size: 12 } }, min: 65, max: 100, grid: { color: "rgba(0,0,0,0.06)" } }
+    }
+  },
+  plugins: [{
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      const xAxis = chart.scales.x;
+      const yAxis = chart.scales.y;
+      ctx.save();
+      ctx.setLineDash([6, 4]);
+      ctx.strokeStyle = "#c85a3a";
+      ctx.lineWidth = 1.5;
+      const x2 = xAxis.getPixelForValue(2.0);
+      ctx.beginPath(); ctx.moveTo(x2, yAxis.top); ctx.lineTo(x2, yAxis.bottom); ctx.stroke();
+      const y80 = yAxis.getPixelForValue(80);
+      ctx.beginPath(); ctx.moveTo(xAxis.left, y80); ctx.lineTo(xAxis.right, y80); ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = "#c85a3a";
+      ctx.font = "11px 'DM Sans'";
+      ctx.fillText("RMSD = 2.0 Å", x2 + 4, yAxis.top + 14);
+      ctx.fillText("pLDDT = 80", xAxis.right - 70, y80 - 6);
+    }
+  }]
+});
+
+new Chart(document.getElementById("mpnnChart"), {
+  type: "scatter",
+  data: {
+    datasets: [{
+      data: designData.map(d => ({ x: d.mpnn, y: d.rmsd })),
+      backgroundColor: designData.map(d => {
+        const t = (d.plddt - 65) / 35;
+        const r = Math.round(200 - t * 170);
+        const g = Math.round(100 + t * 100);
+        const b = Math.round(80);
+        return `rgb(${r},${g},${b})`;
+      }),
+      borderColor: "rgba(0,0,0,0.2)",
+      borderWidth: 1,
+      pointRadius: 7,
+      pointHoverRadius: 9,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { title: { display: true, text: "ProteinMPNN score", font: { size: 12 } }, min: 0.78, max: 1.0, grid: { color: "rgba(0,0,0,0.06)" } },
+      y: { title: { display: true, text: "RMSD to design (Å)", font: { size: 12 } }, min: 0, max: 14, grid: { color: "rgba(0,0,0,0.06)" } }
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", initViewer);
+</script>
+</body>
+</html>
