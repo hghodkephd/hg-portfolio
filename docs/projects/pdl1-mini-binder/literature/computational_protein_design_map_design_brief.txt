@@ -1,0 +1,572 @@
+# Design Brief: A Practical Map of Computational Protein Design
+
+## Working title
+
+A Practical Map of Computational Protein Design: From Biological Intent to Testable Molecular Hypotheses
+
+## Purpose
+
+The goal is to create an updated, investigator-facing map of computational protein design workflows. The intended graphic should function more like a biochemical pathway map than a review figure: a scientist should be able to look at it, locate their design question, and identify the appropriate workflow path.
+
+This should not be a generic "tool landscape" or a list of software packages. The central organizing principle should be:
+
+What is the investigator trying to do, what starting material do they have, and what workflow does that imply?
+
+For example:
+
+- "I want to develop mini-binders against a target protein."
+- "I have a scaffold and want to repurpose it for a new binding target or function."
+- "I want to design an enzyme active site."
+- "I want to tune stability, solubility, expression, affinity, or specificity."
+- "I want to build a new fold, oligomer, cage, or assembly."
+
+Each of these should be visually traceable as a distinct route through the chart.
+
+## Core inspiration
+
+This project is inspired by field maps like "Map of Physics" or "Map of Biology," but the desired visual is closer to a metabolic pathway diagram or biochemical reaction network, where routes, branch points, shared intermediates, and failure modes are visible at once.
+
+The final artifact should help someone orient themselves in the rapidly changing field of computational protein design.
+
+## Primary source documents
+
+Two uploaded papers should serve as the initial intellectual anchors:
+
+1. Tanja Kortemme, "De novo protein design — From new structures to programmable functions," Cell, 2024.
+
+This paper is useful for the conceptual architecture of de novo design. It frames protein design as an optimization problem, where one defines a desired structure/function and searches for sequences that realize it. It also clearly distinguishes backbone generation, sequence design, motif scaffolding, binder design, and programmable function. The paper's Figure 1 and Figure 3 are especially relevant because they organize de novo design by design goal and input type.
+
+2. Albanese et al., "Computational Protein Design," Nature Reviews Methods Primers, 2025.
+
+This paper is useful because it explicitly treats CPD as a collection of workflows assembled from subtasks. It notes that there is no universal design workflow, but that defining a short collection of major workflows would be useful for the field's growth and democratization. That statement directly supports the purpose of this project.
+
+## Design problem
+
+Existing reviews explain the field, but they do not appear to provide a single, updated, investigator-facing workflow map.
+
+The graphic we want should answer:
+
+1. What kind of protein design problem am I solving?
+2. What do I already have?
+   - Target structure?
+   - Existing scaffold?
+   - Functional motif?
+   - Protein family / MSA?
+   - Experimental sequence-function data?
+   - Desired architecture?
+3. What workflow class should I use?
+4. What computational steps are shared across workflows?
+5. Where does experimental validation enter?
+6. Where are the known failure modes and epistemic cliffs?
+
+## Proposed top-level structure
+
+The map should have four major layers:
+
+```text
+QUESTION / INTENT LAYER
+What does the investigator want to do?
+
+STARTING MATERIAL LAYER
+What information or biological object is already available?
+
+DESIGN ENGINE LAYER
+What computational strategy transforms the input?
+
+TRIAGE + EXPERIMENT LAYER
+How are designs filtered, built, tested, and iterated?
+```
+
+Surrounding the entire map should be a visible "known failure modes / chasm of ignorance" band:
+
+```text
+water | entropy | conformational dynamics | expression | aggregation |
+off-target binding | cellular context | assay artifacts | model overconfidence |
+out-of-distribution designs | insufficient experimental validation
+```
+
+This outer band is important. The Nature Reviews Methods Primer emphasizes that structure prediction outputs for designs should be treated as hypotheses for experimental testing, especially for out-of-distribution or heavily conditioned designs. Kortemme similarly emphasizes that difficult functional problems remain unsolved, especially where precise geometry, dynamics, and multiple objectives are required.
+
+## Major workflow lanes
+
+### Lane 1: De novo mini-binder / protein binder design
+
+Question:
+"I want to design a new mini-protein binder against a target."
+
+Starting material:
+Target protein structure or model; optional known epitope, hotspot, competing ligand, or desired binding surface.
+
+Workflow:
+
+```text
+Target protein structure
+    ↓
+Choose epitope / hotspot / surface
+    ↓
+Generate binder backbone
+RFdiffusion / Chroma / hallucination / RIF / MaSIF-like approaches
+    ↓
+Sequence design
+ProteinMPNN / LigandMPNN / Rosetta design
+    ↓
+Forward folding / complex prediction
+AF2-multimer / Chai / Boltz / RF-AA / RosettaFold-AA
+    ↓
+Interface triage
+pAE / ipTM / RMSD / contacts / buried surface / H-bonds / shape complementarity
+    ↓
+Practical triage
+solubility / expression / aggregation / synthesis / cloning
+    ↓
+Experimental test
+expression → purification → binding assay → affinity maturation / DBTL
+```
+
+Important distinction:
+This is not "proof of binding." It is computational hypothesis generation and triage.
+
+Relevant review anchors:
+Kortemme's Figure 3 distinguishes several binder design strategies: rotamer interaction field approaches, fingerprint-based approaches such as MaSIF, and diffusion approaches that generate binders against a target hotspot followed by sequence assignment.
+
+### Lane 2: Scaffold repurposing / constrained redesign
+
+Question:
+"I already have a protein scaffold. I want to repurpose it for a new target, specificity, substrate, or function."
+
+Starting material:
+Known protein structure, designed scaffold, antibody/nanobody scaffold, enzyme family member, repeat protein, cage component, or binding domain.
+
+Workflow:
+
+```text
+Existing scaffold / natural protein / designed fold
+    ↓
+Define desired change
+new target / altered specificity / new substrate / new pocket / new interface
+    ↓
+Identify mutable region
+surface patch / binding loop / active site / pocket / interface
+    ↓
+Constrained redesign
+Rosetta / ProteinMPNN / LigandMPNN / family models / MSA-guided design
+    ↓
+Negative design
+avoid old target / off-targets / aggregation / undesired states
+    ↓
+Forward prediction + functional triage
+    ↓
+Focused library / directed evolution
+    ↓
+Experimental validation
+```
+
+Important distinction:
+This lane is constrained by the starting scaffold. Kortemme notes that using a natural or existing backbone can work, but even simple specificity changes can fail if the backbone cannot place functional groups with sufficient precision.
+
+### Lane 3: Motif, active-site, or enzyme design
+
+Question:
+"I want to create a protein with a defined functional site, active site, ligand-binding site, metal site, cofactor site, or catalytic mechanism."
+
+Starting material:
+Functional motif, ligand pose, transition-state model, catalytic residues, theozyme, metal coordination geometry, cofactor geometry, or reaction mechanism.
+
+Workflow:
+
+```text
+Reaction / ligand / transition state / functional motif
+    ↓
+Define functional geometry
+catalytic residues / ligand pose / metal site / polar contacts / cofactor
+    ↓
+Choose strategy
+A. match motif into existing scaffold
+B. match motif into de novo scaffold library
+C. generate scaffold around motif
+    ↓
+Backbone generation / motif scaffolding
+RFdiffusion / RFdiffusionAA / Rosetta / hallucination / fragment methods
+    ↓
+Sequence design around motif
+ProteinMPNN / LigandMPNN / Rosetta / all-atom methods
+    ↓
+Geometric filtering
+motif RMSD / catalytic distances / H-bond geometry / ligand pose
+    ↓
+Multi-state / mechanism filtering
+substrate / transition state / product / conformational access
+    ↓
+Experimental assay
+activity first → mechanism → optimization
+```
+
+Important distinction:
+This route requires a much more precise definition of function than binder design. Kortemme states that design of function generally begins by defining the functional requirements, often as precise active-site or binding-site geometries, then optimizing sequence and structure to match those requirements.
+
+Known difficulty:
+Enzyme design is especially hard because catalysis often requires sub-angstrom precision, multiple chemical states, dynamics, and preorganization.
+
+### Lane 4: De novo fold, scaffold, oligomer, cage, or assembly design
+
+Question:
+"I want to build a new protein architecture."
+
+Starting material:
+Desired topology, fold class, symmetry, oligomeric state, cage geometry, repeat architecture, or assembly geometry.
+
+Workflow:
+
+```text
+Desired architecture
+monomer / repeat / cage / oligomer / topology / symmetry
+    ↓
+Backbone design
+parametric / fragment-based / diffusion / hallucination
+    ↓
+Sequence design
+ProteinMPNN / Rosetta / Frame2seq / inverse folding
+    ↓
+Forward folding
+AF2 / ESMFold / Chai / Boltz / RosettaFold
+    ↓
+Structure triage
+RMSD to target / pLDDT / pAE / topology / packing / aggregation
+    ↓
+Experimental validation
+expression → CD/DSF/SEC → structure if needed
+```
+
+Relevant review anchor:
+The Nature Reviews Methods Primer describes backbone design strategies including parametric design, fragment-based design, loop design, and deep-learning-based backbone design. Kortemme's Figure 2 similarly separates backbone generation and sequence design as core conceptual steps.
+
+### Lane 5: Property optimization / protein engineering
+
+Question:
+"I have a protein and want to improve or tune a property."
+
+Possible properties:
+Stability, solubility, expression, affinity, specificity, activity, pH tolerance, thermal tolerance, aggregation resistance, developability.
+
+Starting material:
+Existing sequence, structure, homolog family, MSA, experimental variants, DMS data, HTS data, or directed evolution data.
+
+Workflow:
+
+```text
+Existing sequence / structure / family
+    ↓
+Choose property
+stability / solubility / expression / specificity / affinity / activity
+    ↓
+Choose information source
+MSA / family model / structure / assay data / DMS / HTS
+    ↓
+Generate variants
+consensus / ancestral / ML-guided / Rosetta / ProteinMPNN / active learning
+    ↓
+Screen or assay
+    ↓
+Learn from data
+    ↓
+Iterate
+```
+
+Important distinction:
+This lane connects CPD to classical protein engineering and directed evolution. It should not be visually subordinated to de novo design. Many real-world protein engineering campaigns will live here.
+
+The Primer explicitly distinguishes de novo protein design from protein engineering, where engineering starts from natural sequences and alters them by mutagenesis, directed evolution, or related strategies.
+
+### Lane 6: Multi-state design / switches / allostery
+
+Question:
+"I want the protein to adopt different conformations or change state in response to a cue."
+
+Starting material:
+Two or more target states, ligand-bound and apo states, active/inactive states, switch architecture, allosteric coupling hypothesis, or known natural switch.
+
+Workflow:
+
+```text
+Define desired states
+apo / bound / active / inactive / open / closed / off-target
+    ↓
+Assign desired energetic relationship
+stabilize state A / stabilize state B / tune ΔG / avoid undesired states
+    ↓
+Multi-state design
+Rosetta MSD / ProteinMPNN multi-state / LigandMPNN / ensemble-aware approaches
+    ↓
+Conformational triage
+state compatibility / negative design / dynamics / accessibility
+    ↓
+Experimental validation
+binding/activity/state readout / kinetics / NMR / HDX / smFRET if needed
+```
+
+Important distinction:
+This should probably be a cross-cutting lane or overlay, because multi-state logic applies to enzymes, switches, binders, allostery, and specificity design.
+
+Kortemme emphasizes multi-objective optimization and conformational switching as major frontiers, while the Primer discusses flexibility, multi-state design, and the difficulty of designing conformational behavior.
+
+## Shared computational modules
+
+The map should show that workflows reuse common modules.
+
+### Module A: Representations
+
+```text
+sequence
+structure / backbone
+side-chain geometry
+surface
+motif
+complex
+ensemble
+function / property
+```
+
+### Module B: Backbone generation
+
+```text
+parametric design
+fragment assembly
+blueprint design
+hallucination
+diffusion
+motif scaffolding
+binder backbone generation
+```
+
+### Module C: Sequence design
+
+```text
+physics-based inverse folding
+ProteinMPNN-like inverse folding
+LigandMPNN / all-atom sequence design
+family / MSA-based redesign
+protein language models
+```
+
+### Module D: Forward prediction / in silico filtering
+
+```text
+structure prediction
+complex prediction
+confidence metrics
+RMSD to intended model
+interface metrics
+motif geometry
+energy terms
+developability metrics
+```
+
+### Module E: Experimental validation
+
+```text
+gene synthesis / cloning
+expression
+purification
+SEC / SDS-PAGE
+CD / DSF / nanoDSF
+binding assay
+activity assay
+kinetics
+structure determination
+HTS / DMS / directed evolution
+DBTL loop
+```
+
+## Visual design concept
+
+The figure should be readable as a map, not a linear pipeline.
+
+Potential design:
+
+```text
+                        COMPUTATIONAL PROTEIN DESIGN MAP
+
+                              Biological / design intent
+                                       |
+        ----------------------------------------------------------------
+        |              |              |              |                  |
+   New binder     Repurpose       New active      New fold /        Tune property
+                  scaffold        site / enzyme   assembly
+        |              |              |              |                  |
+        v              v              v              v                  v
+
+   [workflow lane] [workflow lane] [workflow lane] [workflow lane] [workflow lane]
+
+        \              |              |              |                  /
+         \             |              |              |                 /
+          ---------------- SHARED COMPUTATIONAL MODULES ---------------
+                         backbone generation
+                         sequence design
+                         forward folding
+                         filtering
+                         experimental validation
+                                      |
+                                      v
+                         Design-build-test-learn loop
+
+                Outer ring: known failure modes / uncertainty
+```
+
+Alternative visual metaphor:
+
+- Central DBTL cycle in the middle.
+- Around it: workflow "spokes" radiating from different investigator questions.
+- Around the outside: failure modes and unsolved problems.
+- Tool names should be small labels, not the main organizing structure.
+
+## Content format
+
+This project will likely be built as a documentation site.
+
+Recommended starting platform: MkDocs Material.
+
+Potential structure:
+
+```text
+computational-protein-design-map/
+├── mkdocs.yml
+├── docs/
+│   ├── index.md
+│   ├── map.md
+│   ├── workflows/
+│   │   ├── minibinder-design.md
+│   │   ├── scaffold-repurposing.md
+│   │   ├── enzyme-design.md
+│   │   ├── small-molecule-binding.md
+│   │   ├── de-novo-folds.md
+│   │   ├── property-optimization.md
+│   │   └── multi-state-design.md
+│   ├── concepts/
+│   │   ├── representations.md
+│   │   ├── backbone-generation.md
+│   │   ├── sequence-design.md
+│   │   ├── forward-folding.md
+│   │   ├── filtering.md
+│   │   └── failure-modes.md
+│   ├── tools/
+│   │   ├── tool-landscape.md
+│   │   └── tool-table.md
+│   ├── references.md
+│   └── assets/
+│       └── figures/
+│           └── cpd-map.svg
+```
+
+## Suggested pages
+
+### index.md
+
+Purpose and audience.
+
+Key message:
+
+Computational protein design is not one workflow. It is a family of workflows connecting biological intent to molecular hypotheses, which must ultimately be tested experimentally.
+
+### map.md
+
+The main figure.
+
+Should include:
+
+- full visual map
+- short legend
+- explanation of workflow lanes
+- how to read the map
+
+### workflows/minibinder-design.md
+
+Detailed workflow for de novo binders.
+
+Should include:
+
+- inputs
+- decisions
+- computational steps
+- filters
+- experimental validation
+- common failure modes
+- example tools
+- example papers
+
+### workflows/scaffold-repurposing.md
+
+Detailed workflow for starting from an existing scaffold.
+
+### workflows/enzyme-design.md
+
+Detailed workflow for catalytic or active-site design.
+
+### workflows/property-optimization.md
+
+Detailed workflow for classical engineering, ML-guided evolution, and variant optimization.
+
+### concepts/failure-modes.md
+
+This should be an important page, not an afterthought.
+
+Potential sections:
+
+- structure is not function
+- confident model is not experimental validation
+- binders may not express
+- interfaces may be artifactual
+- polar contacts and water are hard
+- enzyme catalysis requires more than an active-site pose
+- out-of-distribution designs are dangerous
+- assay design determines what "success" means
+
+## Requested tasks for Claude
+
+Please do the following:
+
+1. Critique the conceptual architecture.
+   Are the proposed workflow lanes correct? Are any major workflow classes missing?
+
+2. Suggest additional references.
+   Focus especially on:
+   - recent review papers
+   - binder design
+   - RFdiffusion / RFdiffusionAA
+   - ProteinMPNN / LigandMPNN
+   - enzyme design
+   - small-molecule binders
+   - multi-state design / conformational switches
+   - ML-guided directed evolution
+   - experimental validation of computational designs
+
+3. Refine the map taxonomy.
+   The map should be workflow-oriented, not tool-oriented. Suggest better names for workflow lanes and shared modules.
+
+4. Suggest visual layout options.
+   The final figure should be readable as a "map" or "pathway chart," not a generic flowchart.
+
+5. Identify conceptual traps.
+   What statements would be misleading? What overclaims should be avoided?
+
+6. Propose an initial MkDocs page outline.
+   Suggest page titles, navigation structure, and what should go on each page.
+
+7. Suggest a minimal v0 deliverable.
+   What is the smallest useful version of this project that could be published as a polished portfolio artifact?
+
+## Tone and positioning
+
+The tone should be scientifically rigorous but accessible to a trained experimental biologist or biophysicist.
+
+Avoid hype such as:
+
+- "AI can design proteins on demand."
+- "RFdiffusion solves protein design."
+- "Structure prediction validates designs."
+- "Computational design replaces experiments."
+
+Preferred framing:
+
+Computational protein design generates structured molecular hypotheses. The quality of those hypotheses depends on the design task, the available constraints, the model class, the filtering strategy, and the experimental validation plan.
+
+This should feel current, useful, and honest.
