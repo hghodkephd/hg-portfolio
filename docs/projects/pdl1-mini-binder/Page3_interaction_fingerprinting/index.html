@@ -44,6 +44,9 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .callout{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0}
 .callout p{margin-bottom:.5rem}
 .callout p:last-child{margin-bottom:0}
+.figure{margin:1.25rem 0}
+.figure-caption{font-size:.8rem;color:var(--tx3);margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--bg3);font-family:var(--sans);line-height:1.5}
+.figure-caption strong{color:var(--tx2);font-weight:600}
 .finding{margin:1rem 0;padding:1rem 1.25rem;border-radius:var(--radius);border-left:3px solid var(--accent)}
 .finding.coral{border-left-color:var(--coral);background:var(--coral-light)}
 .finding.blue{border-left-color:var(--blue);background:var(--blue-light)}
@@ -152,18 +155,37 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
   <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/parameter-sensitivity/">← Setup & Parameter Sensitivity</a>
 </div>
 
-<h1>Structure & Interface Analysis</h1>
-<p class="subtitle">31 validated designs — what do they look like, and how do they engage PD-L1?</p>
+<h1>Part 3: Structure & Interface Analysis</h1>
+<p class="subtitle">31 designs made it through the filter. Where do they land on PD-L1?</p>
 
-<p>The previous page established which parameter conditions produce structurally valid binder designs. This page looks at the designs themselves: their three-dimensional topology, their sequences, and how their predicted contacts compare to the native PD-1/PD-L1 interface.</p>
+<p><strong>Previously, in Part 2:</strong> We swept three parameters — binder length, hotspot configuration, and noise scale — across 480 backbones and found that 31 designs pass structural filtering (pLDDT ≥ 70, RMSD ≤ 1.5 Å). Cluster A and 70-mers were the most productive conditions; Cluster B showed the highest pass rate but the fewest geometry-passing backbones. <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity/">Read Part 2 →</a></p>
+
+<p>That study told us <em>which conditions work</em>. This page asks the next question: do the 31 passing designs actually engage PD-L1 in a way that makes biological sense?</p>
+
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0 2rem;font-size:.8rem;font-family:var(--mono)">
+  <a href="#" style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3);text-decoration:none">Page 1 — Pipeline overview</a>
+  <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/parameter-sensitivity/" style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3);text-decoration:none">Page 2 — Setup & parameter sensitivity</a>
+  <span style="padding:.25rem .6rem;background:var(--accent-light);border:1px solid var(--accent);border-radius:4px;color:var(--accent2);font-weight:600">Page 3 — Structure & interface analysis</span>
+  <span style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3);text-decoration:none">Page 4 — Energy minimization & MD</span>
+</div>
+
+<div class="callout" style="border-left:3px solid var(--accent);background:var(--accent-light)">
+  <p style="font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);margin-bottom:.5rem;font-weight:600">What we found</p>
+  <ul style="margin:0;padding-left:1.2rem;color:var(--tx2);font-size:.9rem;line-height:1.8">
+    <li>All three hotspot configurations converge on the same PD-L1 surface patch (residues 119–121) — the designs are not landing randomly.</li>
+    <li>Hotspot coverage is partial: 40.6% for Cluster A, 23.4% for Distributed, 11.4% for Cluster B. Guidance biases backbone placement, but sidechains bridge the last few angstroms.</li>
+    <li>About half of hotspot contacts recover native PD-1 chemistry (same amino acid or same class), and the interaction profile is substantially more native-like than expected from de novo designs.</li>
+    <li>These results are reliable for triage and library design — not for energetics, which require MD (Part 4).</li>
+  </ul>
+</div>
 
 <!-- ── VIEWER ── -->
-<h2>Structure viewer</h2>
-<p>The viewer shows the ESMFold-predicted binder structure (chain B, colored by hotspot configuration) docked against PD-L1 (chain A, gray). These are full-atom models with designed sidechains. Click any card in the grid below to load that design.</p>
+<h2>First, let's look at the structures</h2>
+<p>Before any quantitative analysis, let's just look. Load a few designs from different hotspot configurations and see what jumps out. Do the binders sit flush against the PD-L1 surface, or are they detached? Do different configurations approach different parts of the target? Do the backbones look like compact helical bundles — or do any of them look collapsed or extended in ways that don't make physical sense?</p>
 
 <div class="aside" style="margin-bottom:1rem">
   <div class="aside-label">What you are looking at</div>
-  <p>These are ESMFold-predicted structures — full-atom models generated by predicting the 3D fold from the ProteinMPNN-designed sequence. The binder (chain B) includes real sidechains as predicted by ESMFold. The target PD-L1 (chain A) is from the original RFdiffusion complex. Note: these structures are not energy-minimized — sidechain rotamers are ESMFold's best single-shot prediction, not a relaxed conformation.</p>
+  <p>These are <strong>sequence-threaded complexes</strong>: the RFdiffusion docked geometry with binder residues renamed to the ProteinMPNN-designed sequence. The binder (chain B) shows <strong>backbone atoms only</strong> — no sidechains. PD-L1 (chain A) is full-atom. Nothing is energy-minimized. Good for inspecting docking modes and backbone shape; not for drawing conclusions about sidechain contacts.</p>
 </div>
 
 <div class="viewer-layout">
@@ -204,10 +226,11 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
   <span class="legend-item"><span class="legend-dot" style="background:#b07818"></span>Distributed</span>
   <span class="legend-item"><span class="legend-dot" style="background:#cccccc"></span>PD-L1 (gray surface)</span>
 </div>
+<p class="figure-caption" style="margin-top:.5rem"><strong>Figure 1.</strong> Interactive structure viewer. Chain B (binder, colored by hotspot configuration) docked against PD-L1 (chain A, gray). Structures are sequence-threaded complexes: backbone geometry from the RFdiffusion complex pose with binder residues renamed to the ProteinMPNN-designed sequence. Backbone atoms only on the binder chain; PD-L1 is full-atom. Not energy-minimized — sidechain conformations are not represented here.</p>
 
 <!-- ── DESIGN GRID ── -->
-<h2>All 31 validated designs</h2>
-<p>Ranked by RMSD (ascending). Each card shows pLDDT and RMSD — the two validation metrics. Click a card to load it in the viewer above. Use the filters to narrow by length, hotspot configuration, or noise scale.</p>
+<h2>All 31 passing designs</h2>
+<p>Ranked by RMSD (ascending). Each card shows pLDDT and RMSD — the two structural filter metrics. Click a card to load it in the viewer above. Use the filters to narrow by length, hotspot configuration, or noise scale.</p>
 
 <div class="grid-controls">
   <span style="font-size:.75rem;color:var(--tx3);font-weight:600;white-space:nowrap">Length:</span>
@@ -236,57 +259,96 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <!-- INTERACTION FINGERPRINTING                                    -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <h2>Interaction fingerprinting</h2>
-<p>The parameter study told us <em>which conditions</em> produce structurally valid designs. The viewer above shows <em>what they look like</em>. Now we ask the harder question: <strong>how do these designs engage the target?</strong></p>
-<p>The fingerprinting analysis maps every residue-level contact (≤ 4.5 Å heavy-atom distance) between each of the 31 passing binders and PD-L1, classifies each contact by residue physicochemistry, and compares the results to the native PD-1/PD-L1 interface from crystal structure 4ZQK. Across 31 designs, the analysis found 161 total binder–target contact pairs, of which 48 occur at known hotspot positions where a direct comparison to PD-1 is possible.</p>
+<p>The viewer gives us a qualitative feel. Now let's get quantitative. Interaction fingerprinting maps every residue-level contact between each passing binder and PD-L1, classifies them by chemistry, and compares the result to the native PD-1/PD-L1 interface (crystal structure 4ZQK). It answers the question: <strong>are these designs engaging PD-L1 in a way that resembles a real protein–protein interaction?</strong></p>
+
+<p>The answer depends on which atoms you include. The pipeline produces several representations of each design, and not all of them are appropriate for contact analysis. The table below lays out the distinctions — the short version is that fingerprinting should be performed on full-atom representations (all heavy atoms on both binder and target), not on backbone-only structures where sidechain-mediated contacts are invisible.</p>
+
+<div class="callout" style="margin:1.25rem 0">
+  <p style="font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:.75rem;font-weight:600">Know your representations</p>
+  <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <tr style="border-bottom:2px solid var(--bg3)">
+      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Name</th>
+      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Binder atoms</th>
+      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Target atoms</th>
+      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Good for</th>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>RFdiffusion complex pose</strong></td>
+      <td style="padding:.4rem .6rem">Backbone only (poly-Gly)</td>
+      <td style="padding:.4rem .6rem">Full-atom</td>
+      <td style="padding:.4rem .6rem">Topology, docking mode</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Threaded complex</strong> (viewer)</td>
+      <td style="padding:.4rem .6rem">Backbone only (designed seq.)</td>
+      <td style="padding:.4rem .6rem">Full-atom</td>
+      <td style="padding:.4rem .6rem">Visual inspection</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>ESMFold binder</strong></td>
+      <td style="padding:.4rem .6rem">Full-atom (sidechains)</td>
+      <td style="padding:.4rem .6rem">—</td>
+      <td style="padding:.4rem .6rem">Sidechain geometry, single chain</td>
+    </tr>
+    <tr>
+      <td style="padding:.4rem .6rem"><strong>Superimposed ESMFold-on-complex</strong></td>
+      <td style="padding:.4rem .6rem">Full-atom (sidechains)</td>
+      <td style="padding:.4rem .6rem">Full-atom</td>
+      <td style="padding:.4rem .6rem">Full contact analysis ✓</td>
+    </tr>
+  </table>
+</div>
+
+<p>For the analysis below, we superimposed each ESMFold-predicted binder (full sidechains) onto the RFdiffusion docked geometry via Cα alignment (RMSD 0.24–1.46 Å, median 0.67 Å), giving a two-chain complex with all heavy atoms on both sides. This is the correct setup for a standard 4.5 Å heavy-atom contact cutoff. Across 31 designs, the analysis found 499 binder–target contact pairs, 76 of which occur at specified hotspot positions.</p>
 
 <div class="aside" style="border-left-color:var(--coral);background:var(--coral-light)">
-  <div class="aside-label" style="color:var(--coral)">Read before interpreting — these structures are not energy-minimized</div>
-  <p><strong>The full pipeline is: RFdiffusion → ProteinMPNN → ESMFold.</strong> ESMFold produces a full-atom model with real sidechains, but in a single forward pass — no force-field relaxation has been applied. In practical terms, this means sidechain rotamers are ESMFold's best guess, not physically optimized conformations. A contact classified as a hydrogen bond may have the wrong donor–acceptor angle. A hydrophobic contact may be a steric clash in reality. An "exact match" to native PD-1 is not meaningful if the sidechain is pointing the wrong way.</p>
-  <p>The reliable signal here is <strong>topological</strong>: which regions of the PD-L1 surface are being approached, and how consistently. For chemically accurate contact descriptions, these structures need energy minimization followed by short molecular dynamics equilibration — that is exactly what the next installment (Part 4) addresses. We run fingerprinting first because it is CPU-only and takes minutes, while MD requires GPU time per structure. The results here inform which designs are worth that investment.</p>
+  <div class="aside-label" style="color:var(--coral)">One caveat, stated once</div>
+  <p>These results are reliable for <strong>topology and triage</strong> — identifying which surface regions are engaged and which designs deserve further investment. They are not reliable for energetics: sidechain rotamers are unoptimized, contact types are inferred from residue identity, and no force field has been applied. Energetic interpretation requires MD (Part 4).</p>
 </div>
 
 <!-- ── Question 1: Where do they dock? ── -->
-<h3 style="margin-top:2rem">Which PD-L1 residues are contacted?</h3>
-<p>The first question is topological: regardless of what hotspot residues we <em>told</em> RFdiffusion to target, which PD-L1 residues did the designs actually approach? The chart below shows the fraction of passing designs in each hotspot configuration that make contact at each PD-L1 residue position.</p>
+<h3 style="margin-top:2rem">Where do the designs actually land on PD-L1?</h3>
+<p>Regardless of which hotspot residues were specified, where does RFdiffusion place the binder? Let's start with the contact frequency across PD-L1 residues. Figure 2 makes the answer clear: the designs are not landing randomly.</p>
 
-<div class="chart-card full" style="background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:1rem 0">
+<div class="figure">
+<div class="chart-card full" style="background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:0">
   <canvas id="chartContactFreq" style="max-height:260px"></canvas>
+</div>
+<p class="figure-caption"><strong>Figure 2.</strong> Contact frequency by PD-L1 residue, full-sidechain analysis. For each residue on PD-L1 (x-axis), bars show the fraction of passing designs per hotspot configuration that make at least one heavy-atom contact (≤ 4.5 Å). n = 16, 7, and 8 designs for Cluster A, B, and Distributed respectively.</p>
 </div>
 
 <div class="finding green">
-  <p><strong>Residues 120 and 121 are a convergent docking site.</strong> PD-L1 Gly120 was approached by 87.5% of Cluster A, 71.4% of Cluster B, and 87.5% of Distributed designs. Residue 121 was contacted by 62.5%, 71.4%, and 100% respectively — the most consistently contacted position across all conditions. Neither residue is a specified hotspot in any condition. This convergence suggests that RFdiffusion is finding a genuine low-energy binding mode on the PD-L1 surface, independent of the hotspot residues it was instructed to target. In the native crystal structure, this region sits at the edge of the PD-1 binding interface — the model appears to be rediscovering it from scratch.</p>
+  <p><strong>Residues 119–121 are a convergent docking region.</strong> Residue 120 is contacted by 94% of Cluster A designs, 100% of Cluster B, and 100% of Distributed. Residues 119 and 121 track the same pattern. None are specified hotspots in any condition — the model finds this patch on its own. That's a good sign: all three hotspot configurations converge on the same preferred PD-L1 surface, which overlaps with the edge of the native PD-1 binding footprint.</p>
 </div>
 
-<div class="finding coral">
-  <p><strong>Cluster B specified hotspots: 0% coverage.</strong> The five Cluster B hotspot residues (Asp26, Tyr56, Arg113, Tyr123, Arg125) are aromatic/charged residues in the central and C-terminal region of the PD-L1 interface. None of the 7 passing Cluster B designs contacted any of them. Those designs <em>do</em> contact PD-L1 — primarily at residues 61 (85.7%), 120 (71.4%), and 121 (71.4%) — but at positions entirely outside their specified set. The Cluster B residues may define a binding geometry that is difficult for RFdiffusion to satisfy with a compact backbone, or the specified residues may be geometrically incompatible with a single contiguous binding surface.</p>
-</div>
+<h3 style="margin-top:2rem">Did the designs contact their specified hotspots?</h3>
+<p>Let's test whether the hotspot guidance actually worked. For each design, what fraction of its specified hotspot residues are contacted?</p>
 
-<!-- ── Question 2: Hotspot coverage ── -->
-<h3 style="margin-top:2rem">How well are the specified hotspots covered?</h3>
-<p>For each design, we ask: of the hotspot residues that were explicitly given to RFdiffusion for that condition, what fraction were actually contacted by the designed binder? This is the most direct measure of whether the model obeyed the design specification.</p>
-
-<div class="chart-grid" style="margin:1rem 0">
+<div class="figure">
+<div class="chart-grid" style="margin:0">
   <div class="chart-card">
-    <h3>Mean coverage by config</h3>
+    <h3>Mean hotspot coverage</h3>
     <canvas id="chartCoverage"></canvas>
   </div>
   <div class="chart-card">
-    <h3>Per-design coverage</h3>
+    <h3>Coverage by representation</h3>
     <canvas id="chartCoverageDist"></canvas>
   </div>
 </div>
-
-<div class="finding amber">
-  <p><strong>Overall coverage is low: 17.3% ± 15.4%.</strong> Cluster A achieves 26.6% mean coverage (its 4 hotspots include Gly120, which sits in the convergent docking zone). Cluster B is 0%. Distributed covers 14.1% despite specifying 8 residues. This is a real finding about the limits of hotspot-guided diffusion: specifying target residues biases backbone placement, but does not guarantee contact — especially when the specified residues span a geometry that no single compact binder can reach simultaneously.</p>
+<p class="figure-caption"><strong>Figure 3.</strong> Hotspot coverage by configuration. <em>Left:</em> mean percentage of specified hotspot residues contacted (full-sidechain analysis). <em>Right:</em> comparison between backbone-only and full-sidechain representations — illustrating why full-atom structures matter for contact analysis. See Appendix for the coverage formula.</p>
 </div>
 
-<!-- ── Question 3: Mimicry ── -->
-<h3 style="margin-top:2rem">Do the designs mimic PD-1, or find new solutions?</h3>
-<p>At each hotspot position where a designed binder makes contact, we compare the designed residue to the native PD-1 residue at the same position. Three outcomes are possible: <strong>exact match</strong> (same amino acid), <strong>same class</strong> (different amino acid but same physicochemical class — e.g., both hydrophobic), or <strong>novel solution</strong> (different class entirely). This tells us whether the model is rediscovering known biology or exploring new chemical space.</p>
+<div class="finding amber">
+  <p><strong>Coverage is partial but real.</strong> Cluster A reaches 40.6%, Distributed 23.4%, Cluster B 11.4%. The pattern makes sense: coverage is highest where the specified hotspots overlap with the convergent 119–121 docking region (Cluster A includes residue 121), and lowest where specified residues sit far from it (Cluster B). Hotspot guidance biases where the backbone lands, but sidechains are what actually bridge the last few angstroms to the target.</p>
+</div>
 
-<div class="chart-grid" style="margin:1rem 0">
+<h3 style="margin-top:2rem">Are the designs reinventing PD-1, or finding something new?</h3>
+<p>At each hotspot contact, we compare the designed residue to the native PD-1 residue at the same PD-L1 position: exact match (same amino acid), same class (same physicochemical group), or novel (different class). See the Appendix for the classification logic.</p>
+
+<div class="figure">
+<div class="chart-grid" style="margin:0">
   <div class="chart-card">
-    <h3>Overall mimicry (48 contacts)</h3>
+    <h3>Overall mimicry (76 contacts)</h3>
     <canvas id="chartMimicryPie" style="max-height:240px"></canvas>
   </div>
   <div class="chart-card">
@@ -294,53 +356,165 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
     <canvas id="chartMimicry"></canvas>
   </div>
 </div>
-
-<div class="finding blue">
-  <p><strong>89.6% novel solutions — expected, but not trivial.</strong> De novo binders are not constrained to use native-like chemistry, so a high novel fraction is expected. What makes this interesting is the 2 exact matches: both occur at Asp122 on PD-L1, where the designed binder places an Asn — exactly what native PD-1 does at that position. Asp–Asn is one of the most conserved hydrogen-bonding pairs in PPI interfaces. The fact that ProteinMPNN independently converges on this solution, at this position, is a meaningful sanity check: the sequence design model is recovering known biophysical logic where the geometry supports it.</p>
+<p class="figure-caption"><strong>Figure 4.</strong> PD-1 mimicry at hotspot positions. <em>Left:</em> overall distribution across 76 full-sidechain hotspot contacts. <em>Right:</em> breakdown by hotspot configuration. Cluster B contributes only 4 contacts — too few for a reliable percentage. Native PD-1 contacts drawn from 4ZQK.</p>
 </div>
 
-<p>The 3 same-class matches (6.3%) also cluster at positions where the native PD-1 contact is hydrophobic — the easiest class to substitute within. The remaining 89.6% novel solutions are not a failure; they are the expected outcome when a de novo backbone approaches the target from a different angle than PD-1. Novel does not mean wrong — it means the contact has not been validated against the native reference.</p>
+<div class="finding blue">
+  <p><strong>About half novel, half native-like — a meaningful sanity check.</strong> 48.7% of hotspot contacts are novel (different physicochemical class from PD-1), 40.8% are same-class, and 10.5% are exact amino acid matches (8 contacts, concentrated in Cluster A and Distributed). The backbone-only first pass had reported 89.6% novel — which made the designs look like they were ignoring native chemistry entirely. With full sidechains, the picture flips: ProteinMPNN is placing residues that recapitulate PD-1-like interactions wherever the backbone geometry supports it. It's not generating random sequences at the interface.</p>
+</div>
 
-<!-- ── Question 4: Interaction types ── -->
-<h3 style="margin-top:2rem">What types of interactions are being made?</h3>
-<p>Contact type classification is based on the physicochemical classes of the two contacting residues: a charged–charged pair is classified as a potential salt bridge, a polar–charged pair as a potential hydrogen bond, two hydrophobic residues as a hydrophobic contact, and so on. Mixed contacts involve residues from different classes where no specific directional interaction is expected.</p>
+<h3 style="margin-top:2rem">What kind of chemistry is happening at the interface?</h3>
+<p>We classify each contact by the physicochemical classes of the two residues involved. These are <em>potential</em> interaction types inferred from residue identity — not geometrically confirmed. See the Appendix for classification rules.</p>
 
-<div class="chart-card full" style="background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:1rem 0">
+<div class="figure">
+<div class="chart-card full" style="background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:0">
   <canvas id="chartIntTypes" style="max-height:300px"></canvas>
+</div>
+<p class="figure-caption"><strong>Figure 5.</strong> Interaction type distribution by configuration (full-sidechain analysis). Native PD-1 contacts (4ZQK) shown for reference. Interaction types are inferred from residue physicochemistry, not atomic geometry — see Appendix.</p>
 </div>
 
 <div class="finding coral" style="margin-top:1rem">
-  <p><strong>The hydrogen bond gap is the clearest signal in this analysis.</strong> Native PD-1 uses 20% hydrogen bonds and 6.5% salt bridges — directional, specific interactions that define binding affinity and selectivity. The designed binders use 0–7% hydrogen bonds and are dominated by "mixed" contacts (55–78%). This pattern is consistent across all three hotspot configurations. Hydrogen bonds require precise donor–acceptor geometry that is unlikely to emerge from unoptimized structures, so some of this gap may close after energy minimization. But it also reflects a real tendency of ProteinMPNN: the model favors Ala-rich sequences (visible in the designed sequences above), which limits the chemical repertoire available for directional contacts.</p>
+  <p><strong>The interaction profile is much closer to native than it first appeared.</strong> H-bonds: 7.5–10.1% (up from 0–7% backbone-only), salt bridges: 10.1–15.0% (up from 0–1%), mixed contacts: 42–46% (down from 55–78%, approaching native PD-1's 39%). A hydrogen bond gap persists — native PD-1 uses 19.4% — consistent with ProteinMPNN's known preference for Ala-rich sequences. Interestingly, the designs now <em>exceed</em> native salt bridge frequency (10–15% vs 6.5%). That could be real or could be an ESMFold rotamer artifact. MD will tell.</p>
 </div>
 
-<p>The dominance of hydrophobic contacts in Distributed designs (42.4%) is worth noting — it suggests those binders are packing against PD-L1 via nonspecific surface complementarity rather than specific polar interactions. This is not inherently bad (many natural PPIs have significant hydrophobic character), but it does raise the question of specificity: a binder that relies entirely on shape complementarity may bind promiscuously.</p>
+<!-- ── CONCLUSION: From analysis to experiment ── -->
+<h2>From fingerprinting to experimental strategy</h2>
+<p>This analysis is not an end in itself. The real payoff is what it tells you about how to design the next experiment.</p>
 
-<!-- ── WHY THIS MATTERS: Library design ── -->
-<h2>Why interaction types matter beyond the model</h2>
-<p>This analysis is not just a validation exercise. Understanding <em>which types of interactions</em> the model favors — and which it fails to produce — has direct implications for how you would translate these designs into an experimental campaign.</p>
-
-<p>Consider ultra-high-throughput screening (uHTS) library design. Modern combinatorial libraries use defined triplet codons to restrict each position to specific subsets of amino acids. If the fingerprinting analysis tells you that positions X, Y, and Z on the binder consistently make hydrophobic contacts with the target, you can restrict those positions to hydrophobic residues (Ala, Val, Leu, Ile, Phe) rather than encoding all 20 amino acids. Conversely, if position W requires a hydrogen-bond donor (as the Asn at Asp122 suggests), you restrict to Asn, Gln, Ser, Thr.</p>
+<p>The clearest application is combinatorial library design. Modern screening libraries use defined triplet codons to restrict each position to specific amino acid subsets. The fingerprint tells you which subsets to choose. Positions that consistently make hydrophobic contacts get restricted to Ala, Val, Leu, Ile, Phe. Positions where a hydrogen-bond donor matters get restricted to Asn, Gln, Ser, Thr. This is chemically informed diversity: you trade sequence complexity for higher odds of hitting functional chemistry.</p>
 
 <div class="callout">
-  <p><strong>The practical payoff:</strong> a fully randomized 6-position library with all 20 amino acids encodes 20<sup>6</sup> = 64 million variants. If fingerprinting narrows each position to 4–5 residues, the library drops to ~15,000–80,000 variants — screening that in a well-plate format instead of requiring phage display. Lower diversity, higher fidelity, higher hit rates. The interaction fingerprint is what tells you which positions to restrict and which residue classes to allow.</p>
+  <p><strong>Quantifying the reduction:</strong> a fully randomised 6-position library encodes 20<sup>6</sup> = 64 million variants. Restricting each position to 4–5 residues based on the fingerprint drops the theoretical space to ~15,000–80,000 variants. That still exceeds plate-based capacity (~10<sup>3</sup>–10<sup>4</sup>), but it is tractable for phage or yeast display — and the resulting hits are more likely to be chemically meaningful. The fingerprint doesn't replace screening; it makes the search space smaller and more principled.</p>
+  <p style="margin-top:.5rem">There's an additional lever. Where the H-bond gap is the concern, you can deliberately encode polar and charged residues at interface positions — compensating for ProteinMPNN's Ala bias with wet-lab diversity, and filling in the interaction chemistry the model under-represents.</p>
 </div>
 
-<p>This is where the hydrogen bond gap becomes actionable. If the computational designs are under-representing directional interactions, you can deliberately encode polar and charged residues at interface positions in the screening library — compensating for the model's Ala bias with wet-lab diversity. The fingerprinting analysis does not just validate the pipeline; it informs the next experimental step.</p>
+<!-- ── TAKEAWAY ── -->
+<div class="callout" style="border-left:3px solid var(--accent);background:var(--accent-light);margin-top:2rem">
+  <p style="font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);margin-bottom:.5rem;font-weight:600">Bottom line</p>
+  <p style="color:var(--tx);font-size:.95rem">Interface fingerprinting moved this project from structural filtering to experimental prioritisation. The designs converge on a preferred PD-L1 surface, partially recover specified hotspots, and show a more native-like interaction profile than the first-pass analysis indicated. None of this proves binding. What it does is turn generative design outputs into experimentally testable hypotheses — and identify which designs and interface positions are worth the investment of molecular dynamics and wet-lab library construction.</p>
+</div>
 
-<!-- ── WHAT "NOT MINIMIZED" MEANS ── -->
-<h2>What's next: why these structures need molecular dynamics</h2>
+<!-- ── WHAT'S NEXT ── -->
+<h2>What's next: energy minimization and molecular dynamics</h2>
 
-<p>Throughout this analysis, we have flagged a critical limitation: <strong>none of these structures have been energy-minimized.</strong> This is worth unpacking, because it defines the boundary between what the current analysis can and cannot tell us.</p>
-
-<p>A protein structure at the atomic level is described by the positions of every atom. In a real protein, those positions settle into a local energy minimum — a configuration where the forces on every atom are approximately balanced. Bond lengths are correct, van der Waals contacts are favorable, hydrogen bonds have the right geometry, and there are no steric clashes (atoms overlapping).</p>
-
-<p>ESMFold does not produce structures at an energy minimum. It predicts a plausible fold from the amino acid sequence using a learned potential, but it does not apply a physics-based force field. The result is a structure that <em>looks right</em> at the backbone level (hence the high pLDDT scores) but may have problems at the atomic level: sidechain rotamers that would be strained, contacts that are too close or too far, hydrogen bonds where the donor and acceptor are misaligned.</p>
+<p>The fingerprinting results are a starting point, not an endpoint. The ESMFold structures are unoptimized — sidechain rotamers are predictions, not physically relaxed conformations. A contact we classify as a hydrogen bond may have the wrong donor–acceptor geometry. A salt bridge may be a clash. The numbers are reliable for topology and triage; they are not reliable for energetic interpretation.</p>
 
 <div class="aside">
-  <div class="aside-label">What energy minimization and MD simulation do</div>
-  <p><strong>Energy minimization</strong> takes the ESMFold structure and iteratively adjusts atomic positions to reduce the total potential energy — resolving steric clashes, optimizing bond angles, and settling sidechains into realistic rotameric states. This is a gradient descent on the potential energy surface: it finds the nearest local minimum, not a global one.</p>
-  <p><strong>Molecular dynamics (MD) simulation</strong> goes further: it adds kinetic energy (temperature) and solvent (explicit water molecules), then integrates Newton's equations of motion over time. A short MD run (10–50 ns) lets the structure breathe — flexible loops move, sidechains repack, and contacts that are truly stable persist while transient ones disappear. After MD, the fingerprinting analysis can be re-run on the equilibrated structures, and the interaction type classifications become physically meaningful.</p>
-  <p>The next installment (Part 4) applies both steps to the top-ranked designs identified here: energy minimization to fix the atomic-level geometry, followed by short MD trajectories to assess which binder–target contacts are stable under thermal motion. The fingerprinting results from this page serve as the pre-MD baseline — and the comparison between pre- and post-MD contacts will reveal which of these predicted interactions are real.</p>
+  <div class="aside-label">What Part 4 adds</div>
+  <p><strong>Energy minimization</strong> resolves steric clashes and settles sidechains into realistic rotameric states — finding the nearest local energy minimum from the ESMFold starting point. <strong>Molecular dynamics</strong> goes further: it runs the structure in explicit solvent at physiological temperature, letting contacts that are truly stable persist and transient ones dissolve. After MD, the fingerprinting analysis can be re-run on equilibrated structures, and the interaction classifications become physically meaningful.</p>
+  <p>Part 4 applies both steps to the top-ranked designs identified here. The fingerprinting results from this page define the pre-MD baseline and determine which designs are worth the GPU investment.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- APPENDIX: DEFINITIONS & METHODOLOGY                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<h2>Appendix: definitions &amp; methodology</h2>
+<p>The metrics on this page are easy to miscommunicate. This section defines every term, specifies the atomic representations used, and provides explicit formulae.</p>
+
+<h3 style="margin-top:1.5rem">Atomic representation</h3>
+<div class="aside">
+  <div class="aside-label">Which atoms are present on each chain?</div>
+  <p><strong>Target (PD-L1, chain A):</strong> Full-atom representation from the RFdiffusion complex pose PDB. All backbone atoms (N, CA, C, O) and all sidechain heavy atoms are present. Hydrogens are excluded.</p>
+  <p><strong>Binder (chain B) — backbone-only analysis:</strong> The original notebook 07 analysis used the RFdiffusion complex pose, where the binder chain is poly-glycine. Only backbone heavy atoms (N, CA, C, O) are present. Glycine has no sidechain beyond H atoms.</p>
+  <p><strong>Binder (chain B) — full-sidechain analysis:</strong> ESMFold-predicted binder structures (single-chain, full heavy atoms including all sidechain atoms) are superimposed onto the binder backbone of the RFdiffusion complex pose via Cα least-squares alignment. The superimposed ESMFold binder is then paired with the PD-L1 target chain from the complex pose. This gives a two-chain complex with full heavy atoms on both sides, in the docked geometry.</p>
+</div>
+
+<h3 style="margin-top:1.5rem">Contact definition</h3>
+<div class="callout">
+  <p>Two residues are <strong>in contact</strong> if any heavy atom (non-hydrogen) on residue <em>i</em> of the binder is within <strong>d ≤ 4.5 Å</strong> of any heavy atom on residue <em>j</em> of the target.</p>
+  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
+    contact(i, j) = 1 &nbsp;if&nbsp; min<sub>a∈atoms(i), b∈atoms(j)</sub> ‖a − b‖ ≤ 4.5 Å<br>
+    contact(i, j) = 0 &nbsp;otherwise
+  </p>
+  <p style="margin-top:.5rem">Each binder–target residue pair is counted once regardless of how many atom pairs satisfy the distance criterion. The 4.5 Å cutoff is a standard heavy-atom contact threshold in structural biology (see Venkatakrishnan et al., <em>Nature</em> 2013).</p>
+</div>
+
+<h3 style="margin-top:1.5rem">Contact frequency</h3>
+<div class="callout">
+  <p>For a given PD-L1 residue <em>j</em> and hotspot configuration <em>c</em>:</p>
+  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
+    contact_frequency(j, c) = (number of designs in config <em>c</em> that contact residue <em>j</em>) / (total designs in config <em>c</em>) × 100%
+  </p>
+  <p style="margin-top:.5rem">A design "contacts" residue <em>j</em> if any of its binder residues is in contact with <em>j</em> (as defined above).</p>
+</div>
+
+<h3 style="margin-top:1.5rem">Hotspot coverage</h3>
+<div class="callout">
+  <p>For a single design <em>d</em> with specified hotspot set <em>H<sub>c</sub></em>:</p>
+  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
+    coverage(d) = |{j ∈ H<sub>c</sub> : ∃ binder residue <em>i</em> such that contact(i, j) = 1}| / |H<sub>c</sub>| × 100%
+  </p>
+  <p style="margin-top:.5rem">In plain language: what fraction of the design's <em>specified</em> hotspot residues are actually contacted by at least one binder residue? The hotspot sets are: Cluster A = {54, 56, 121, 123}, Cluster B = {26, 56, 113, 123, 125}, Distributed = {19, 20, 54, 56, 66, 117, 121, 123}.</p>
+  <p style="margin-top:.5rem">Mean coverage per configuration is the arithmetic mean of coverage(d) across all designs in that configuration.</p>
+</div>
+
+<h3 style="margin-top:1.5rem">PD-1 mimicry</h3>
+<div class="callout">
+  <p>At each hotspot position <em>j</em> where a designed binder makes contact, the designed binder residue's amino acid is compared to the native PD-1 residue that contacts the same PD-L1 position in crystal structure 4ZQK:</p>
+  <p style="margin-top:.5rem"><strong>Exact match:</strong> same amino acid identity (e.g., both Asn at PD-L1 Asp122).</p>
+  <p><strong>Same class:</strong> different amino acid, same physicochemical class (hydrophobic, aromatic, polar, or charged — see classification table below).</p>
+  <p><strong>Novel:</strong> different physicochemical class from native PD-1.</p>
+  <p style="margin-top:.5rem">This is assessed per contact pair, not per design. A single design can contribute multiple mimicry classifications at different hotspot positions.</p>
+</div>
+
+<h3 style="margin-top:1.5rem">Interaction type classification</h3>
+<div class="callout">
+  <p>Each contacting residue is assigned a physicochemical class based on its amino acid identity:</p>
+  <table style="width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.85rem">
+    <tr style="border-bottom:2px solid var(--bg3)">
+      <th style="text-align:left;padding:.4rem .6rem">Class</th>
+      <th style="text-align:left;padding:.4rem .6rem">Amino acids</th>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Hydrophobic</strong></td>
+      <td style="padding:.4rem .6rem">Ala, Val, Leu, Ile, Met, Pro, Gly</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Aromatic</strong></td>
+      <td style="padding:.4rem .6rem">Phe, Trp, Tyr</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Polar</strong></td>
+      <td style="padding:.4rem .6rem">Ser, Thr, Asn, Gln, Cys</td>
+    </tr>
+    <tr>
+      <td style="padding:.4rem .6rem"><strong>Charged</strong></td>
+      <td style="padding:.4rem .6rem">Asp, Glu, Lys, Arg, His</td>
+    </tr>
+  </table>
+  <p>The interaction type for a binder–target contact pair is then determined by the combination of the two residue classes:</p>
+  <table style="width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.85rem">
+    <tr style="border-bottom:2px solid var(--bg3)">
+      <th style="text-align:left;padding:.4rem .6rem">Interaction type</th>
+      <th style="text-align:left;padding:.4rem .6rem">Residue class pair</th>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Salt bridge</strong></td>
+      <td style="padding:.4rem .6rem">charged + charged</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Hydrogen bond</strong></td>
+      <td style="padding:.4rem .6rem">polar + polar, or polar + charged</td>
+    </tr>
+    <tr style="border-bottom:1px solid var(--bg2)">
+      <td style="padding:.4rem .6rem"><strong>Hydrophobic</strong></td>
+      <td style="padding:.4rem .6rem">hydrophobic + hydrophobic, hydrophobic + aromatic, or aromatic + aromatic</td>
+    </tr>
+    <tr>
+      <td style="padding:.4rem .6rem"><strong>Mixed</strong></td>
+      <td style="padding:.4rem .6rem">any other combination (e.g., polar + hydrophobic, charged + aromatic)</td>
+    </tr>
+  </table>
+  <p style="margin-top:.5rem"><strong>Important caveat:</strong> this classification is based on residue identity, not on the actual geometry of the interaction. A residue pair classified as "hydrogen bond" means the physicochemical classes are compatible with H-bonding — it does not mean the donor–acceptor geometry is correct. True H-bond validation requires energy minimization and geometric criteria (distance ≤ 3.5 Å, angle ≥ 120°). These are <em>potential</em> interaction types, not validated ones.</p>
+</div>
+
+<h3 style="margin-top:1.5rem">Superposition method</h3>
+<div class="callout">
+  <p>ESMFold binder structures are aligned to the RFdiffusion complex binder backbone using least-squares Cα superposition (Kabsch algorithm). The transformation that minimizes:</p>
+  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
+    RMSD = √( (1/N) Σ<sub>k=1..N</sub> ‖CA<sub>k</sub><sup>complex</sup> − R·CA<sub>k</sub><sup>esmfold</sup> − t‖² )
+  </p>
+  <p style="margin-top:.5rem">is applied to all atoms of the ESMFold binder (not just Cα). Alignment RMSDs ranged from 0.24 Å to 1.46 Å across the 31 designs (median 0.67 Å), confirming that ESMFold closely reproduces the RFdiffusion backbone geometry. Two designs with RMSD > 1.2 Å (ranks 28 and 31) should be interpreted with caution — the superimposed sidechain positions are less reliable at higher backbone deviation.</p>
 </div>
 
 <!-- References -->
@@ -419,7 +593,7 @@ let currentDesign = null;
 
 function initViewer() {
   const el = document.getElementById('mol-viewer');
-  viewer = $3Dmol.createViewer(el, {backgroundColor:'#ffffff', antialias:true});
+  viewer = $3Dmol.createViewer(el, {backgroundColor:'#0d1117', antialias:true});
 }
 
 function loadDesign(design) {
@@ -435,12 +609,22 @@ function loadDesign(design) {
   viewer.clear();
   surfaceVisible = false;
 
-  $3Dmol.download('url:' + url, viewer, {}, function() {
-    applyStyles();
-    viewer.zoomTo({chain:'B'});
-    viewer.render();
-    loading.classList.add('hidden');
-  });
+  fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+      return r.text();
+    })
+    .then(pdbData => {
+      viewer.addModel(pdbData, 'pdb');
+      applyStyles();
+      viewer.zoomTo({chain:'B'});
+      viewer.render();
+      loading.classList.add('hidden');
+    })
+    .catch(err => {
+      console.error('PDB fetch error:', err);
+      document.getElementById('loading-text').textContent = 'Error loading structure: ' + err.message;
+    });
 
   updateInfoPanel(design);
   highlightCard(design.rank);
@@ -581,17 +765,25 @@ const C = {accent:'#1d6b52',coral:'#c85a3a',blue:'#2e6da4',amber:'#b07818',purpl
 
 const FP = {
   contact_frequency:{
-    clusterA:{18:0.062,19:0.062,51:0.25,52:0.125,61:0.375,62:0.062,75:0.188,76:0.125,117:0.188,118:0.188,119:0.688,120:0.875,121:0.625,122:0.125,123:0.125},
-    clusterB:{51:0.143,52:0.143,61:0.857,76:0.143,117:0.143,120:0.714,121:0.714},
-    distributed:{51:0.25,52:0.125,61:0.25,120:0.875,121:1.0,122:0.25}
+    clusterA:{18:0.188,19:0.438,20:0.062,51:0.312,52:0.438,56:0.188,57:0.125,58:0.188,60:0.188,61:0.500,62:0.188,63:0.188,66:0.125,67:0.125,73:0.188,75:0.312,76:0.375,77:0.125,113:0.125,115:0.250,117:0.500,118:0.562,119:0.875,120:0.938,121:0.938,122:0.500,123:0.500,124:0.125},
+    clusterB:{19:0.286,51:0.857,52:0.714,56:0.286,60:0.714,61:1.0,62:0.571,63:0.286,66:0.143,76:0.429,115:0.286,117:0.286,118:0.571,119:1.0,120:1.0,121:1.0,122:0.857,123:0.286},
+    distributed:{50:0.125,51:0.500,52:0.500,57:0.125,58:0.250,60:0.625,61:0.875,62:0.250,63:0.250,66:0.125,113:0.125,115:0.375,118:0.250,119:0.625,120:1.0,121:1.0,122:0.750,123:0.625,124:0.250,125:0.125}
   },
-  hotspot_coverage:{clusterA:{mean:0.266,std:0.143,designs:[0,0,0.25,0.25,0.25,0.5,0.25,0.5,0,0.25,0.25,0.25,0.25,0.25,0,0.5]},clusterB:{mean:0.0,std:0.0,designs:[0,0,0,0,0,0,0]},distributed:{mean:0.141,std:0.08,designs:[0.125,0.125,0.25,0.125,0.125,0.125,0.125,0.125]}},
-  mimicry_by_config:{clusterA:{novel_solution:29,exact_match:2,same_class:1},clusterB:{novel_solution:6},distributed:{novel_solution:8,same_class:2}},
+  hotspot_coverage:{
+    clusterA:{mean:0.406,std:0.150},
+    clusterB:{mean:0.114,std:0.099},
+    distributed:{mean:0.234,std:0.041}
+  },
+  mimicry_by_config:{
+    clusterA:{novel:23,exact_match:5,same_class:17},
+    clusterB:{novel:3,same_class:1},
+    distributed:{novel:11,same_class:13,exact_match:3}
+  },
   interaction_types:{
-    native:{mixed:0.413,hydrophobic:0.283,hydrogen_bond:0.196,salt_bridge:0.065,aromatic_stacking:0.022,cation_pi:0.022},
-    clusterA:{mixed:0.782,hydrophobic:0.129,hydrogen_bond:0.069,cation_pi:0.01,salt_bridge:0.01},
-    clusterB:{mixed:0.556,hydrophobic:0.296,salt_bridge:0.111,hydrogen_bond:0.037},
-    distributed:{mixed:0.545,hydrophobic:0.424,salt_bridge:0.03}
+    native:{mixed:0.387,hydrophobic:0.323,hydrogen_bond:0.194,salt_bridge:0.065,aromatic:0.032},
+    clusterA:{mixed:0.422,hydrophobic:0.377,hydrogen_bond:0.101,salt_bridge:0.101},
+    clusterB:{mixed:0.450,hydrophobic:0.325,salt_bridge:0.150,hydrogen_bond:0.075},
+    distributed:{mixed:0.459,hydrophobic:0.315,salt_bridge:0.144,hydrogen_bond:0.081}
   }
 };
 
@@ -604,7 +796,9 @@ function showTab(btn, id) {
 
 // Contact freq
 (function(){
-  const allRes=[18,19,51,52,61,62,75,76,117,118,119,120,121,122,123];
+  const resSet=new Set();
+  ['clusterA','clusterB','distributed'].forEach(cfg=>{Object.keys(FP.contact_frequency[cfg]).forEach(r=>resSet.add(+r))});
+  const allRes=[...resSet].sort((a,b)=>a-b);
   const cfgColors=[C.blue,C.coral,C.amber];
   const datasets=['clusterA','clusterB','distributed'].map((cfg,i)=>({
     label:cfg==='clusterA'?'Cluster A':cfg==='clusterB'?'Cluster B':'Distributed',
@@ -618,39 +812,38 @@ function showTab(btn, id) {
 (function(){
   const configs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed'];
   const means=configs.map(c=>+(FP.hotspot_coverage[c].mean*100).toFixed(1));
-  new Chart(document.getElementById('chartCoverage'),{type:'bar',data:{labels,datasets:[{label:'Mean coverage %',data:means,backgroundColor:[C.blue+'bb',C.coral+'bb',C.amber+'bb'],borderColor:[C.blue,C.coral,C.amber],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:50,ticks:{callback:v=>v+'%'},title:{display:true,text:'% hotspots contacted'}}}}});
+  new Chart(document.getElementById('chartCoverage'),{type:'bar',data:{labels,datasets:[{label:'Mean coverage %',data:means,backgroundColor:[C.blue+'bb',C.coral+'bb',C.amber+'bb'],borderColor:[C.blue,C.coral,C.amber],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'},title:{display:true,text:'% hotspots contacted'}}}}});
 })();
 
-// Coverage distribution
+// Coverage comparison: backbone-only vs full-sidechain
 (function(){
-  const all=[[...FP.hotspot_coverage.clusterA.designs],[...FP.hotspot_coverage.clusterB.designs],[...FP.hotspot_coverage.distributed.designs]];
   const labels=['Cluster A','Cluster B','Distributed'];
-  const colors=[C.blue,C.coral,C.amber];
-  const datasets=all.map((d,i)=>({label:labels[i],data:d.map((v,j)=>({x:j,y:+(v*100).toFixed(0)})),backgroundColor:colors[i]+'88',borderColor:colors[i],borderWidth:1.5,pointRadius:5,showLine:false}));
-  new Chart(document.getElementById('chartCoverageDist'),{type:'scatter',data:{datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}},scales:{x:{display:false},y:{beginAtZero:true,max:110,ticks:{callback:v=>v+'%'},title:{display:true,text:'Coverage %'}}}}});
+  const bbData=[26.6,0.0,14.1];
+  const fsData=[40.6,11.4,23.4];
+  new Chart(document.getElementById('chartCoverageDist'),{type:'bar',data:{labels,datasets:[{label:'Backbone-only',data:bbData,backgroundColor:C.purple+'66',borderColor:C.purple,borderWidth:1.5,borderRadius:3},{label:'Full sidechain',data:fsData,backgroundColor:C.accent+'bb',borderColor:C.accent,borderWidth:1.5,borderRadius:3}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'},title:{display:true,text:'Mean hotspot coverage %'}}}}});
 })();
 
 // Mimicry pie
 (function(){
-  const cats={exact_match:2,same_class:3,novel_solution:43};
-  const colors={exact_match:C.accent,same_class:C.blue,novel_solution:C.coral};
-  new Chart(document.getElementById('chartMimicryPie'),{type:'doughnut',data:{labels:['Exact match','Same class','Novel solution'],datasets:[{data:Object.values(cats),backgroundColor:Object.keys(cats).map(k=>colors[k]+'cc'),borderColor:Object.keys(cats).map(k=>colors[k]),borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}}}});
+  const cats={exact_match:8,same_class:31,novel:37};
+  const colors={exact_match:C.accent,same_class:C.blue,novel:C.coral};
+  new Chart(document.getElementById('chartMimicryPie'),{type:'doughnut',data:{labels:['Exact match','Same class','Novel'],datasets:[{data:Object.values(cats),backgroundColor:Object.keys(cats).map(k=>colors[k]+'cc'),borderColor:Object.keys(cats).map(k=>colors[k]),borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}}}});
 })();
 
 // Mimicry stacked bar
 (function(){
   const configs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed'];
-  const cats=['exact_match','same_class','novel_solution'];
-  const catColors={exact_match:C.accent,same_class:C.blue,novel_solution:C.coral};
-  const catLabels={exact_match:'Exact match',same_class:'Same class',novel_solution:'Novel solution'};
+  const cats=['exact_match','same_class','novel'];
+  const catColors={exact_match:C.accent,same_class:C.blue,novel:C.coral};
+  const catLabels={exact_match:'Exact match',same_class:'Same class',novel:'Novel'};
   const datasets=cats.map(cat=>({label:catLabels[cat],data:configs.map(cfg=>{const d=FP.mimicry_by_config[cfg]||{};const tot=Object.values(d).reduce((a,b)=>a+b,0)||1;return +((d[cat]||0)/tot*100).toFixed(1);}),backgroundColor:catColors[cat]+'cc',borderColor:catColors[cat],borderWidth:1,borderRadius:0}));
   new Chart(document.getElementById('chartMimicry'),{type:'bar',data:{labels,datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}},scales:{x:{stacked:true},y:{stacked:true,max:100,ticks:{callback:v=>v+'%'}}}}});
 })();
 
 // Interaction types
 (function(){
-  const intTypes=['mixed','hydrophobic','hydrogen_bond','salt_bridge','aromatic_stacking','cation_pi'];
-  const intLabels={mixed:'Mixed',hydrophobic:'Hydrophobic',hydrogen_bond:'H-bond',salt_bridge:'Salt bridge',aromatic_stacking:'π-stack',cation_pi:'Cation-π'};
+  const intTypes=['mixed','hydrophobic','hydrogen_bond','salt_bridge','aromatic'];
+  const intLabels={mixed:'Mixed',hydrophobic:'Hydrophobic',hydrogen_bond:'H-bond',salt_bridge:'Salt bridge',aromatic:'Aromatic'};
   const sources=['native','clusterA','clusterB','distributed'];
   const srcLabels={native:'Native PD-1',clusterA:'Cluster A',clusterB:'Cluster B',distributed:'Distributed'};
   const srcColors={native:C.purple,clusterA:C.blue,clusterB:C.coral,distributed:C.amber};
