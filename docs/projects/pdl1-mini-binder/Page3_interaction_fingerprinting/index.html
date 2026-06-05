@@ -6,6 +6,7 @@
 <title>Structure & Interface Analysis — PD-L1 Mini Binder Design</title>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/3dmol@2.1.0/build/3Dmol-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -16,36 +17,29 @@
   --blue:#2e6da4;--blue-light:#e6f0fa;
   --amber:#b07818;--amber-light:#faf0da;
   --purple:#6b4c9a;--purple-light:#ede6f5;
-  --mono:"JetBrains Mono",monospace;
-  --sans:"DM Sans",system-ui,sans-serif;
-  --serif:"Source Serif 4",Georgia,serif;
+  --mono:"JetBrains Mono",monospace;--sans:"DM Sans",system-ui,sans-serif;--serif:"Source Serif 4",Georgia,serif;
   --radius:6px;--radius-lg:10px;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
 .page{max-width:960px;margin:0 auto;padding:2rem 1.5rem 4rem}
-
 .series-banner{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;padding:.75rem 1rem;background:var(--accent-light);border-radius:var(--radius);border-left:3px solid var(--accent);flex-wrap:wrap}
 .series-banner .tag{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
 .series-banner a{font-size:.85rem;color:var(--accent2);font-weight:500;text-decoration:none;border-bottom:1px dashed var(--accent)}
 .series-banner .sep{color:var(--accent);opacity:.4}
-
 h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
 h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
 h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:0 0 .5rem}
 p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+ul{color:var(--tx2)}
 .subtitle{font-size:1.05rem;color:var(--tx3);font-family:var(--serif);font-style:italic;margin-bottom:2rem}
 code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em .4em;border-radius:3px}
-.sup{font-size:.7em;vertical-align:super;color:var(--accent);font-family:var(--mono)}
-
-.aside{background:var(--purple-light);border:1px solid rgba(107,76,154,.15);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin:1.5rem 0;font-size:.88rem}
-.aside .aside-label{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--purple);margin-bottom:.5rem;font-weight:500}
-.aside p{margin-bottom:.5rem;color:var(--tx2)}
-.aside p:last-child{margin-bottom:0}
-.callout{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0}
-.callout p{margin-bottom:.5rem}
-.callout p:last-child{margin-bottom:0}
+a{color:var(--accent);text-decoration:none}
+.callout,.aside{border-radius:var(--radius-lg);padding:1.15rem 1.35rem;margin:1.25rem 0}
+.callout{background:var(--bg2);border:1px solid var(--bg3)}
+.aside{background:var(--purple-light);border:1px solid rgba(107,76,154,.15);font-size:.88rem}
+.aside .aside-label,.callout .label{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--purple);margin-bottom:.5rem;font-weight:600}
 .figure{margin:1.25rem 0}
-.figure-caption{font-size:.8rem;color:var(--tx3);margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--bg3);font-family:var(--sans);line-height:1.5}
+.figure-caption{font-size:.8rem;color:var(--tx3);margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--bg3);line-height:1.5}
 .figure-caption strong{color:var(--tx2);font-weight:600}
 .finding{margin:1rem 0;padding:1rem 1.25rem;border-radius:var(--radius);border-left:3px solid var(--accent)}
 .finding.coral{border-left-color:var(--coral);background:var(--coral-light)}
@@ -53,24 +47,17 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .finding.green{border-left-color:var(--accent);background:var(--accent-light)}
 .finding.amber{border-left-color:var(--amber);background:var(--amber-light)}
 .finding p{margin-bottom:0;font-size:.88rem}
-.finding strong{color:var(--tx)}
-
-/* ── VIEWER LAYOUT ── */
 .viewer-layout{display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;margin:1.5rem 0}
 @media(max-width:780px){.viewer-layout{grid-template-columns:1fr}}
-
 .viewer-wrap{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);overflow:hidden;position:relative}
-#mol-viewer{width:100%;height:500px;position:relative;background:#0d1117}
+#mol-viewer{width:100%;height:500px;position:relative;background:#ffffff}
 .viewer-controls{display:flex;gap:.5rem;padding:.75rem 1rem;background:var(--bg2);border-top:1px solid var(--bg3);flex-wrap:wrap;align-items:center}
-.vc-btn{font-family:var(--sans);font-size:.75rem;font-weight:500;padding:.3rem .7rem;border-radius:var(--radius);border:1px solid var(--bg3);background:#fff;color:var(--tx2);cursor:pointer;transition:all .15s}
-.vc-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
-.vc-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.viewer-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0d1117;color:#8a8878;font-size:.85rem;font-family:var(--sans);gap:.5rem;z-index:10}
+.vc-btn,.filter-btn{font-family:var(--sans);font-size:.75rem;font-weight:500;padding:.3rem .7rem;border-radius:var(--radius);border:1px solid var(--bg3);background:#fff;color:var(--tx2);cursor:pointer;transition:all .15s}
+.vc-btn:hover,.vc-btn.active,.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.viewer-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#ffffff;color:#8a8878;font-size:.85rem;gap:.5rem;z-index:10}
 .viewer-loading.hidden{display:none}
 .spinner{width:18px;height:18px;border:2px solid #2d3748;border-top-color:#1d6b52;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* Design info panel */
 .design-info{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem}
 .di-rank{font-family:var(--mono);font-size:.7rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem}
 .di-name{font-family:var(--mono);font-size:.78rem;font-weight:500;color:var(--tx);margin-bottom:.75rem;word-break:break-all;line-height:1.4}
@@ -78,34 +65,21 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .di-metric{background:var(--bg2);border-radius:var(--radius);padding:.4rem .6rem}
 .di-metric .val{font-family:var(--mono);font-size:1rem;font-weight:500;color:var(--accent2)}
 .di-metric .lbl{font-size:.65rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em}
-.di-badges{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.75rem}
-.badge{display:inline-block;padding:.15rem .5rem;border-radius:99px;font-size:.68rem;font-weight:500;font-family:var(--mono)}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:99px;font-size:.68rem;font-weight:500;font-family:var(--mono);margin:.1rem}
 .badge-clusterA{background:var(--blue-light);color:var(--blue)}
 .badge-clusterB{background:var(--coral-light);color:var(--coral)}
 .badge-distributed{background:var(--amber-light);color:var(--amber)}
-.badge-len{background:var(--bg2);color:var(--tx3)}
-.badge-noise{background:var(--purple-light);color:var(--purple)}
-.di-seq-wrap{margin-top:.75rem}
-.di-seq-lbl{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
-.di-seq{font-family:var(--mono);font-size:.68rem;line-height:1.5;color:var(--tx2);word-break:break-all;background:var(--bg2);padding:.5rem;border-radius:var(--radius);max-height:90px;overflow-y:auto}
-.di-note{font-size:.72rem;color:var(--tx3);margin-top:.5rem;font-style:italic}
-
-/* Color legend */
+.badge-len,.badge-noise{background:var(--bg2);color:var(--tx3)}
 .legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.75rem 0}
 .legend-item{display:flex;align-items:center;gap:.35rem;font-size:.78rem;color:var(--tx2)}
 .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-
-/* ── DESIGN GRID ── */
 .grid-controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
-.filter-btn{font-family:var(--sans);font-size:.75rem;font-weight:500;padding:.3rem .75rem;border-radius:99px;border:1.5px solid var(--bg3);background:#fff;color:var(--tx3);cursor:pointer;transition:all .15s}
-.filter-btn:hover{border-color:var(--accent);color:var(--accent)}
-.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.filter-btn{border-radius:99px}
 .filter-btn.blue.active{background:var(--blue);border-color:var(--blue)}
 .filter-btn.coral.active{background:var(--coral);border-color:var(--coral)}
 .filter-btn.amber.active{background:var(--amber);border-color:var(--amber)}
 .filter-sep{width:1px;height:20px;background:var(--bg3);flex-shrink:0}
 .grid-count{font-size:.78rem;color:var(--tx3);margin-left:auto}
-
 .design-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:.75rem;margin:1rem 0}
 .design-card{background:#fff;border:1.5px solid var(--bg3);border-radius:var(--radius-lg);padding:.85rem;cursor:pointer;transition:all .2s;position:relative}
 .design-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(29,107,82,.12);transform:translateY(-1px)}
@@ -117,36 +91,32 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .card-metric{flex:1;background:var(--bg2);border-radius:4px;padding:.25rem .35rem;text-align:center}
 .card-metric .v{font-family:var(--mono);font-size:.75rem;font-weight:600;color:var(--accent2)}
 .card-metric .l{font-size:.6rem;color:var(--tx3)}
-.card-badges{display:flex;gap:.25rem;flex-wrap:wrap}
 .card-hs-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius-lg) var(--radius-lg) 0 0}
-
-/* Fingerprinting section */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0}
 .chart-card{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem}
 .chart-card.full{grid-column:1/-1}
-.chart-card canvas{width:100%!important;max-height:280px}
+.chart-card canvas{width:100%!important;max-height:300px}
 @media(max-width:700px){.chart-grid{grid-template-columns:1fr}}
-
-.tab-row{display:flex;gap:.25rem;margin-bottom:1rem;border-bottom:2px solid var(--bg3)}
-.tab-btn{padding:.5rem 1rem;font-family:var(--sans);font-size:.82rem;font-weight:500;background:none;border:none;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
-.tab-btn.active{color:var(--accent2);border-bottom-color:var(--accent)}
-.tab-btn:hover{color:var(--tx)}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:.42rem .6rem;border-bottom:1px solid var(--bg3);vertical-align:top}
+th{color:var(--tx2);border-bottom:2px solid var(--bg3)}
+.workflow-box{margin:1.5rem 0;padding:1.25rem;background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg)}
+.workflow-title{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:.75rem;font-weight:600}
+.workflow-row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.75rem 0}
+.workflow-step{padding:.45rem .7rem;border:1px solid var(--bg3);border-radius:999px;background:var(--bg2);font-size:.75rem;color:var(--tx2);white-space:nowrap}
+.workflow-step.done{background:var(--accent-light);border-color:var(--accent);color:var(--accent2);font-weight:600}
+.workflow-step.current{background:var(--amber-light);border-color:var(--amber);color:var(--amber);font-weight:700;box-shadow:0 0 0 3px rgba(176,120,24,.12)}
+.workflow-step.next{background:var(--blue-light);border-color:var(--blue);color:var(--blue);font-weight:600}
+.workflow-arrow{color:var(--tx3);font-size:.85rem}
+.workflow-note{font-size:.78rem;color:var(--tx3);line-height:1.55;margin-top:.75rem}
+@media(max-width:700px){.workflow-row{display:block}.workflow-step{display:inline-block;margin:.25rem .15rem}.workflow-arrow{display:none}}
 .ref-section{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--bg3)}
-.ref-list{list-style:none;counter-reset:refcount}
-.ref-list li{counter-increment:refcount;padding:.4rem 0 .4rem 2.5rem;font-size:.8rem;color:var(--tx3);line-height:1.5;position:relative;border-bottom:1px solid var(--bg3)}
-.ref-list li::before{content:"["counter(refcount)"]";position:absolute;left:0;font-family:var(--mono);font-size:.72rem;color:var(--tx3)}
-.ref-list li a{color:var(--accent);word-break:break-all;text-decoration:none}
 .page-footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);text-align:center;color:var(--tx3);font-size:.8rem}
-.page-footer a{color:var(--accent);text-decoration:none}
 </style>
 </head>
 <body>
 <div class="page">
 
-<!-- Banner -->
 <div class="series-banner">
   <span class="tag">Structure & Interface Analysis</span>
   <span class="sep">|</span>
@@ -158,708 +128,1485 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <h1>Part 3: Structure & Interface Analysis</h1>
 <p class="subtitle">31 designs made it through the filter. Where do they land on PD-L1?</p>
 
-<p><strong>Previously, in Part 2:</strong> We swept three parameters — binder length, hotspot configuration, and noise scale — across 480 backbones and found that 31 designs pass structural filtering (pLDDT ≥ 70, RMSD ≤ 1.5 Å). Cluster A and 70-mers were the most productive conditions; Cluster B showed the highest pass rate but the fewest geometry-passing backbones. <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity/">Read Part 2 →</a></p>
-
-<p>That study told us <em>which conditions work</em>. This page asks the next question: do the 31 passing designs actually engage PD-L1 in a way that makes biological sense?</p>
+<p><strong>Previously, in Part 2:</strong> We swept binder length, hotspot configuration, and noise scale across 480 backbones. Thirty-one designs passed structural filtering. This page asks a pragmatic triage question: before spending more compute on minimization and MD, do those passing designs engage a coherent PD-L1 surface, recover intended hotspots, and form interfaces worth carrying forward?</p>
 
 <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0 2rem;font-size:.8rem;font-family:var(--mono)">
-  <a href="#" style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3);text-decoration:none">Page 1 — Pipeline overview</a>
-  <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/parameter-sensitivity/" style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3);text-decoration:none">Page 2 — Setup & parameter sensitivity</a>
+  <a href="#" style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3)">Page 1 — Pipeline overview</a>
+  <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/parameter-sensitivity/" style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3)">Page 2 — Setup & parameter sensitivity</a>
   <span style="padding:.25rem .6rem;background:var(--accent-light);border:1px solid var(--accent);border-radius:4px;color:var(--accent2);font-weight:600">Page 3 — Structure & interface analysis</span>
-  <span style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3);text-decoration:none">Page 4 — Energy minimization & MD</span>
+  <span style="padding:.25rem .6rem;background:var(--bg2);border:1px solid var(--bg3);border-radius:4px;color:var(--tx3)">Page 4 — Energy minimization & MD</span>
 </div>
 
 <div class="callout" style="border-left:3px solid var(--accent);background:var(--accent-light)">
-  <p style="font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);margin-bottom:.5rem;font-weight:600">What we found</p>
-  <ul style="margin:0;padding-left:1.2rem;color:var(--tx2);font-size:.9rem;line-height:1.8">
-    <li>All three hotspot configurations converge on the same PD-L1 surface patch (residues 119–121) — the designs are not landing randomly.</li>
-    <li>Hotspot coverage is partial: 40.6% for Cluster A, 23.4% for Distributed, 11.4% for Cluster B. Guidance biases backbone placement, but sidechains bridge the last few angstroms.</li>
-    <li>About half of hotspot contacts recover native PD-1 chemistry (same amino acid or same class), and the interaction profile is substantially more native-like than expected from de novo designs.</li>
-    <li>These results are reliable for triage and library design — not for energetics, which require MD (Part 4).</li>
+  <div class="label" style="color:var(--accent2)">What we found</div>
+  <ul style="margin:0;padding-left:1.2rem;font-size:.9rem;line-height:1.8">
+    <li>The 31 passing designs converge on a shared PD-L1 surface patch centered on residues 119–122. The designs are not landing randomly.</li>
+    <li>Hotspot recovery is partial: Cluster A 42.2%, Distributed 25.0%, Cluster B 11.4%.</li>
+    <li>Most hotspot contacts are chemically novel relative to native PD-1: 61.7% novel class, 30.9% same class, and 7.4% exact amino-acid match.</li>
+    <li>All buried surface areas (BSA, mean 648 Å²) are below the 1,200–2,000 Å² often seen in stable protein–protein interfaces. Because these are mini-binders of varying length, BSA should be interpreted alongside binder size and followed up after relaxation.</li>
+    <li>In the unrelaxed threaded full-sidechain models, no residue-pair contact has a sidechain–sidechain pair as its <em>closest</em> heavy-atom interaction. Considering this analysis was performed on pre-relaxed structures, this is not proof that sidechain–sidechain interactions cannot form after repacking or MD.</li>
+    <li>The current contact chemistry is useful for triage, but not final energetics. Ideally, the same fingerprinting workflow should be repeated after minimization and during MD.</li>
   </ul>
 </div>
 
-<!-- ── VIEWER ── -->
 <h2>First, let's look at the structures</h2>
-<p>Before any quantitative analysis, let's just look. Load a few designs from different hotspot configurations and see what jumps out. Do the binders sit flush against the PD-L1 surface, or are they detached? Do different configurations approach different parts of the target? Do the backbones look like compact helical bundles — or do any of them look collapsed or extended in ways that don't make physical sense?</p>
+<p>Before quantitative fingerprinting, let's inspect the structures. The viewer loads sequence-threaded complexes: RFdiffusion docked geometry with binder residues renamed to the ProteinMPNN-designed sequence. Chain B is the binder; chain A is PD-L1.</p>
 
-<div class="aside" style="margin-bottom:1rem">
+<div class="aside">
   <div class="aside-label">What you are looking at</div>
-  <p>These are <strong>sequence-threaded complexes</strong>: the RFdiffusion docked geometry with binder residues renamed to the ProteinMPNN-designed sequence. The binder (chain B) shows <strong>backbone atoms only</strong> — no sidechains. PD-L1 (chain A) is full-atom. Nothing is energy-minimized. Good for inspecting docking modes and backbone shape; not for drawing conclusions about sidechain contacts.</p>
+  <p>These are <strong>sequence-threaded complexes</strong>. The viewer is best for docking mode and backbone shape. It is not an energy-minimized full physical model, and sidechain energetics should not be inferred from this view alone.</p>
 </div>
 
 <div class="viewer-layout">
   <div class="viewer-wrap">
     <div id="mol-viewer">
-      <div class="viewer-loading" id="viewer-loading">
-        <div class="spinner"></div>
-        <span id="loading-text">Loading structure…</span>
-      </div>
+      <div class="viewer-loading" id="viewer-loading"><div class="spinner"></div><span id="loading-text">Loading structure…</span></div>
     </div>
     <div class="viewer-controls">
       <button class="vc-btn active" id="btn-cartoon" onclick="setStyle('cartoon')">Cartoon</button>
       <button class="vc-btn" id="btn-stick" onclick="setStyle('stick')">Stick</button>
-      <button class="vc-btn" id="btn-surface" onclick="toggleSurface()">Surface</button>
+      <button class="vc-btn" id="btn-surface" onclick="toggleSurface()">Binder surface</button>
+      <button class="vc-btn" id="btn-hotspots" onclick="toggleHotspots()">Show hotspots</button>
       <button class="vc-btn" onclick="resetView()">Reset view</button>
       <span style="flex:1"></span>
-      <span id="viewer-chain-note" style="font-size:.72rem;color:var(--tx3)">Chain B = binder · Chain A = PD-L1</span>
+      <span style="font-size:.72rem;color:var(--tx3)">Chain B = binder · Chain A = PD-L1 · hotspots are on target</span>
     </div>
   </div>
-
-  <div class="design-info" id="design-info">
+  <div class="design-info">
     <div class="di-rank" id="di-rank">Select a design</div>
-    <div class="di-name" id="di-name" style="color:var(--tx3)">Click any card below to load a structure</div>
+    <div class="di-name" id="di-name" style="color:var(--tx3)">Click any card below</div>
     <div class="di-metrics" id="di-metrics"></div>
-    <div class="di-badges" id="di-badges"></div>
-    <div class="di-seq-wrap" id="di-seq-wrap" style="display:none">
-      <div class="di-seq-lbl">Designed sequence (ProteinMPNN)</div>
-      <div class="di-seq" id="di-seq"></div>
-      <div class="di-note">ESMFold-predicted structure · not energy-minimized</div>
-    </div>
+    <div id="di-badges"></div>
+    <p style="font-size:.75rem;color:var(--tx3);margin-top:.75rem">Alignment RMSD is the Cα RMSD used to place the full-sidechain ESMFold binder onto the RFdiffusion complex.</p>
   </div>
 </div>
 
 <div class="legend">
   <span style="font-size:.75rem;color:var(--tx3);font-weight:600">Binder color:</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#2e6da4"></span>Cluster A (hydrophobic)</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#c85a3a"></span>Cluster B (aromatic/charged)</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#2e6da4"></span>Cluster A</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#c85a3a"></span>Cluster B</span>
   <span class="legend-item"><span class="legend-dot" style="background:#b07818"></span>Distributed</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#cccccc"></span>PD-L1 (gray surface)</span>
 </div>
-<p class="figure-caption" style="margin-top:.5rem"><strong>Figure 1.</strong> Interactive structure viewer. Chain B (binder, colored by hotspot configuration) docked against PD-L1 (chain A, gray). Structures are sequence-threaded complexes: backbone geometry from the RFdiffusion complex pose with binder residues renamed to the ProteinMPNN-designed sequence. Backbone atoms only on the binder chain; PD-L1 is full-atom. Not energy-minimized — sidechain conformations are not represented here.</p>
 
-<!-- ── DESIGN GRID ── -->
 <h2>All 31 passing designs</h2>
-<p>Ranked by RMSD (ascending). Each card shows pLDDT and RMSD — the two structural filter metrics. Click a card to load it in the viewer above. Use the filters to narrow by length, hotspot configuration, or noise scale.</p>
+<p>Ranked by Cα alignment RMSD of the full-sidechain ESMFold binder onto the RFdiffusion complex pose. Click a card to load the corresponding threaded complex above.</p>
 
 <div class="grid-controls">
-  <span style="font-size:.75rem;color:var(--tx3);font-weight:600;white-space:nowrap">Length:</span>
+  <span style="font-size:.75rem;color:var(--tx3);font-weight:600">Length:</span>
   <button class="filter-btn active" data-filter-len="all" onclick="filterGrid(this,'len','all')">All</button>
-  <button class="filter-btn" data-filter-len="25" onclick="filterGrid(this,'len','25')">25-mer</button>
-  <button class="filter-btn" data-filter-len="50" onclick="filterGrid(this,'len','50')">50-mer</button>
-  <button class="filter-btn" data-filter-len="70" onclick="filterGrid(this,'len','70')">70-mer</button>
-  <button class="filter-btn" data-filter-len="100" onclick="filterGrid(this,'len','100')">100-mer</button>
+  <button class="filter-btn" data-filter-len="25" onclick="filterGrid(this,'len','25')">25</button>
+  <button class="filter-btn" data-filter-len="50" onclick="filterGrid(this,'len','50')">50</button>
+  <button class="filter-btn" data-filter-len="70" onclick="filterGrid(this,'len','70')">70</button>
+  <button class="filter-btn" data-filter-len="100" onclick="filterGrid(this,'len','100')">100</button>
   <div class="filter-sep"></div>
-  <span style="font-size:.75rem;color:var(--tx3);font-weight:600;white-space:nowrap">Hotspot:</span>
-  <button class="filter-btn active blue" data-filter-hs="all" onclick="filterGrid(this,'hs','all')">All</button>
+  <span style="font-size:.75rem;color:var(--tx3);font-weight:600">Hotspot:</span>
+  <button class="filter-btn active" data-filter-hs="all" onclick="filterGrid(this,'hs','all')">All</button>
   <button class="filter-btn blue" data-filter-hs="clusterA" onclick="filterGrid(this,'hs','clusterA')">Cluster A</button>
   <button class="filter-btn coral" data-filter-hs="clusterB" onclick="filterGrid(this,'hs','clusterB')">Cluster B</button>
   <button class="filter-btn amber" data-filter-hs="distributed" onclick="filterGrid(this,'hs','distributed')">Distributed</button>
-  <div class="filter-sep"></div>
-  <span style="font-size:.75rem;color:var(--tx3);font-weight:600;white-space:nowrap">Noise:</span>
-  <button class="filter-btn active" data-filter-noise="all" onclick="filterGrid(this,'noise','all')">All</button>
-  <button class="filter-btn" data-filter-noise="0.0" onclick="filterGrid(this,'noise','0.0')">0.0</button>
-  <button class="filter-btn" data-filter-noise="0.5" onclick="filterGrid(this,'noise','0.5')">0.5</button>
   <span class="grid-count" id="grid-count">31 designs</span>
 </div>
-
 <div class="design-grid" id="design-grid"></div>
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- INTERACTION FINGERPRINTING                                    -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
 <h2>Interaction fingerprinting</h2>
-<p>The viewer gives us a qualitative feel. Now let's get quantitative. Interaction fingerprinting maps every residue-level contact between each passing binder and PD-L1, classifies them by chemistry, and compares the result to the native PD-1/PD-L1 interface (crystal structure 4ZQK). It answers the question: <strong>are these designs engaging PD-L1 in a way that resembles a real protein–protein interaction?</strong></p>
+<p>Interaction fingerprinting maps residue-level contacts between each passing binder and PD-L1, classifies contact chemistry, and compares hotspot contacts with the native PD-1/PD-L1 interface. The current analysis is deliberately a <strong>pre-relaxation triage analysis</strong>: it is useful for footprint convergence, approximate hotspot recovery, and prioritizing designs for minimization/MD, but fine-grained chemistry should be recomputed after relaxation.</p>
 
-<p>The answer depends on which atoms you include. The pipeline produces several representations of each design, and not all of them are appropriate for contact analysis. The table below lays out the distinctions — the short version is that fingerprinting should be performed on full-atom representations (all heavy atoms on both binder and target), not on backbone-only structures where sidechain-mediated contacts are invisible.</p>
-
-<div class="callout" style="margin:1.25rem 0">
-  <p style="font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:.75rem;font-weight:600">Know your representations</p>
-  <table style="width:100%;border-collapse:collapse;font-size:.85rem">
-    <tr style="border-bottom:2px solid var(--bg3)">
-      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Name</th>
-      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Binder atoms</th>
-      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Target atoms</th>
-      <th style="text-align:left;padding:.4rem .6rem;color:var(--tx2)">Good for</th>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>RFdiffusion complex pose</strong></td>
-      <td style="padding:.4rem .6rem">Backbone only (poly-Gly)</td>
-      <td style="padding:.4rem .6rem">Full-atom</td>
-      <td style="padding:.4rem .6rem">Topology, docking mode</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Threaded complex</strong> (viewer)</td>
-      <td style="padding:.4rem .6rem">Backbone only (designed seq.)</td>
-      <td style="padding:.4rem .6rem">Full-atom</td>
-      <td style="padding:.4rem .6rem">Visual inspection</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>ESMFold binder</strong></td>
-      <td style="padding:.4rem .6rem">Full-atom (sidechains)</td>
-      <td style="padding:.4rem .6rem">—</td>
-      <td style="padding:.4rem .6rem">Sidechain geometry, single chain</td>
-    </tr>
-    <tr>
-      <td style="padding:.4rem .6rem"><strong>Superimposed ESMFold-on-complex</strong></td>
-      <td style="padding:.4rem .6rem">Full-atom (sidechains)</td>
-      <td style="padding:.4rem .6rem">Full-atom</td>
-      <td style="padding:.4rem .6rem">Full contact analysis ✓</td>
-    </tr>
+<div class="callout">
+  <table>
+    <tr><th>Configuration</th><th>Hotspot residues</th></tr>
+    <tr><td><strong>Cluster A</strong></td><td>18, 20, 120, 122</td></tr>
+    <tr><td><strong>Cluster B</strong></td><td>26, 56, 113, 123, 125</td></tr>
+    <tr><td><strong>Distributed</strong></td><td>18, 20, 26, 56, 113, 120, 122, 125</td></tr>
   </table>
 </div>
 
-<p>For the analysis below, we superimposed each ESMFold-predicted binder (full sidechains) onto the RFdiffusion docked geometry via Cα alignment (RMSD 0.24–1.46 Å, median 0.67 Å), giving a two-chain complex with all heavy atoms on both sides. This is the correct setup for a standard 4.5 Å heavy-atom contact cutoff. Across 31 designs, the analysis found 499 binder–target contact pairs, 76 of which occur at specified hotspot positions.</p>
-
-<div class="aside" style="border-left-color:var(--coral);background:var(--coral-light)">
-  <div class="aside-label" style="color:var(--coral)">One caveat, stated once</div>
-  <p>These results are reliable for <strong>topology and triage</strong> — identifying which surface regions are engaged and which designs deserve further investment. They are not reliable for energetics: sidechain rotamers are unoptimized, contact types are inferred from residue identity, and no force field has been applied. Energetic interpretation requires MD (Part 4).</p>
+<div class="aside" style="border-left:3px solid var(--coral);background:var(--coral-light)">
+  <div class="aside-label" style="color:var(--coral)">Representation caveat</div>
+  <p>The full-sidechain analysis superimposes ESMFold binder structures onto the RFdiffusion complex by Cα alignment, then measures heavy-atom residue contacts at a 4.5 Å cutoff. This is appropriate for topology and triage. It is not a force-field-relaxed energetic model, and sidechains were not packed in the context of PD-L1.</p>
 </div>
 
-<!-- ── Question 1: Where do they dock? ── -->
 <h3 style="margin-top:2rem">Where do the designs actually land on PD-L1?</h3>
-<p>Regardless of which hotspot residues were specified, where does RFdiffusion place the binder? Let's start with the contact frequency across PD-L1 residues. Figure 2 makes the answer clear: the designs are not landing randomly.</p>
+<p>The designs converge strongly on the PD-L1 region centered around residues 119–122. Residue 120 is contacted by 93.8% of Cluster A designs and 100% of Cluster B and Distributed designs.</p>
 
 <div class="figure">
-<div class="chart-card full" style="background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:0">
-  <canvas id="chartContactFreq" style="max-height:260px"></canvas>
-</div>
-<p class="figure-caption"><strong>Figure 2.</strong> Contact frequency by PD-L1 residue, full-sidechain analysis. For each residue on PD-L1 (x-axis), bars show the fraction of passing designs per hotspot configuration that make at least one heavy-atom contact (≤ 4.5 Å). n = 16, 7, and 8 designs for Cluster A, B, and Distributed respectively.</p>
+  <div class="chart-card full"><canvas id="chartContactFreq"></canvas></div>
+  <p class="figure-caption"><strong>Figure 1.</strong> Contact frequency by PD-L1 residue. Bars show the fraction of designs in each hotspot configuration contacting each residue at least once. For small groups, 100% means 7/7 Cluster B designs or 8/8 Distributed designs, not a large-sample estimate.</p>
 </div>
 
 <div class="finding green">
-  <p><strong>Residues 119–121 are a convergent docking region.</strong> Residue 120 is contacted by 94% of Cluster A designs, 100% of Cluster B, and 100% of Distributed. Residues 119 and 121 track the same pattern. None are specified hotspots in any condition — the model finds this patch on its own. That's a good sign: all three hotspot configurations converge on the same preferred PD-L1 surface, which overlaps with the edge of the native PD-1 binding footprint.</p>
+  <p><strong>The docking footprint is convergent.</strong> Residues 119–122 dominate across all three hotspot strategies. That is a strong pre-relaxation sanity check: the designs are finding a common PD-L1 surface rather than scattering across the target.</p>
 </div>
 
 <h3 style="margin-top:2rem">Did the designs contact their specified hotspots?</h3>
-<p>Let's test whether the hotspot guidance actually worked. For each design, what fraction of its specified hotspot residues are contacted?</p>
+<p>Hotspot coverage is real but incomplete. Cluster A performs best, Distributed is intermediate, and Cluster B recovers specified hotspots poorly.</p>
 
 <div class="figure">
-<div class="chart-grid" style="margin:0">
-  <div class="chart-card">
-    <h3>Mean hotspot coverage</h3>
-    <canvas id="chartCoverage"></canvas>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Mean hotspot coverage</h3><canvas id="chartCoverage"></canvas></div>
+    <div class="chart-card"><h3>Backbone-only vs full-sidechain</h3><canvas id="chartCoverageCompare"></canvas></div>
   </div>
-  <div class="chart-card">
-    <h3>Coverage by representation</h3>
-    <canvas id="chartCoverageDist"></canvas>
-  </div>
-</div>
-<p class="figure-caption"><strong>Figure 3.</strong> Hotspot coverage by configuration. <em>Left:</em> mean percentage of specified hotspot residues contacted (full-sidechain analysis). <em>Right:</em> comparison between backbone-only and full-sidechain representations — illustrating why full-atom structures matter for contact analysis. See Appendix for the coverage formula.</p>
+  <p class="figure-caption"><strong>Figure 2.</strong> Hotspot coverage using the RFdiffusion hotspot definitions. Full-sidechain analysis increases apparent coverage because sidechains bridge contacts invisible in backbone-only structures. This comparison is useful for triage, but contact chemistry should be repeated after relaxation.</p>
 </div>
 
 <div class="finding amber">
-  <p><strong>Coverage is partial but real.</strong> Cluster A reaches 40.6%, Distributed 23.4%, Cluster B 11.4%. The pattern makes sense: coverage is highest where the specified hotspots overlap with the convergent 119–121 docking region (Cluster A includes residue 121), and lowest where specified residues sit far from it (Cluster B). Hotspot guidance biases where the backbone lands, but sidechains are what actually bridge the last few angstroms to the target.</p>
+  <p><strong>Coverage is partial, not binary.</strong> Cluster A reaches 42.2%, Distributed 25.0%, and Cluster B 11.4%. The designs often land near the intended interface but do not recover all specified target residues. Cluster B appears to make larger but less epitope-faithful contact patches.</p>
 </div>
 
-<h3 style="margin-top:2rem">Are the designs reinventing PD-1, or finding something new?</h3>
-<p>At each hotspot contact, we compare the designed residue to the native PD-1 residue at the same PD-L1 position: exact match (same amino acid), same class (same physicochemical group), or novel (different class). See the Appendix for the classification logic.</p>
+<h3 style="margin-top:2rem">Are the designs reinventing PD-1?</h3>
+<p>Not really. At hotspot-contact positions with a native PD-1 comparator, most designed residues are chemically distinct from native PD-1. This is not unexpected — there are multiple ways to achieve similar interactions. This makes them de novo hypotheses rather than PD-1 mimetics.</p>
 
 <div class="figure">
-<div class="chart-grid" style="margin:0">
-  <div class="chart-card">
-    <h3>Overall mimicry (76 contacts)</h3>
-    <canvas id="chartMimicryPie" style="max-height:240px"></canvas>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Overall mimicry, 81 contacts</h3><canvas id="chartMimicryPie"></canvas></div>
+    <div class="chart-card"><h3>Mimicry by hotspot config</h3><canvas id="chartMimicry"></canvas></div>
   </div>
-  <div class="chart-card">
-    <h3>Mimicry by hotspot config</h3>
-    <canvas id="chartMimicry"></canvas>
-  </div>
-</div>
-<p class="figure-caption"><strong>Figure 4.</strong> PD-1 mimicry at hotspot positions. <em>Left:</em> overall distribution across 76 full-sidechain hotspot contacts. <em>Right:</em> breakdown by hotspot configuration. Cluster B contributes only 4 contacts — too few for a reliable percentage. Native PD-1 contacts drawn from 4ZQK.</p>
+  <p class="figure-caption"><strong>Figure 3.</strong> PD-1 mimicry at hotspot positions. Categories compare designed binder residue chemistry with native PD-1 residues contacting the same PD-L1 position in 4ZQK. This is a sequence/chemistry comparison, not a binding-energy estimate.</p>
 </div>
 
 <div class="finding blue">
-  <p><strong>About half novel, half native-like — a meaningful sanity check.</strong> 48.7% of hotspot contacts are novel (different physicochemical class from PD-1), 40.8% are same-class, and 10.5% are exact amino acid matches (8 contacts, concentrated in Cluster A and Distributed). The backbone-only first pass had reported 89.6% novel — which made the designs look like they were ignoring native chemistry entirely. With full sidechains, the picture flips: ProteinMPNN is placing residues that recapitulate PD-1-like interactions wherever the backbone geometry supports it. It's not generating random sequences at the interface.</p>
+  <p><strong>The corrected result is more novel than the earlier draft suggested.</strong> Across 81 hotspot contacts, 61.7% are novel class, 30.9% preserve the same physicochemical class, and 7.4% are exact amino-acid matches. ProteinMPNN partially recovers native-compatible chemistry, but most hotspot contacts are chemically distinct from PD-1.</p>
 </div>
 
 <h3 style="margin-top:2rem">What kind of chemistry is happening at the interface?</h3>
-<p>We classify each contact by the physicochemical classes of the two residues involved. These are <em>potential</em> interaction types inferred from residue identity — not geometrically confirmed. See the Appendix for classification rules.</p>
+<p>Interaction types are residue-class compatibility labels, not geometrically validated interactions. “H-bond-compatible” means the residue identities could support that interaction if the geometry is correct. Charged–charged contacts may be attractive, repulsive, or solvent-exposed depending on sign, geometry, and environment. MD or geometric filters are needed to validate them.</p>
 
 <div class="figure">
-<div class="chart-card full" style="background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:0">
-  <canvas id="chartIntTypes" style="max-height:300px"></canvas>
-</div>
-<p class="figure-caption"><strong>Figure 5.</strong> Interaction type distribution by configuration (full-sidechain analysis). Native PD-1 contacts (4ZQK) shown for reference. Interaction types are inferred from residue physicochemistry, not atomic geometry — see Appendix.</p>
+  <div class="chart-card full"><canvas id="chartIntTypes"></canvas></div>
+  <p class="figure-caption"><strong>Figure 4.</strong> Simplified interaction compatibility profile compared with native PD-1/PD-L1. These are pre-relaxation residue-class labels, not confirmed hydrogen bonds or salt bridges.</p>
 </div>
 
-<div class="finding coral" style="margin-top:1rem">
-  <p><strong>The interaction profile is much closer to native than it first appeared.</strong> H-bonds: 7.5–10.1% (up from 0–7% backbone-only), salt bridges: 10.1–15.0% (up from 0–1%), mixed contacts: 42–46% (down from 55–78%, approaching native PD-1's 39%). A hydrogen bond gap persists — native PD-1 uses 19.4% — consistent with ProteinMPNN's known preference for Ala-rich sequences. Interestingly, the designs now <em>exceed</em> native salt bridge frequency (10–15% vs 6.5%). That could be real or could be an ESMFold rotamer artifact. MD will tell.</p>
+<div class="finding coral">
+  <p><strong>The chemistry labels are hypothesis-generating only.</strong> Native PD-1/PD-L1 has 17.4% H-bond-compatible contacts; the designs range from 7.5–10.1%. Charged–charged pairs are enriched relative to native in all three design groups, but this does not establish productive salt bridges without sign and geometry validation after relaxation.</p>
 </div>
 
-<!-- ── CONCLUSION: From analysis to experiment ── -->
+<h2>Interface quality beyond residue contacts</h2>
+<p>Residue contacts tell us where the designs land. Extended metrics ask whether those contacts form substantial and geometrically plausible interfaces. These metrics are most useful here as triage features; the chemically detailed analysis should be repeated on minimized structures.</p>
+
+<div class="figure">
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Buried surface area</h3><canvas id="chartBSA"></canvas></div>
+    <div class="chart-card"><h3>Normal-complementarity proxy</h3><canvas id="chartProxy"></canvas></div>
+  </div>
+  <p class="figure-caption"><strong>Figure 5.</strong> Extended interface metrics. BSA is computed with BioPython Shrake–Rupley. Normal-complementarity is a custom proxy, not validated Lawrence–Colman Sc. Raw BSA should be interpreted alongside binder length and repeated after relaxation.</p>
+</div>
+
+<div class="finding blue">
+  <p><strong>Cluster B makes larger but less hotspot-faithful interfaces.</strong> Cluster B has the largest mean BSA in this set (697 Å²), even though it contacts specified hotspots poorly. However, all three configurations bury well below the 1,200–2,000 Å² often seen in stable protein–protein interfaces. These are measurable but small contact patches, not mature binding interfaces.</p>
+</div>
+
+<div class="finding amber">
+  <p><strong>The interface-packing proxy remains below native.</strong> The designs average 0.178 on the custom normal-complementarity proxy, compared with 0.287 for native PD-1/PD-L1.</p>
+</div>
+
+<div class="figure">
+  <div class="chart-card full"><canvas id="chartAtomAnatomy"></canvas></div>
+  <p class="figure-caption"><strong>Figure 6.</strong> Closest atom-pair anatomy. Each contacting residue pair is represented by its single closest heavy-atom pair. This does not count all atom-pair contacts; it describes the nearest contact geometry for each residue pair.</p>
+</div>
+
+<div class="finding coral">
+  <p><strong>Nearest-contact anatomy is a pre-relaxation warning signal, not final interface chemistry.</strong> In the threaded full-sidechain models, no designed residue-pair contact had a sidechain–sidechain pair as its closest heavy-atom interaction. Instead, nearest contacts were dominated by binder-sidechain to PD-L1-backbone pairs. Cluster B showed the same pattern despite having the largest mean BSA. Because these complexes have not yet been sidechain-repacked or energy-minimized, this should not be interpreted as proof that the designs cannot form sidechain–sidechain interactions after relaxation. Some SC-BB contacts may represent legitimate sidechain-to-backbone hydrogen-bond candidates, while others may disappear after minimization or MD. The right next test is to repeat this analysis after minimization and during MD.</p>
+</div>
+
 <h2>From fingerprinting to experimental strategy</h2>
-<p>This analysis is not an end in itself. The real payoff is what it tells you about how to design the next experiment.</p>
+<p>This analysis turns the design set into experimentally testable hypotheses. The binders converge on a plausible PD-L1 surface, but hotspot recovery is partial and most hotspot chemistry is novel. That argues against treating these designs as PD-1 mimetics. Instead, they should be treated as de novo interface starting points.</p>
 
-<p>The clearest application is combinatorial library design. Modern screening libraries use defined triplet codons to restrict each position to specific amino acid subsets. The fingerprint tells you which subsets to choose. Positions that consistently make hydrophobic contacts get restricted to Ala, Val, Leu, Ile, Phe. Positions where a hydrogen-bond donor matters get restricted to Asn, Gln, Ser, Thr. This is chemically informed diversity: you trade sequence complexity for higher odds of hitting functional chemistry.</p>
+<div class="callout" style="border-left:3px solid var(--accent);background:var(--accent-light)">
+  <div class="label" style="color:var(--accent2)">Bottom line</div>
+  <p style="color:var(--tx);font-size:.95rem">Interface fingerprinting moved this project from structural filtering to design triage. The 31 passing designs converge on a shared PD-L1 surface patch centered on residues 119–122, indicating that the design process is not producing random docking modes. However, hotspot recovery is partial, interfaces are small relative to typical protein–protein interfaces, and most hotspot-contact chemistry is not PD-1-like. The absence of sidechain–sidechain nearest contacts in the unrelaxed threaded models raises a useful question about whether these helical binders are making shallow, backbone-facing contacts rather than well-packed sidechain interfaces. That question cannot be answered from the current models alone and should be revisited after energy minimization and MD.</p>
+</div>
 
+<h2>A design lesson: topology may limit the interface</h2>
+
+<p>One broader hypothesis from this analysis is that mini-binder topology may impose limits on what kinds of protein surfaces are easy to engage. Most of these designs are compact, helical binders. That topology is attractive because helices are stable, designable, and easy for current generative models to produce. But helices also have geometric constraints: they are relatively stiff, locally regular structures. They do not easily kink, fold back, or wrap around a target surface without disrupting the very secondary structure that makes them stable.</p>
+
+<p>That matters for interface design. A compact helical bundle may be well suited to engaging a shallow patch or presenting a small number of sidechains into a defined epitope. But it may be less capable of making extensive contacts across convex surfaces, irregular grooves, or deeper clefts where the binder needs to bend, flatten, or conform around the target. In this dataset, the designs converge on the PD-L1 surface and make measurable but small interfaces (mean BSA 648 Å²), hotspot recovery remains partial, and native PD-1-like chemistry is limited. The pre-relaxation nearest-contact anatomy raises a useful question: are these helical binders mostly presenting sidechain tips toward a target backbone ridge rather than forming a deeply packed, interdigitated interface?</p>
+
+<div class="aside" style="border-left-color:var(--amber);background:var(--amber-light)">
+  <div class="aside-label" style="color:var(--amber)">Speculative design implication</div>
+  <p>For some target surfaces, the right answer may not be “more filtering” or larger sample sizes of the same helical mini-binder topology. It may require a different binder architecture: loops, beta-rich scaffolds, repeat proteins, antibodies/nanobodies, or even intrinsically disordered regions that fold upon binding. In those cases, induced fit may be the relevant binding mechanism that enables high-affinity binding. The computational question then changes from “which rigid mini-binder docks best?” to “which scaffold class has the right physical degrees of freedom for this interface?”</p>
+</div>
+
+<p>This is not a conclusion proven by the current analysis, but a hypothesis supported by a consistent pre-relaxation pattern: coherent docking, partial hotspot recovery, limited native-chemistry mimicry, small buried surface areas, and a closest-contact anatomy that differs from native PD-1/PD-L1. The practical takeaway is that topology should be treated as a design variable, not just an output of the generative model.</p>
+
+<h2>Where this sits in the workflow</h2>
+<p>In a compute-unlimited workflow, detailed interaction chemistry should be measured after sidechain repacking, energy minimization, and molecular dynamics. Here, the goal was more pragmatic: before spending modest Colab-scale compute on all 31 passing designs, use pre-relaxation fingerprinting to decide which models are worth carrying forward.</p>
+
+<div class="workflow-box">
+  <div class="workflow-title">Ideal order of operations</div>
+  <div class="workflow-row">
+    <span class="workflow-step done">Generate backbones</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step done">Design sequences</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step done">Structure filter</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step">Sidechain repack / minimize</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step">Interaction fingerprinting</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step">MD persistence</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step">Experimental test</span>
+  </div>
+  <div class="workflow-note">This is the cleaner computational order: chemistry is interpreted only after the interface has been relaxed in the context of the target.</div>
+</div>
+
+<div class="workflow-box">
+  <div class="workflow-title">Resource-aware order used here</div>
+  <div class="workflow-row">
+    <span class="workflow-step done">Generate backbones</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step done">Design sequences</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step done">Structure filter: 31 pass</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step current">Pre-relaxation fingerprinting</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step next">Prioritize subset</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step next">Minimize / MD</span><span class="workflow-arrow">→</span>
+    <span class="workflow-step">Repeat interaction analysis</span>
+  </div>
+  <div class="workflow-note">This page is a triage step. Contact frequency, hotspot recovery, approximate BSA, and interface-anatomy flags help choose which designs deserve more expensive minimization and MD.</div>
+</div>
+
+<h2>What's next: minimization, MD, and repeated fingerprinting</h2>
+<p>The full-sidechain models analyzed here remain unrelaxed. A contact classified as H-bond-compatible may have the wrong donor–acceptor geometry; a charged pair may be attractive, repulsive, or solvent-exposed; and nearest-contact anatomy may change after sidechain repacking. The next step is therefore not just to run MD, but to repeat the same fingerprinting workflow after minimization and during MD.</p>
+
+<p>That repeated analysis is the key comparison: which contacts persist, which hotspots remain engaged, which apparent interactions disappear, and whether any designs develop more native-like sidechain packing after relaxation?</p>
+
+<h2>Appendix: definitions & methodology</h2>
 <div class="callout">
-  <p><strong>Quantifying the reduction:</strong> a fully randomised 6-position library encodes 20<sup>6</sup> = 64 million variants. Restricting each position to 4–5 residues based on the fingerprint drops the theoretical space to ~15,000–80,000 variants. That still exceeds plate-based capacity (~10<sup>3</sup>–10<sup>4</sup>), but it is tractable for phage or yeast display — and the resulting hits are more likely to be chemically meaningful. The fingerprint doesn't replace screening; it makes the search space smaller and more principled.</p>
-  <p style="margin-top:.5rem">There's an additional lever. Where the H-bond gap is the concern, you can deliberately encode polar and charged residues at interface positions — compensating for ProteinMPNN's Ala bias with wet-lab diversity, and filling in the interaction chemistry the model under-represents.</p>
+  <p><strong>Contact definition:</strong> two residues are in contact if any heavy atom on the binder residue is within 4.5 Å of any heavy atom on the PD-L1 residue. Each residue pair is counted once; the closest heavy-atom pair is retained for distance and atom-label reporting.</p>
+  <p><strong>Full-sidechain representation:</strong> ESMFold-predicted binder structures are superimposed onto the RFdiffusion docked binder backbone via Cα alignment, then paired with the PD-L1 target chain from the complex pose.</p>
+  <p><strong>Interaction labels:</strong> hydrophobic/aromatic, H-bond-compatible, charged–charged, and mixed are residue-class labels. They are not validated interaction geometries.</p>
+  <p><strong>Closest atom-pair anatomy:</strong> for each contacting residue pair, only the single closest heavy-atom pair is classified as BB-BB, BB-SC, SC-BB, or SC-SC. This does not enumerate all atom-pair contacts within the interface.</p>
+  <p><strong>Extended metrics:</strong> BSA uses BioPython Shrake–Rupley. Closest atom-pair anatomy classifies the nearest atom pair for each residue-pair contact. Interface normal-complementarity is a custom proxy, not validated Lawrence–Colman shape complementarity.</p>
 </div>
 
-<!-- ── TAKEAWAY ── -->
-<div class="callout" style="border-left:3px solid var(--accent);background:var(--accent-light);margin-top:2rem">
-  <p style="font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);margin-bottom:.5rem;font-weight:600">Bottom line</p>
-  <p style="color:var(--tx);font-size:.95rem">Interface fingerprinting moved this project from structural filtering to experimental prioritisation. The designs converge on a preferred PD-L1 surface, partially recover specified hotspots, and show a more native-like interaction profile than the first-pass analysis indicated. None of this proves binding. What it does is turn generative design outputs into experimentally testable hypotheses — and identify which designs and interface positions are worth the investment of molecular dynamics and wet-lab library construction.</p>
-</div>
-
-<!-- ── WHAT'S NEXT ── -->
-<h2>What's next: energy minimization and molecular dynamics</h2>
-
-<p>The fingerprinting results are a starting point, not an endpoint. The ESMFold structures are unoptimized — sidechain rotamers are predictions, not physically relaxed conformations. A contact we classify as a hydrogen bond may have the wrong donor–acceptor geometry. A salt bridge may be a clash. The numbers are reliable for topology and triage; they are not reliable for energetic interpretation.</p>
-
-<div class="aside">
-  <div class="aside-label">What Part 4 adds</div>
-  <p><strong>Energy minimization</strong> resolves steric clashes and settles sidechains into realistic rotameric states — finding the nearest local energy minimum from the ESMFold starting point. <strong>Molecular dynamics</strong> goes further: it runs the structure in explicit solvent at physiological temperature, letting contacts that are truly stable persist and transient ones dissolve. After MD, the fingerprinting analysis can be re-run on equilibrated structures, and the interaction classifications become physically meaningful.</p>
-  <p>Part 4 applies both steps to the top-ranked designs identified here. The fingerprinting results from this page define the pre-MD baseline and determine which designs are worth the GPU investment.</p>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- APPENDIX: DEFINITIONS & METHODOLOGY                           -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<h2>Appendix: definitions &amp; methodology</h2>
-<p>The metrics on this page are easy to miscommunicate. This section defines every term, specifies the atomic representations used, and provides explicit formulae.</p>
-
-<h3 style="margin-top:1.5rem">Atomic representation</h3>
-<div class="aside">
-  <div class="aside-label">Which atoms are present on each chain?</div>
-  <p><strong>Target (PD-L1, chain A):</strong> Full-atom representation from the RFdiffusion complex pose PDB. All backbone atoms (N, CA, C, O) and all sidechain heavy atoms are present. Hydrogens are excluded.</p>
-  <p><strong>Binder (chain B) — backbone-only analysis:</strong> The original notebook 07 analysis used the RFdiffusion complex pose, where the binder chain is poly-glycine. Only backbone heavy atoms (N, CA, C, O) are present. Glycine has no sidechain beyond H atoms.</p>
-  <p><strong>Binder (chain B) — full-sidechain analysis:</strong> ESMFold-predicted binder structures (single-chain, full heavy atoms including all sidechain atoms) are superimposed onto the binder backbone of the RFdiffusion complex pose via Cα least-squares alignment. The superimposed ESMFold binder is then paired with the PD-L1 target chain from the complex pose. This gives a two-chain complex with full heavy atoms on both sides, in the docked geometry.</p>
-</div>
-
-<h3 style="margin-top:1.5rem">Contact definition</h3>
-<div class="callout">
-  <p>Two residues are <strong>in contact</strong> if any heavy atom (non-hydrogen) on residue <em>i</em> of the binder is within <strong>d ≤ 4.5 Å</strong> of any heavy atom on residue <em>j</em> of the target.</p>
-  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
-    contact(i, j) = 1 &nbsp;if&nbsp; min<sub>a∈atoms(i), b∈atoms(j)</sub> ‖a − b‖ ≤ 4.5 Å<br>
-    contact(i, j) = 0 &nbsp;otherwise
-  </p>
-  <p style="margin-top:.5rem">Each binder–target residue pair is counted once regardless of how many atom pairs satisfy the distance criterion. The 4.5 Å cutoff is a standard heavy-atom contact threshold in structural biology (see Venkatakrishnan et al., <em>Nature</em> 2013).</p>
-</div>
-
-<h3 style="margin-top:1.5rem">Contact frequency</h3>
-<div class="callout">
-  <p>For a given PD-L1 residue <em>j</em> and hotspot configuration <em>c</em>:</p>
-  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
-    contact_frequency(j, c) = (number of designs in config <em>c</em> that contact residue <em>j</em>) / (total designs in config <em>c</em>) × 100%
-  </p>
-  <p style="margin-top:.5rem">A design "contacts" residue <em>j</em> if any of its binder residues is in contact with <em>j</em> (as defined above).</p>
-</div>
-
-<h3 style="margin-top:1.5rem">Hotspot coverage</h3>
-<div class="callout">
-  <p>For a single design <em>d</em> with specified hotspot set <em>H<sub>c</sub></em>:</p>
-  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
-    coverage(d) = |{j ∈ H<sub>c</sub> : ∃ binder residue <em>i</em> such that contact(i, j) = 1}| / |H<sub>c</sub>| × 100%
-  </p>
-  <p style="margin-top:.5rem">In plain language: what fraction of the design's <em>specified</em> hotspot residues are actually contacted by at least one binder residue? The hotspot sets are: Cluster A = {54, 56, 121, 123}, Cluster B = {26, 56, 113, 123, 125}, Distributed = {19, 20, 54, 56, 66, 117, 121, 123}.</p>
-  <p style="margin-top:.5rem">Mean coverage per configuration is the arithmetic mean of coverage(d) across all designs in that configuration.</p>
-</div>
-
-<h3 style="margin-top:1.5rem">PD-1 mimicry</h3>
-<div class="callout">
-  <p>At each hotspot position <em>j</em> where a designed binder makes contact, the designed binder residue's amino acid is compared to the native PD-1 residue that contacts the same PD-L1 position in crystal structure 4ZQK:</p>
-  <p style="margin-top:.5rem"><strong>Exact match:</strong> same amino acid identity (e.g., both Asn at PD-L1 Asp122).</p>
-  <p><strong>Same class:</strong> different amino acid, same physicochemical class (hydrophobic, aromatic, polar, or charged — see classification table below).</p>
-  <p><strong>Novel:</strong> different physicochemical class from native PD-1.</p>
-  <p style="margin-top:.5rem">This is assessed per contact pair, not per design. A single design can contribute multiple mimicry classifications at different hotspot positions.</p>
-</div>
-
-<h3 style="margin-top:1.5rem">Interaction type classification</h3>
-<div class="callout">
-  <p>Each contacting residue is assigned a physicochemical class based on its amino acid identity:</p>
-  <table style="width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.85rem">
-    <tr style="border-bottom:2px solid var(--bg3)">
-      <th style="text-align:left;padding:.4rem .6rem">Class</th>
-      <th style="text-align:left;padding:.4rem .6rem">Amino acids</th>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Hydrophobic</strong></td>
-      <td style="padding:.4rem .6rem">Ala, Val, Leu, Ile, Met, Pro, Gly</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Aromatic</strong></td>
-      <td style="padding:.4rem .6rem">Phe, Trp, Tyr</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Polar</strong></td>
-      <td style="padding:.4rem .6rem">Ser, Thr, Asn, Gln, Cys</td>
-    </tr>
-    <tr>
-      <td style="padding:.4rem .6rem"><strong>Charged</strong></td>
-      <td style="padding:.4rem .6rem">Asp, Glu, Lys, Arg, His</td>
-    </tr>
-  </table>
-  <p>The interaction type for a binder–target contact pair is then determined by the combination of the two residue classes:</p>
-  <table style="width:100%;border-collapse:collapse;margin:.75rem 0;font-size:.85rem">
-    <tr style="border-bottom:2px solid var(--bg3)">
-      <th style="text-align:left;padding:.4rem .6rem">Interaction type</th>
-      <th style="text-align:left;padding:.4rem .6rem">Residue class pair</th>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Salt bridge</strong></td>
-      <td style="padding:.4rem .6rem">charged + charged</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Hydrogen bond</strong></td>
-      <td style="padding:.4rem .6rem">polar + polar, or polar + charged</td>
-    </tr>
-    <tr style="border-bottom:1px solid var(--bg2)">
-      <td style="padding:.4rem .6rem"><strong>Hydrophobic</strong></td>
-      <td style="padding:.4rem .6rem">hydrophobic + hydrophobic, hydrophobic + aromatic, or aromatic + aromatic</td>
-    </tr>
-    <tr>
-      <td style="padding:.4rem .6rem"><strong>Mixed</strong></td>
-      <td style="padding:.4rem .6rem">any other combination (e.g., polar + hydrophobic, charged + aromatic)</td>
-    </tr>
-  </table>
-  <p style="margin-top:.5rem"><strong>Important caveat:</strong> this classification is based on residue identity, not on the actual geometry of the interaction. A residue pair classified as "hydrogen bond" means the physicochemical classes are compatible with H-bonding — it does not mean the donor–acceptor geometry is correct. True H-bond validation requires energy minimization and geometric criteria (distance ≤ 3.5 Å, angle ≥ 120°). These are <em>potential</em> interaction types, not validated ones.</p>
-</div>
-
-<h3 style="margin-top:1.5rem">Superposition method</h3>
-<div class="callout">
-  <p>ESMFold binder structures are aligned to the RFdiffusion complex binder backbone using least-squares Cα superposition (Kabsch algorithm). The transformation that minimizes:</p>
-  <p style="font-family:monospace;margin-top:.5rem;font-size:.85rem">
-    RMSD = √( (1/N) Σ<sub>k=1..N</sub> ‖CA<sub>k</sub><sup>complex</sup> − R·CA<sub>k</sub><sup>esmfold</sup> − t‖² )
-  </p>
-  <p style="margin-top:.5rem">is applied to all atoms of the ESMFold binder (not just Cα). Alignment RMSDs ranged from 0.24 Å to 1.46 Å across the 31 designs (median 0.67 Å), confirming that ESMFold closely reproduces the RFdiffusion backbone geometry. Two designs with RMSD > 1.2 Å (ranks 28 and 31) should be interpreted with caution — the superimposed sidechain positions are less reliable at higher backbone deviation.</p>
-</div>
-
-<!-- References -->
 <div class="ref-section">
 <h2 style="border-bottom:none;margin-bottom:.75rem">References</h2>
-<ol class="ref-list">
-  <li>Bennett, N.R. et al. "Improving de novo protein binder design with deep learning." <em>Nature Communications</em> 14, 2625 (2023). <a href="https://doi.org/10.1038/s41467-023-38328-5">doi:10.1038/s41467-023-38328-5</a></li>
-  <li>Watson, J.L. et al. "De novo design of protein structure and function with RFdiffusion." <em>Nature</em> 620, 1089–1100 (2023). <a href="https://doi.org/10.1038/s41586-023-06415-8">doi:10.1038/s41586-023-06415-8</a></li>
-  <li>Dauparas, J. et al. "Robust deep learning–based protein sequence design using ProteinMPNN." <em>Science</em> 378, 49–56 (2022). <a href="https://doi.org/10.1126/science.add2187">doi:10.1126/science.add2187</a></li>
-  <li>Pacesa, M. et al. "BindCraft: one-shot design of functional protein binders." <em>bioRxiv</em> (2024). <a href="https://doi.org/10.1101/2024.09.30.615802">doi:10.1101/2024.09.30.615802</a></li>
-  <li>Zhu, K. et al. "Antibody structure determination using a combination of homology modeling, energy-based refinement, and loop prediction." <em>Proteins</em> 82(8), 1646–1655 (2014). <a href="https://doi.org/10.1002/prot.24551">doi:10.1002/prot.24551</a></li>
+<ol style="padding-left:1.25rem;color:var(--tx3);font-size:.82rem">
+  <li>Bennett, N.R. et al. Improving de novo protein binder design with deep learning. <em>Nature Communications</em> 14, 2625 (2023).</li>
+  <li>Watson, J.L. et al. De novo design of protein structure and function with RFdiffusion. <em>Nature</em> 620, 1089–1100 (2023).</li>
+  <li>Dauparas, J. et al. Robust deep learning–based protein sequence design using ProteinMPNN. <em>Science</em> 378, 49–56 (2022).</li>
+  <li>PDB 4ZQK: native PD-1/PD-L1 interface reference.</li>
 </ol>
 </div>
 
 <div class="page-footer">
   <p><em>The wet-lab scientist's guide to computational protein design</em></p>
-  <p style="margin-top:.25rem">
-    <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/parameter-sensitivity/">← Setup & Parameter Sensitivity</a>
-    · <a href="#">Energy Minimization & MD Simulation →</a>
-  </p>
+  <p style="margin-top:.25rem"><a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/parameter-sensitivity/">← Setup & Parameter Sensitivity</a> · <a href="#">Energy Minimization & MD Simulation →</a></p>
   <p style="margin-top:.5rem"><a href="https://github.com/hghodkephd/pdl1-mini-binder-design">GitHub Repository</a></p>
 </div>
+</div>
 
-</div><!-- .page -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-// ═══════════════════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════════════════
 const GITHUB_BASE = "https://raw.githubusercontent.com/hghodkephd/pdl1-mini-binder-design/main/portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/";
-
 const DESIGNS = [
-  {rank:1,condition_id:"len70_clusterA_noise05",length:70,hotspot_config:"clusterA",noise:0.5,pdb_file:"01_len70_clusterA_noise05__design_19_0__design_19_0_rank0__threaded_complex.pdb",mean_plddt:94.56,rmsd:0.24,mpnn_score:0.921,binder_sequence:"EAALRAQLLAARAAAQALAAELAALRAAAAAEKDPARKAALAAEAAAVAAQRDAVAAQAAALQAQIDALA"},
-  {rank:2,condition_id:"len70_distributed_noise0",length:70,hotspot_config:"distributed",noise:0.0,pdb_file:"02_len70_distributed_noise0__design_17_0__design_17_0_rank1__threaded_complex.pdb",mean_plddt:94.33,rmsd:0.33,mpnn_score:1.0287,binder_sequence:"AACAALRAAAAATAAAAAAAVAAEAAEAAAECAADPAKCATYQAMAARLAANADRAVAVVAAQTAAACAA"},
-  {rank:3,condition_id:"len25_clusterA_noise0",length:25,hotspot_config:"clusterA",noise:0.0,pdb_file:"03_len25_clusterA_noise0__design_11_0__design_11_0_rank1__threaded_complex.pdb",mean_plddt:94.83,rmsd:0.41,mpnn_score:1.3189,binder_sequence:"SKATSEALEALARAAGAAAAAAAAA"},
-  {rank:4,condition_id:"len70_clusterB_noise0",length:70,hotspot_config:"clusterB",noise:0.0,pdb_file:"04_len70_clusterB_noise0__design_19_0__design_19_0_rank1__threaded_complex.pdb",mean_plddt:93.97,rmsd:0.44,mpnn_score:1.165,binder_sequence:"AEEAAATTAQCVAIGQQAFQQMRAISKAAVAAAKASKSAEEAKAILEKADAEIKAIAAQASAQIAALRAA"},
-  {rank:5,condition_id:"len70_clusterA_noise0",length:70,hotspot_config:"clusterA",noise:0.0,pdb_file:"05_len70_clusterA_noise0__design_3_0__design_3_0_rank7__threaded_complex.pdb",mean_plddt:96.5,rmsd:0.45,mpnn_score:0.9934,binder_sequence:"EERELDLAAARALANAAAVLAADPALAAAAAELAAAAAAFAEGAANPATAAADRAAGVAAVAAACALASA"},
-  {rank:6,condition_id:"len70_distributed_noise0",length:70,hotspot_config:"distributed",noise:0.0,pdb_file:"06_len70_distributed_noise0__design_5_0__design_5_0_rank2__threaded_complex.pdb",mean_plddt:94.18,rmsd:0.46,mpnn_score:1.0568,binder_sequence:"MTPKEKLLKLAEAYKAAAKALAAKEAEFEAKAAAATPEEAAKLKATAAAAKAARDKAEAEAAEAEAKAKA"},
-  {rank:7,condition_id:"len70_clusterB_noise0",length:70,hotspot_config:"clusterB",noise:0.0,pdb_file:"07_len70_clusterB_noise0__design_17_0__design_17_0_rank0__threaded_complex.pdb",mean_plddt:93.55,rmsd:0.47,mpnn_score:1.1132,binder_sequence:"SPAALRAATAAQTSALFQEIAKAFGEAERLLKEDPEAGEKALKEAEALAAAKAAAAAAAVAATAAAIAAA"},
-  {rank:8,condition_id:"len100_clusterA_noise0",length:100,hotspot_config:"clusterA",noise:0.0,pdb_file:"08_len100_clusterA_noise0__design_16_0__design_16_0_rank6__threaded_complex.pdb",mean_plddt:92.33,rmsd:0.52,mpnn_score:0.9212,binder_sequence:"GLEKSIAALEEAAAAAAAAAAAAFAAAPEVRARVEAALAAARAAAAEDEEAAVARAQELAAWCRALGAEDPALAEGATAAIGAASALGAAALLRKLLKES"},
-  {rank:9,condition_id:"len100_distributed_noise0",length:100,hotspot_config:"distributed",noise:0.0,pdb_file:"09_len100_distributed_noise0__design_5_0__design_5_0_rank0__threaded_complex.pdb",mean_plddt:92.08,rmsd:0.53,mpnn_score:0.8254,binder_sequence:"SAEARELARRAAREVERIAEETAEKLKKLNEEAAEEARSLARGVRLLAEAGASVETLRALVRSGYDLAEEIAKKESEEAAKVVEEARRRAEEVLRRAAEE"},
-  {rank:10,condition_id:"len70_clusterA_noise0",length:70,hotspot_config:"clusterA",noise:0.0,pdb_file:"10_len70_clusterA_noise0__design_16_0__design_16_0_rank5__threaded_complex.pdb",mean_plddt:95.07,rmsd:0.55,mpnn_score:0.947,binder_sequence:"SAATRAAAQAAAAALAAAAAAAAAAAAAAENAAAAAAGTLTPAAAAAINAAAAAAAAKTKAALDAMIADS"},
-  {rank:11,condition_id:"len25_clusterA_noise0",length:25,hotspot_config:"clusterA",noise:0.0,pdb_file:"11_len25_clusterA_noise0__design_15_0__design_15_0_rank0__threaded_complex.pdb",mean_plddt:96.85,rmsd:0.56,mpnn_score:1.0678,binder_sequence:"SARLDALRAAAAAAAAAAAAAAAAA"},
-  {rank:12,condition_id:"len100_clusterA_noise0",length:100,hotspot_config:"clusterA",noise:0.0,pdb_file:"12_len100_clusterA_noise0__design_13_0__design_13_0_rank4__threaded_complex.pdb",mean_plddt:96.04,rmsd:0.57,mpnn_score:0.8796,binder_sequence:"EEAKNRAQGIKLVIQANGAAAAAAAAAAAAAAAAAAGDLAAAAAALAAAKAHLAAATAALAEAKAKAPELKELIDAAAAAVAAAAAAVAAAEAALAAAAA"},
-  {rank:13,condition_id:"len100_distributed_noise0",length:100,hotspot_config:"distributed",noise:0.0,pdb_file:"13_len100_distributed_noise0__design_18_0__design_18_0_rank1__threaded_complex.pdb",mean_plddt:92.88,rmsd:0.58,mpnn_score:0.87,binder_sequence:"EEKAARYRELAEAFRTIARAAAGLAEASATLDDATVKAAVGDLAAGGAAAAARYDPERAPEVAARLAAAAAAGAAADGAAAAAALAALAAELAAEAEAAA"},
-  {rank:14,condition_id:"len100_clusterB_noise05",length:100,hotspot_config:"clusterB",noise:0.5,pdb_file:"14_len100_clusterB_noise05__design_0_0__design_0_0_rank1__threaded_complex.pdb",mean_plddt:92.43,rmsd:0.61,mpnn_score:1.113,binder_sequence:"MEEEEEKEREEREEEIKKLLEKAKEKEKEMEKKYKEAKEDPSTIEEKRKEIERLASEALRLLSKAEELAEDEETKEEIEKYAEELAKKVNEILTELDKMK"},
-  {rank:15,condition_id:"len70_clusterB_noise0",length:70,hotspot_config:"clusterB",noise:0.0,pdb_file:"15_len70_clusterB_noise0__design_15_0__design_15_0_rank2__threaded_complex.pdb",mean_plddt:91.89,rmsd:0.64,mpnn_score:1.2448,binder_sequence:"SLLEALAAELARQEALERTDAIAKEEAAKVAAAIAELAAKEAAGEVTPEEARAAAAAASAEAAAKVREAA"},
-  {rank:16,condition_id:"len70_distributed_noise0",length:70,hotspot_config:"distributed",noise:0.0,pdb_file:"16_len70_distributed_noise0__design_10_0__design_10_0_rank3__threaded_complex.pdb",mean_plddt:94.02,rmsd:0.67,mpnn_score:1.0685,binder_sequence:"MTVEEKIAAAKKAAANMKAAVDKQAAIQKALAAKQPDAAALKAAIDAARAKALAAIDEMEKERIAEIKAE"},
-  {rank:17,condition_id:"len50_clusterB_noise0",length:50,hotspot_config:"clusterB",noise:0.0,pdb_file:"17_len50_clusterB_noise0__design_19_0__design_19_0_rank0__threaded_complex.pdb",mean_plddt:94.74,rmsd:0.7,mpnn_score:1.0748,binder_sequence:"SAAAEAKAEQDAAIAALNAAAAAAAAAGDTAAAANARAGAAVLAKARAEA"},
-  {rank:18,condition_id:"len100_clusterA_noise05",length:100,hotspot_config:"clusterA",noise:0.5,pdb_file:"18_len100_clusterA_noise05__design_14_0__design_14_0_rank3__threaded_complex.pdb",mean_plddt:94.01,rmsd:0.71,mpnn_score:1.0563,binder_sequence:"SEEEKARTLALREFLRALADEKKAVEADFAAAAAAAATPAAIQAAADAALARLAAAAARAKALAAESTPELAVTYDALAADVEADAAAIRAAAAARIAAL"},
-  {rank:19,condition_id:"len100_clusterA_noise05",length:100,hotspot_config:"clusterA",noise:0.5,pdb_file:"19_len100_clusterA_noise05__design_3_0__design_3_0_rank2__threaded_complex.pdb",mean_plddt:94.26,rmsd:0.76,mpnn_score:0.944,binder_sequence:"GNLEEIIKELIKEAEELKKELTAELKKIDEKKAKEAEAKLEEIIKLLKKGTKEALKEAAKKAEELEKWVTKLAKETGSKELEELAKRIRRLRNKLLGAVT"},
-  {rank:20,condition_id:"len100_clusterA_noise0",length:100,hotspot_config:"clusterA",noise:0.0,pdb_file:"20_len100_clusterA_noise0__design_10_0__design_10_0_rank3__threaded_complex.pdb",mean_plddt:95.8,rmsd:0.78,mpnn_score:0.8725,binder_sequence:"AEAAAAAAAAAKKAAAIAAAKAALDAAAAAGIAAVKASGTQAALDAALAAIDAAAAAAKAAAAATFSPELAAEIAGAIDKAASAAKAAVRAAGAATAAAA"},
-  {rank:21,condition_id:"len100_clusterB_noise05",length:100,hotspot_config:"clusterB",noise:0.5,pdb_file:"21_len100_clusterB_noise05__design_13_0__design_13_0_rank0__threaded_complex.pdb",mean_plddt:86.85,rmsd:0.79,mpnn_score:1.0386,binder_sequence:"MEAEALALAREELAAATTPAELPAAVRRFFARVVVRYGGSFEEAAALAAAALRRLAAELPWRDALLAAIAAVEAEVAAAKAEEEEIKRKEEEEKRLKELE"},
-  {rank:22,condition_id:"len100_clusterA_noise0",length:100,hotspot_config:"clusterA",noise:0.0,pdb_file:"22_len100_clusterA_noise0__design_9_0__design_9_0_rank8__threaded_complex.pdb",mean_plddt:93.2,rmsd:0.8,mpnn_score:1.0011,binder_sequence:"SAATRAAADAALAAALRTESRLERVGREAARVVGPEFAAELAAALAALDAQFKAAGAALAADAAAGLAAAKALLAAAEAQLAAFQARLAAARAAAAAAAA"},
-  {rank:23,condition_id:"len70_clusterA_noise05",length:70,hotspot_config:"clusterA",noise:0.5,pdb_file:"23_len70_clusterA_noise05__design_13_0__design_13_0_rank1__threaded_complex.pdb",mean_plddt:91.4,rmsd:0.83,mpnn_score:1.1224,binder_sequence:"AAERAALEARLAALEEQLANQAEAEAKLRELYEEKGVISPELYAATMAAIAANRAELEAERARLREELAA"},
-  {rank:24,condition_id:"len50_distributed_noise0",length:50,hotspot_config:"distributed",noise:0.0,pdb_file:"24_len50_distributed_noise0__design_4_0__design_4_0_rank0__threaded_complex.pdb",mean_plddt:95.67,rmsd:0.84,mpnn_score:1.0023,binder_sequence:"AAALAAAAAAAAAAGAQAAALAAAGAAAAEINAAVAQALALAKQADALAA"},
-  {rank:25,condition_id:"len70_clusterA_noise0",length:70,hotspot_config:"clusterA",noise:0.0,pdb_file:"25_len70_clusterA_noise0__design_7_0__design_7_0_rank6__threaded_complex.pdb",mean_plddt:95.43,rmsd:0.86,mpnn_score:0.9261,binder_sequence:"SLEAKLAAAAAAAAGAQAAAAADLAAATADAAAKAAAAAAAAAAAAAAAAAADAAAAAAADAAAA"},
-  {rank:26,condition_id:"len70_clusterA_noise0",length:70,hotspot_config:"clusterA",noise:0.0,pdb_file:"26_len70_clusterA_noise0__design_18_0__design_18_0_rank9__threaded_complex.pdb",mean_plddt:90.79,rmsd:0.71,mpnn_score:0.9782,binder_sequence:"AAEAVVAQARAAALAIAAAAAAAELAAATRALAQALAAEATADAMAAAAADALGAAATAAAIAQEAAAAA"},
-  {rank:27,condition_id:"len100_clusterA_noise0",length:100,hotspot_config:"clusterA",noise:0.0,pdb_file:"27_len100_clusterA_noise0__design_4_0__design_4_0_rank3__threaded_complex.pdb",mean_plddt:88.02,rmsd:0.65,mpnn_score:0.8968,binder_sequence:"MAATREELRAARAALQAMAAAAAGQAAAGAAAAGAIAAALEAAAAAVSAELTAEAAAAAAGLAEALAMARAVLAAAAAEAAAAAAAAPAELAAAAAEALAA"},
-  {rank:28,condition_id:"len100_clusterA_noise05",length:100,hotspot_config:"clusterA",noise:0.5,pdb_file:"28_len100_clusterA_noise05__design_3_0__design_3_0_rank2__threaded_complex.pdb",mean_plddt:94.26,rmsd:0.76,mpnn_score:0.944,binder_sequence:"GNLEEIIKELIKEAEELKKELTAELKKIDEKKAKEAEAKLEEIIKLLKKGTKEALKEAAKKAEELEKWVTKLAKETGSKELEELAKRIRRLRNKLLGAVT"},
-  {rank:29,condition_id:"len100_distributed_noise0",length:100,hotspot_config:"distributed",noise:0.0,pdb_file:"29_len100_distributed_noise0__design_15_0__design_15_0_rank5__threaded_complex.pdb",mean_plddt:90.52,rmsd:1.41,mpnn_score:1.0186,binder_sequence:"AEAAKVAAARLAAATAAAAAAEARAAAAAAEAAATAAAAAAAALAAEKAAAALAAAAAAARAAAEAAAAAAKAATAAVADAAAAAAAAAAAALAAAAAALA"},
-  {rank:30,condition_id:"len70_clusterB_noise05",length:70,hotspot_config:"clusterB",noise:0.5,pdb_file:"30_len70_clusterB_noise05__design_17_0__design_17_0_rank0__threaded_complex.pdb",mean_plddt:82.54,rmsd:1.43,mpnn_score:1.088,binder_sequence:"AELEKLKAAAEAAAKAAAEAEAAAKAAAAAAAAAAAAEAAAAAAAAAKAAAAAAEAAAAAAKAAAAAAE"},
-  {rank:31,condition_id:"len50_clusterA_noise05",length:50,hotspot_config:"clusterA",noise:0.5,pdb_file:"31_len50_clusterA_noise05__design_0_0__design_0_0_rank0__threaded_complex.pdb",mean_plddt:84.63,rmsd:1.24,mpnn_score:1.2296,binder_sequence:"MEASDKLAAAKLALAAAAAAAAAGDLAAGRADLAAAGDAAAELAAAAAA"},
+  {
+    "rank": 1,
+    "condition_id": "len70_clusterA_noise05",
+    "length": 70,
+    "hotspot_config": "clusterA",
+    "noise": 0.05,
+    "pdb_file": "01_len70_clusterA_noise05__design_19_0__design_19_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.243
+  },
+  {
+    "rank": 2,
+    "condition_id": "len70_distributed_noise0",
+    "length": 70,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "02_len70_distributed_noise0__design_17_0__design_17_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 0.326
+  },
+  {
+    "rank": 3,
+    "condition_id": "len25_clusterA_noise0",
+    "length": 25,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "03_len25_clusterA_noise0__design_11_0__design_11_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 0.407
+  },
+  {
+    "rank": 4,
+    "condition_id": "len70_clusterB_noise0",
+    "length": 70,
+    "hotspot_config": "clusterB",
+    "noise": 0.0,
+    "pdb_file": "04_len70_clusterB_noise0__design_19_0__design_19_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 0.441
+  },
+  {
+    "rank": 5,
+    "condition_id": "len70_clusterA_noise0",
+    "length": 70,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "05_len70_clusterA_noise0__design_3_0__design_3_0_rank7__threaded_complex.pdb",
+    "alignment_rmsd": 0.449
+  },
+  {
+    "rank": 6,
+    "condition_id": "len70_distributed_noise0",
+    "length": 70,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "06_len70_distributed_noise0__design_5_0__design_5_0_rank2__threaded_complex.pdb",
+    "alignment_rmsd": 0.459
+  },
+  {
+    "rank": 7,
+    "condition_id": "len70_clusterB_noise0",
+    "length": 70,
+    "hotspot_config": "clusterB",
+    "noise": 0.0,
+    "pdb_file": "07_len70_clusterB_noise0__design_17_0__design_17_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.468
+  },
+  {
+    "rank": 8,
+    "condition_id": "len100_clusterA_noise0",
+    "length": 100,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "08_len100_clusterA_noise0__design_16_0__design_16_0_rank6__threaded_complex.pdb",
+    "alignment_rmsd": 0.519
+  },
+  {
+    "rank": 9,
+    "condition_id": "len100_distributed_noise0",
+    "length": 100,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "09_len100_distributed_noise0__design_5_0__design_5_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.533
+  },
+  {
+    "rank": 10,
+    "condition_id": "len70_clusterA_noise0",
+    "length": 70,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "10_len70_clusterA_noise0__design_16_0__design_16_0_rank5__threaded_complex.pdb",
+    "alignment_rmsd": 0.547
+  },
+  {
+    "rank": 11,
+    "condition_id": "len25_clusterA_noise0",
+    "length": 25,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "11_len25_clusterA_noise0__design_15_0__design_15_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.562
+  },
+  {
+    "rank": 12,
+    "condition_id": "len100_clusterA_noise0",
+    "length": 100,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "12_len100_clusterA_noise0__design_13_0__design_13_0_rank4__threaded_complex.pdb",
+    "alignment_rmsd": 0.565
+  },
+  {
+    "rank": 13,
+    "condition_id": "len100_distributed_noise0",
+    "length": 100,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "13_len100_distributed_noise0__design_18_0__design_18_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 0.583
+  },
+  {
+    "rank": 14,
+    "condition_id": "len100_clusterB_noise05",
+    "length": 100,
+    "hotspot_config": "clusterB",
+    "noise": 0.05,
+    "pdb_file": "14_len100_clusterB_noise05__design_0_0__design_0_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 0.609
+  },
+  {
+    "rank": 15,
+    "condition_id": "len70_clusterB_noise0",
+    "length": 70,
+    "hotspot_config": "clusterB",
+    "noise": 0.0,
+    "pdb_file": "15_len70_clusterB_noise0__design_15_0__design_15_0_rank2__threaded_complex.pdb",
+    "alignment_rmsd": 0.641
+  },
+  {
+    "rank": 16,
+    "condition_id": "len70_distributed_noise0",
+    "length": 70,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "16_len70_distributed_noise0__design_10_0__design_10_0_rank3__threaded_complex.pdb",
+    "alignment_rmsd": 0.675
+  },
+  {
+    "rank": 17,
+    "condition_id": "len50_clusterB_noise0",
+    "length": 50,
+    "hotspot_config": "clusterB",
+    "noise": 0.0,
+    "pdb_file": "17_len50_clusterB_noise0__design_19_0__design_19_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.704
+  },
+  {
+    "rank": 18,
+    "condition_id": "len100_clusterA_noise05",
+    "length": 100,
+    "hotspot_config": "clusterA",
+    "noise": 0.05,
+    "pdb_file": "18_len100_clusterA_noise05__design_14_0__design_14_0_rank3__threaded_complex.pdb",
+    "alignment_rmsd": 0.713
+  },
+  {
+    "rank": 19,
+    "condition_id": "len100_clusterA_noise05",
+    "length": 100,
+    "hotspot_config": "clusterA",
+    "noise": 0.05,
+    "pdb_file": "19_len100_clusterA_noise05__design_3_0__design_3_0_rank2__threaded_complex.pdb",
+    "alignment_rmsd": 0.763
+  },
+  {
+    "rank": 20,
+    "condition_id": "len100_clusterA_noise0",
+    "length": 100,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "20_len100_clusterA_noise0__design_10_0__design_10_0_rank3__threaded_complex.pdb",
+    "alignment_rmsd": 0.778
+  },
+  {
+    "rank": 21,
+    "condition_id": "len100_clusterB_noise05",
+    "length": 100,
+    "hotspot_config": "clusterB",
+    "noise": 0.05,
+    "pdb_file": "21_len100_clusterB_noise05__design_13_0__design_13_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.789
+  },
+  {
+    "rank": 22,
+    "condition_id": "len100_clusterA_noise0",
+    "length": 100,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "22_len100_clusterA_noise0__design_9_0__design_9_0_rank8__threaded_complex.pdb",
+    "alignment_rmsd": 0.797
+  },
+  {
+    "rank": 23,
+    "condition_id": "len70_clusterA_noise05",
+    "length": 70,
+    "hotspot_config": "clusterA",
+    "noise": 0.05,
+    "pdb_file": "23_len70_clusterA_noise05__design_13_0__design_13_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 0.827
+  },
+  {
+    "rank": 24,
+    "condition_id": "len50_distributed_noise0",
+    "length": 50,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "24_len50_distributed_noise0__design_4_0__design_4_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.84
+  },
+  {
+    "rank": 25,
+    "condition_id": "len70_clusterA_noise0",
+    "length": 70,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "25_len70_clusterA_noise0__design_7_0__design_7_0_rank6__threaded_complex.pdb",
+    "alignment_rmsd": 0.879
+  },
+  {
+    "rank": 26,
+    "condition_id": "len70_distributed_noise05",
+    "length": 70,
+    "hotspot_config": "distributed",
+    "noise": 0.05,
+    "pdb_file": "26_len70_distributed_noise05__design_14_0__design_14_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 0.938
+  },
+  {
+    "rank": 27,
+    "condition_id": "len50_clusterA_noise0",
+    "length": 50,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "27_len50_clusterA_noise0__design_9_0__design_9_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 1.006
+  },
+  {
+    "rank": 28,
+    "condition_id": "len50_clusterA_noise05",
+    "length": 50,
+    "hotspot_config": "clusterA",
+    "noise": 0.05,
+    "pdb_file": "28_len50_clusterA_noise05__design_0_0__design_0_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 1.243
+  },
+  {
+    "rank": 29,
+    "condition_id": "len100_distributed_noise0",
+    "length": 100,
+    "hotspot_config": "distributed",
+    "noise": 0.0,
+    "pdb_file": "29_len100_distributed_noise0__design_15_0__design_15_0_rank5__threaded_complex.pdb",
+    "alignment_rmsd": 1.412
+  },
+  {
+    "rank": 30,
+    "condition_id": "len70_clusterB_noise05",
+    "length": 70,
+    "hotspot_config": "clusterB",
+    "noise": 0.05,
+    "pdb_file": "30_len70_clusterB_noise05__design_17_0__design_17_0_rank0__threaded_complex.pdb",
+    "alignment_rmsd": 1.428
+  },
+  {
+    "rank": 31,
+    "condition_id": "len70_clusterA_noise0",
+    "length": 70,
+    "hotspot_config": "clusterA",
+    "noise": 0.0,
+    "pdb_file": "31_len70_clusterA_noise0__design_10_0__design_10_0_rank1__threaded_complex.pdb",
+    "alignment_rmsd": 1.457
+  }
 ];
-
-const HS_COLOR = {clusterA:'#2e6da4',clusterB:'#c85a3a',distributed:'#b07818'};
-
-// ═══════════════════════════════════════════════════════
-// 3DMOL VIEWER
-// ═══════════════════════════════════════════════════════
-let viewer = null;
-let surfaceVisible = false;
-let currentStyle = 'cartoon';
-let currentDesign = null;
-
-function initViewer() {
-  const el = document.getElementById('mol-viewer');
-  viewer = $3Dmol.createViewer(el, {backgroundColor:'#0d1117', antialias:true});
-}
-
-function loadDesign(design) {
-  if (!viewer) initViewer();
-  currentDesign = design;
-
-  const loading = document.getElementById('viewer-loading');
-  loading.classList.remove('hidden');
-  document.getElementById('loading-text').textContent = 'Loading ' + design.pdb_file + '…';
-
-  const url = GITHUB_BASE + design.pdb_file;
-
-  viewer.clear();
-  surfaceVisible = false;
-
-  fetch(url)
-    .then(r => {
-      if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
-      return r.text();
-    })
-    .then(pdbData => {
-      viewer.addModel(pdbData, 'pdb');
-      applyStyles();
-      viewer.zoomTo({chain:'B'});
-      viewer.render();
-      loading.classList.add('hidden');
-    })
-    .catch(err => {
-      console.error('PDB fetch error:', err);
-      document.getElementById('loading-text').textContent = 'Error loading structure: ' + err.message;
-    });
-
-  updateInfoPanel(design);
-  highlightCard(design.rank);
-}
-
-function applyStyles() {
-  if (!viewer) return;
-  const color = HS_COLOR[currentDesign ? currentDesign.hotspot_config : 'clusterA'];
-
-  if (currentStyle === 'cartoon') {
-    viewer.setStyle({chain:'A'}, {cartoon:{color:'#8a8a8a', opacity:0.65}});
-    viewer.setStyle({chain:'B'}, {cartoon:{color:color}});
-  } else {
-    viewer.setStyle({chain:'A'}, {stick:{colorscheme:'grayCarbon', opacity:0.5, radius:0.15}});
-    viewer.setStyle({chain:'B'}, {stick:{color:color, radius:0.2}});
-  }
-  viewer.render();
-}
-
-function setStyle(style) {
-  currentStyle = style;
-  document.getElementById('btn-cartoon').classList.toggle('active', style==='cartoon');
-  document.getElementById('btn-stick').classList.toggle('active', style==='stick');
-  if (viewer && currentDesign) applyStyles();
-}
-
-function toggleSurface() {
-  if (!viewer || !currentDesign) return;
-  const btn = document.getElementById('btn-surface');
-  if (surfaceVisible) {
-    viewer.removeAllSurfaces();
-    surfaceVisible = false;
-    btn.classList.remove('active');
-  } else {
-    viewer.addSurface($3Dmol.SurfaceType.VDW, {opacity:0.2, color:'#5a8a6a'}, {chain:'B'});
-    surfaceVisible = true;
-    btn.classList.add('active');
-  }
-  viewer.render();
-}
-
-function resetView() {
-  if (!viewer || !currentDesign) return;
-  viewer.zoomTo({chain:'B'});
-  viewer.render();
-}
-
-function updateInfoPanel(d) {
-  document.getElementById('di-rank').textContent = 'Rank ' + d.rank + ' of 31';
-  document.getElementById('di-name').textContent = d.condition_id;
-  document.getElementById('di-name').style.color = '';
-
-  const metricsEl = document.getElementById('di-metrics');
-  metricsEl.innerHTML = `
-    <div class="di-metric"><div class="val">${d.mean_plddt.toFixed(1)}</div><div class="lbl">pLDDT</div></div>
-    <div class="di-metric"><div class="val">${d.rmsd.toFixed(2)} Å</div><div class="lbl">RMSD</div></div>
-    <div class="di-metric"><div class="val">${d.mpnn_score.toFixed(3)}</div><div class="lbl">MPNN score</div></div>
-    <div class="di-metric"><div class="val">${d.length}</div><div class="lbl">residues</div></div>
-  `;
-
-  const hsClass = {clusterA:'badge-clusterA',clusterB:'badge-clusterB',distributed:'badge-distributed'}[d.hotspot_config];
-  document.getElementById('di-badges').innerHTML = `
-    <span class="badge ${hsClass}">${d.hotspot_config}</span>
-    <span class="badge badge-len">${d.length}-mer</span>
-    <span class="badge badge-noise">noise ${d.noise}</span>
-  `;
-
-  const seqWrap = document.getElementById('di-seq-wrap');
-  seqWrap.style.display = '';
-  document.getElementById('di-seq').textContent = d.binder_sequence;
-}
-
-// ═══════════════════════════════════════════════════════
-// DESIGN GRID
-// ═══════════════════════════════════════════════════════
-function buildGrid() {
-  const grid = document.getElementById('design-grid');
-  DESIGNS.forEach(d => {
-    const hsClass = {clusterA:'badge-clusterA',clusterB:'badge-clusterB',distributed:'badge-distributed'}[d.hotspot_config];
-    const barColor = HS_COLOR[d.hotspot_config];
-    const card = document.createElement('div');
-    card.className = 'design-card';
-    card.dataset.rank = d.rank;
-    card.dataset.len = d.length;
-    card.dataset.hs = d.hotspot_config;
-    card.dataset.noise = d.noise;
-    card.innerHTML = `
-      <div class="card-hs-bar" style="background:${barColor}"></div>
-      <div class="card-rank">Rank ${d.rank}</div>
-      <div class="card-id">${d.condition_id.replace(/_noise/,'<br>noise ')}</div>
-      <div class="card-metrics">
-        <div class="card-metric"><div class="v">${d.mean_plddt.toFixed(0)}</div><div class="l">pLDDT</div></div>
-        <div class="card-metric"><div class="v">${d.rmsd.toFixed(2)}</div><div class="l">RMSD</div></div>
-      </div>
-      <div class="card-badges">
-        <span class="badge ${hsClass}" style="font-size:.62rem">${d.hotspot_config}</span>
-        <span class="badge badge-len" style="font-size:.62rem">${d.length}aa</span>
-      </div>
-    `;
-    card.addEventListener('click', () => loadDesign(d));
-    grid.appendChild(card);
-  });
-}
-
-function highlightCard(rank) {
-  document.querySelectorAll('.design-card').forEach(c => {
-    c.classList.toggle('selected', parseInt(c.dataset.rank) === rank);
-  });
-  const sel = document.querySelector(`.design-card[data-rank="${rank}"]`);
-  if (sel) sel.scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-
-// Filters
-const activeFilters = {len:'all', hs:'all', noise:'all'};
-function filterGrid(btn, type, val) {
-  activeFilters[type] = val;
-  document.querySelectorAll(`[data-filter-${type}]`).forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  let visible = 0;
-  document.querySelectorAll('.design-card').forEach(card => {
-    const show = (activeFilters.len==='all' || card.dataset.len===activeFilters.len)
-              && (activeFilters.hs==='all' || card.dataset.hs===activeFilters.hs)
-              && (activeFilters.noise==='all' || card.dataset.noise===activeFilters.noise);
-    card.classList.toggle('hidden', !show);
-    if (show) visible++;
-  });
-  document.getElementById('grid-count').textContent = visible + ' design' + (visible!==1?'s':'');
-}
-
-// ═══════════════════════════════════════════════════════
-// CHARTS
-// ═══════════════════════════════════════════════════════
-Chart.defaults.font.family = "'DM Sans', sans-serif";
-Chart.defaults.font.size = 12;
-Chart.defaults.color = '#5a5850';
-
-const C = {accent:'#1d6b52',coral:'#c85a3a',blue:'#2e6da4',amber:'#b07818',purple:'#6b4c9a'};
-
 const FP = {
-  contact_frequency:{
-    clusterA:{18:0.188,19:0.438,20:0.062,51:0.312,52:0.438,56:0.188,57:0.125,58:0.188,60:0.188,61:0.500,62:0.188,63:0.188,66:0.125,67:0.125,73:0.188,75:0.312,76:0.375,77:0.125,113:0.125,115:0.250,117:0.500,118:0.562,119:0.875,120:0.938,121:0.938,122:0.500,123:0.500,124:0.125},
-    clusterB:{19:0.286,51:0.857,52:0.714,56:0.286,60:0.714,61:1.0,62:0.571,63:0.286,66:0.143,76:0.429,115:0.286,117:0.286,118:0.571,119:1.0,120:1.0,121:1.0,122:0.857,123:0.286},
-    distributed:{50:0.125,51:0.500,52:0.500,57:0.125,58:0.250,60:0.625,61:0.875,62:0.250,63:0.250,66:0.125,113:0.125,115:0.375,118:0.250,119:0.625,120:1.0,121:1.0,122:0.750,123:0.625,124:0.250,125:0.125}
+  "analysis_type": "full_sidechain",
+  "provenance": {
+    "hotspot_source": "06_param_sensitivity_runner.ipynb / conditions.csv",
+    "hotspot_map": {
+      "clusterA": [
+        18,
+        20,
+        120,
+        122
+      ],
+      "clusterB": [
+        26,
+        56,
+        113,
+        123,
+        125
+      ],
+      "distributed": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        120,
+        122,
+        125
+      ]
+    },
+    "contact_definition": "Residue pair counted if any heavy atom pair is within 4.5 \u00c5; closest atom pair retained for distance/atom labels.",
+    "representation": "ESMFold binder full sidechains superimposed onto RFdiffusion complex by C\u03b1 alignment",
+    "native_mimicry_source": "Native PD-1/PD-L1 contacts derived from df_native / PDB 4ZQK",
+    "extended_metrics_note": "BSA uses BioPython Shrake-Rupley. Closest atom-pair anatomy classifies the nearest atom pair for each residue-pair contact. Interface normal-complementarity is a custom proxy, not validated Lawrence-Colman Sc."
   },
-  hotspot_coverage:{
-    clusterA:{mean:0.406,std:0.150},
-    clusterB:{mean:0.114,std:0.099},
-    distributed:{mean:0.234,std:0.041}
+  "contact_cutoff_angstroms": 4.5,
+  "n_designs_analyzed": 31,
+  "total_contacts": 499,
+  "alignment_rmsds": {
+    "len70_clusterA_noise05__design_19_0_rank0": 0.243,
+    "len70_distributed_noise0__design_17_0_rank1": 0.326,
+    "len25_clusterA_noise0__design_11_0_rank1": 0.407,
+    "len70_clusterB_noise0__design_19_0_rank1": 0.441,
+    "len70_clusterA_noise0__design_3_0_rank7": 0.449,
+    "len70_distributed_noise0__design_5_0_rank2": 0.459,
+    "len70_clusterB_noise0__design_17_0_rank0": 0.468,
+    "len100_clusterA_noise0__design_16_0_rank6": 0.519,
+    "len100_distributed_noise0__design_5_0_rank0": 0.533,
+    "len70_clusterA_noise0__design_16_0_rank5": 0.547,
+    "len25_clusterA_noise0__design_15_0_rank0": 0.562,
+    "len100_clusterA_noise0__design_13_0_rank4": 0.565,
+    "len100_distributed_noise0__design_18_0_rank1": 0.583,
+    "len100_clusterB_noise05__design_0_0_rank1": 0.609,
+    "len70_clusterB_noise0__design_15_0_rank2": 0.641,
+    "len70_distributed_noise0__design_10_0_rank3": 0.675,
+    "len50_clusterB_noise0__design_19_0_rank0": 0.704,
+    "len100_clusterA_noise05__design_14_0_rank3": 0.713,
+    "len100_clusterA_noise05__design_3_0_rank2": 0.763,
+    "len100_clusterA_noise0__design_10_0_rank3": 0.778,
+    "len100_clusterB_noise05__design_13_0_rank0": 0.789,
+    "len100_clusterA_noise0__design_9_0_rank8": 0.797,
+    "len70_clusterA_noise05__design_13_0_rank1": 0.827,
+    "len50_distributed_noise0__design_4_0_rank0": 0.84,
+    "len70_clusterA_noise0__design_7_0_rank6": 0.879,
+    "len70_distributed_noise05__design_14_0_rank0": 0.938,
+    "len50_clusterA_noise0__design_9_0_rank0": 1.006,
+    "len50_clusterA_noise05__design_0_0_rank0": 1.243,
+    "len100_distributed_noise0__design_15_0_rank5": 1.412,
+    "len70_clusterB_noise05__design_17_0_rank0": 1.428,
+    "len70_clusterA_noise0__design_10_0_rank1": 1.457
   },
-  mimicry_by_config:{
-    clusterA:{novel:23,exact_match:5,same_class:17},
-    clusterB:{novel:3,same_class:1},
-    distributed:{novel:11,same_class:13,exact_match:3}
+  "contact_frequency": {
+    "clusterA": {
+      "18": 18.8,
+      "19": 43.8,
+      "20": 6.2,
+      "43": 6.2,
+      "44": 6.2,
+      "45": 6.2,
+      "46": 12.5,
+      "47": 6.2,
+      "48": 6.2,
+      "51": 31.2,
+      "52": 43.8,
+      "55": 6.2,
+      "56": 18.8,
+      "57": 12.5,
+      "58": 18.8,
+      "60": 18.8,
+      "61": 50.0,
+      "62": 18.8,
+      "63": 18.8,
+      "64": 6.2,
+      "65": 6.2,
+      "66": 12.5,
+      "67": 12.5,
+      "68": 6.2,
+      "72": 6.2,
+      "73": 18.8,
+      "74": 6.2,
+      "75": 31.2,
+      "76": 37.5,
+      "77": 12.5,
+      "78": 6.2,
+      "79": 6.2,
+      "113": 12.5,
+      "114": 12.5,
+      "115": 25.0,
+      "116": 12.5,
+      "117": 50.0,
+      "118": 56.2,
+      "119": 87.5,
+      "120": 93.8,
+      "121": 93.8,
+      "122": 50.0,
+      "123": 50.0,
+      "124": 12.5
+    },
+    "clusterB": {
+      "19": 28.6,
+      "51": 85.7,
+      "52": 71.4,
+      "53": 14.3,
+      "56": 28.6,
+      "60": 71.4,
+      "61": 100.0,
+      "62": 57.1,
+      "63": 28.6,
+      "65": 14.3,
+      "66": 14.3,
+      "76": 42.9,
+      "78": 14.3,
+      "115": 28.6,
+      "116": 14.3,
+      "117": 28.6,
+      "118": 57.1,
+      "119": 100.0,
+      "120": 100.0,
+      "121": 100.0,
+      "122": 85.7,
+      "123": 28.6
+    },
+    "distributed": {
+      "50": 12.5,
+      "51": 50.0,
+      "52": 50.0,
+      "53": 12.5,
+      "57": 12.5,
+      "58": 25.0,
+      "59": 12.5,
+      "60": 62.5,
+      "61": 87.5,
+      "62": 25.0,
+      "63": 25.0,
+      "66": 12.5,
+      "68": 12.5,
+      "69": 12.5,
+      "73": 12.5,
+      "76": 12.5,
+      "111": 12.5,
+      "112": 12.5,
+      "113": 12.5,
+      "114": 12.5,
+      "115": 37.5,
+      "117": 12.5,
+      "118": 25.0,
+      "119": 62.5,
+      "120": 100.0,
+      "121": 100.0,
+      "122": 75.0,
+      "123": 62.5,
+      "124": 25.0,
+      "125": 12.5
+    }
   },
-  interaction_types:{
-    native:{mixed:0.387,hydrophobic:0.323,hydrogen_bond:0.194,salt_bridge:0.065,aromatic:0.032},
-    clusterA:{mixed:0.422,hydrophobic:0.377,hydrogen_bond:0.101,salt_bridge:0.101},
-    clusterB:{mixed:0.450,hydrophobic:0.325,salt_bridge:0.150,hydrogen_bond:0.075},
-    distributed:{mixed:0.459,hydrophobic:0.315,salt_bridge:0.144,hydrogen_bond:0.081}
+  "hotspot_coverage": {
+    "clusterA": {
+      "mean": 42.2,
+      "std": 19.2,
+      "n_designs": 16
+    },
+    "clusterB": {
+      "mean": 11.4,
+      "std": 9.9,
+      "n_designs": 7
+    },
+    "distributed": {
+      "mean": 25.0,
+      "std": 8.8,
+      "n_designs": 8
+    }
+  },
+  "hotspot_coverage_per_design": [
+    {
+      "rank": 1,
+      "condition_id": "len70_clusterA_noise05",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 1,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 3,
+      "condition_id": "len25_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 1,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 5,
+      "condition_id": "len70_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 1,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 8,
+      "condition_id": "len100_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20
+      ]
+    },
+    {
+      "rank": 10,
+      "condition_id": "len70_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20
+      ]
+    },
+    {
+      "rank": 11,
+      "condition_id": "len25_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20
+      ]
+    },
+    {
+      "rank": 12,
+      "condition_id": "len100_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 1,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 18,
+      "condition_id": "len100_clusterA_noise05",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        18,
+        120
+      ],
+      "missed_residues": [
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 19,
+      "condition_id": "len100_clusterA_noise05",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20
+      ]
+    },
+    {
+      "rank": 20,
+      "condition_id": "len100_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        18,
+        120
+      ],
+      "missed_residues": [
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 22,
+      "condition_id": "len100_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20
+      ]
+    },
+    {
+      "rank": 23,
+      "condition_id": "len70_clusterA_noise05",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 3,
+      "coverage_pct": 75.0,
+      "covered_residues": [
+        18,
+        120,
+        122
+      ],
+      "missed_residues": [
+        20
+      ]
+    },
+    {
+      "rank": 25,
+      "condition_id": "len70_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 1,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        122
+      ]
+    },
+    {
+      "rank": 27,
+      "condition_id": "len50_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 0,
+      "coverage_pct": 0.0,
+      "covered_residues": [],
+      "missed_residues": [
+        18,
+        20,
+        120,
+        122
+      ]
+    },
+    {
+      "rank": 28,
+      "condition_id": "len50_clusterA_noise05",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 3,
+      "coverage_pct": 75.0,
+      "covered_residues": [
+        20,
+        120,
+        122
+      ],
+      "missed_residues": [
+        18
+      ]
+    },
+    {
+      "rank": 31,
+      "condition_id": "len70_clusterA_noise0",
+      "hotspot_config": "clusterA",
+      "n_hotspots": 4,
+      "n_covered": 2,
+      "coverage_pct": 50.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20
+      ]
+    },
+    {
+      "rank": 4,
+      "condition_id": "len70_clusterB_noise0",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 1,
+      "coverage_pct": 20.0,
+      "covered_residues": [
+        56
+      ],
+      "missed_residues": [
+        26,
+        113,
+        123,
+        125
+      ]
+    },
+    {
+      "rank": 7,
+      "condition_id": "len70_clusterB_noise0",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 0,
+      "coverage_pct": 0.0,
+      "covered_residues": [],
+      "missed_residues": [
+        26,
+        56,
+        113,
+        123,
+        125
+      ]
+    },
+    {
+      "rank": 14,
+      "condition_id": "len100_clusterB_noise05",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 0,
+      "coverage_pct": 0.0,
+      "covered_residues": [],
+      "missed_residues": [
+        26,
+        56,
+        113,
+        123,
+        125
+      ]
+    },
+    {
+      "rank": 15,
+      "condition_id": "len70_clusterB_noise0",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 1,
+      "coverage_pct": 20.0,
+      "covered_residues": [
+        123
+      ],
+      "missed_residues": [
+        26,
+        56,
+        113,
+        125
+      ]
+    },
+    {
+      "rank": 17,
+      "condition_id": "len50_clusterB_noise0",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 0,
+      "coverage_pct": 0.0,
+      "covered_residues": [],
+      "missed_residues": [
+        26,
+        56,
+        113,
+        123,
+        125
+      ]
+    },
+    {
+      "rank": 21,
+      "condition_id": "len100_clusterB_noise05",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 1,
+      "coverage_pct": 20.0,
+      "covered_residues": [
+        56
+      ],
+      "missed_residues": [
+        26,
+        113,
+        123,
+        125
+      ]
+    },
+    {
+      "rank": 30,
+      "condition_id": "len70_clusterB_noise05",
+      "hotspot_config": "clusterB",
+      "n_hotspots": 5,
+      "n_covered": 1,
+      "coverage_pct": 20.0,
+      "covered_residues": [
+        123
+      ],
+      "missed_residues": [
+        26,
+        56,
+        113,
+        125
+      ]
+    },
+    {
+      "rank": 2,
+      "condition_id": "len70_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 3,
+      "coverage_pct": 37.5,
+      "covered_residues": [
+        113,
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        125
+      ]
+    },
+    {
+      "rank": 6,
+      "condition_id": "len70_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 1,
+      "coverage_pct": 12.5,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        122,
+        125
+      ]
+    },
+    {
+      "rank": 9,
+      "condition_id": "len100_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 3,
+      "coverage_pct": 37.5,
+      "covered_residues": [
+        120,
+        122,
+        125
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113
+      ]
+    },
+    {
+      "rank": 13,
+      "condition_id": "len100_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 2,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        125
+      ]
+    },
+    {
+      "rank": 16,
+      "condition_id": "len70_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 2,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        125
+      ]
+    },
+    {
+      "rank": 24,
+      "condition_id": "len50_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 1,
+      "coverage_pct": 12.5,
+      "covered_residues": [
+        120
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        122,
+        125
+      ]
+    },
+    {
+      "rank": 26,
+      "condition_id": "len70_distributed_noise05",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 2,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        125
+      ]
+    },
+    {
+      "rank": 29,
+      "condition_id": "len100_distributed_noise0",
+      "hotspot_config": "distributed",
+      "n_hotspots": 8,
+      "n_covered": 2,
+      "coverage_pct": 25.0,
+      "covered_residues": [
+        120,
+        122
+      ],
+      "missed_residues": [
+        18,
+        20,
+        26,
+        56,
+        113,
+        125
+      ]
+    }
+  ],
+  "mimicry_summary": {
+    "total_hotspot_contacts": 81,
+    "overall": {
+      "novel": 50,
+      "same_class": 25,
+      "exact_match": 6
+    },
+    "by_config": {
+      "clusterA": {
+        "novel": 37,
+        "same_class": 11,
+        "exact_match": 4
+      },
+      "clusterB": {
+        "same_class": 3,
+        "novel": 1
+      },
+      "distributed": {
+        "novel": 12,
+        "same_class": 11,
+        "exact_match": 2
+      }
+    }
+  },
+  "interaction_types": {
+    "clusterA": {
+      "mixed": 42.2,
+      "hydrophobic_or_aromatic": 37.7,
+      "hbond_compatible": 10.1,
+      "salt_bridge_compatible": 10.1
+    },
+    "clusterB": {
+      "mixed": 45.0,
+      "hydrophobic_or_aromatic": 32.5,
+      "salt_bridge_compatible": 15.0,
+      "hbond_compatible": 7.5
+    },
+    "distributed": {
+      "mixed": 45.9,
+      "hydrophobic_or_aromatic": 31.5,
+      "salt_bridge_compatible": 14.4,
+      "hbond_compatible": 8.1
+    }
+  },
+  "native_interaction_types": {
+    "hydrophobic_or_aromatic": 32.6,
+    "hbond_compatible": 17.4,
+    "salt_bridge_compatible": 8.7,
+    "mixed": 41.3
+  },
+  "comparison_to_backbone_only": {
+    "backbone_coverage": {
+      "clusterA": {
+        "mean": 0.266,
+        "std": 0.143
+      },
+      "clusterB": {
+        "mean": 0.0,
+        "std": 0.0
+      },
+      "distributed": {
+        "mean": 0.141,
+        "std": 0.08
+      }
+    },
+    "full_sidechain_coverage": {
+      "clusterA": 42.2,
+      "clusterB": 11.4,
+      "distributed": 25.0
+    }
+  },
+  "extended_metrics": {
+    "buried_surface_area": {
+      "mean": 648.2,
+      "std": 142.1,
+      "by_config": {
+        "clusterA": {
+          "mean": 646.4,
+          "std": 140.0,
+          "n": 16
+        },
+        "clusterB": {
+          "mean": 697.4,
+          "std": 134.2,
+          "n": 7
+        },
+        "distributed": {
+          "mean": 608.9,
+          "std": 157.6,
+          "n": 8
+        }
+      }
+    },
+    "closest_atom_pair_anatomy": {
+      "overall": {
+        "SC-SC": 0,
+        "SC-BB": 79.6,
+        "BB-SC": 0,
+        "BB-BB": 20.4
+      },
+      "by_config": {
+        "clusterA": {
+          "SC-SC": 0,
+          "SC-BB": 77.6,
+          "BB-SC": 0,
+          "BB-BB": 22.4
+        },
+        "clusterB": {
+          "SC-SC": 0,
+          "SC-BB": 83.3,
+          "BB-SC": 0,
+          "BB-BB": 16.7
+        },
+        "distributed": {
+          "SC-SC": 0,
+          "SC-BB": 80.2,
+          "BB-SC": 0,
+          "BB-BB": 19.8
+        }
+      },
+      "native": {
+        "SC-SC": 47.8,
+        "SC-BB": 28.3,
+        "BB-SC": 23.9,
+        "BB-BB": 0
+      }
+    },
+    "interface_normal_complementarity_proxy": {
+      "mean": 0.178,
+      "std": 0.075,
+      "native": 0.287,
+      "by_config": {
+        "clusterA": {
+          "mean": 0.183,
+          "std": 0.082,
+          "n": 16
+        },
+        "clusterB": {
+          "mean": 0.163,
+          "std": 0.069,
+          "n": 7
+        },
+        "distributed": {
+          "mean": 0.183,
+          "std": 0.072,
+          "n": 8
+        }
+      }
+    }
   }
 };
+const HS_COLOR = {clusterA:'#2e6da4',clusterB:'#c85a3a',distributed:'#b07818'};
+const HOTSPOT_COLOR = '#ff2d95';
+const HOTSPOT_MAP = FP.provenance.hotspot_map;
+const C = {accent:'#1d6b52',coral:'#c85a3a',blue:'#2e6da4',amber:'#b07818',purple:'#6b4c9a',gray:'#8a8878'};
+let viewer=null, surfaceVisible=false, hotspotsVisible=false, currentStyle='cartoon', currentDesign=null;
 
-function showTab(btn, id) {
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  btn.classList.add('active');
+function initViewer(){const el=document.getElementById('mol-viewer');viewer=$3Dmol.createViewer(el,{backgroundColor:'#ffffff',antialias:true});}
+function loadDesign(design){
+  if(!viewer) initViewer(); currentDesign=design;
+  const loading=document.getElementById('viewer-loading'); loading.classList.remove('hidden');
+  document.getElementById('loading-text').textContent='Loading '+design.pdb_file+'…';
+  viewer.clear(); surfaceVisible=false; document.getElementById('btn-surface').classList.remove('active');
+  fetch(GITHUB_BASE+design.pdb_file).then(r=>{if(!r.ok) throw new Error(r.status+' '+r.statusText); return r.text();})
+    .then(pdb=>{viewer.addModel(pdb,'pdb'); applyStyles(); viewer.zoomTo({chain:'B'}); viewer.render(); loading.classList.add('hidden');})
+    .catch(err=>{console.error(err); document.getElementById('loading-text').textContent='Error loading structure: '+err.message;});
+  updateInfoPanel(design); highlightCard(design.rank);
 }
-
-// Contact freq
-(function(){
-  const resSet=new Set();
-  ['clusterA','clusterB','distributed'].forEach(cfg=>{Object.keys(FP.contact_frequency[cfg]).forEach(r=>resSet.add(+r))});
-  const allRes=[...resSet].sort((a,b)=>a-b);
-  const cfgColors=[C.blue,C.coral,C.amber];
-  const datasets=['clusterA','clusterB','distributed'].map((cfg,i)=>({
-    label:cfg==='clusterA'?'Cluster A':cfg==='clusterB'?'Cluster B':'Distributed',
-    data:allRes.map(r=>FP.contact_frequency[cfg][r]||0),
-    backgroundColor:cfgColors[i]+'bb',borderColor:cfgColors[i],borderWidth:1.5,borderRadius:3
-  }));
-  new Chart(document.getElementById('chartContactFreq'),{type:'bar',data:{labels:allRes.map(String),datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:10}}},scales:{x:{title:{display:true,text:'PD-L1 residue'}},y:{beginAtZero:true,max:1.05,ticks:{callback:v=>Math.round(v*100)+'%'},title:{display:true,text:'Fraction of designs'}}}}});
-})();
-
-// Coverage bar
-(function(){
-  const configs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed'];
-  const means=configs.map(c=>+(FP.hotspot_coverage[c].mean*100).toFixed(1));
-  new Chart(document.getElementById('chartCoverage'),{type:'bar',data:{labels,datasets:[{label:'Mean coverage %',data:means,backgroundColor:[C.blue+'bb',C.coral+'bb',C.amber+'bb'],borderColor:[C.blue,C.coral,C.amber],borderWidth:1.5,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'},title:{display:true,text:'% hotspots contacted'}}}}});
-})();
-
-// Coverage comparison: backbone-only vs full-sidechain
-(function(){
-  const labels=['Cluster A','Cluster B','Distributed'];
-  const bbData=[26.6,0.0,14.1];
-  const fsData=[40.6,11.4,23.4];
-  new Chart(document.getElementById('chartCoverageDist'),{type:'bar',data:{labels,datasets:[{label:'Backbone-only',data:bbData,backgroundColor:C.purple+'66',borderColor:C.purple,borderWidth:1.5,borderRadius:3},{label:'Full sidechain',data:fsData,backgroundColor:C.accent+'bb',borderColor:C.accent,borderWidth:1.5,borderRadius:3}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'},title:{display:true,text:'Mean hotspot coverage %'}}}}});
-})();
-
-// Mimicry pie
-(function(){
-  const cats={exact_match:8,same_class:31,novel:37};
-  const colors={exact_match:C.accent,same_class:C.blue,novel:C.coral};
-  new Chart(document.getElementById('chartMimicryPie'),{type:'doughnut',data:{labels:['Exact match','Same class','Novel'],datasets:[{data:Object.values(cats),backgroundColor:Object.keys(cats).map(k=>colors[k]+'cc'),borderColor:Object.keys(cats).map(k=>colors[k]),borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}}}});
-})();
-
-// Mimicry stacked bar
-(function(){
-  const configs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed'];
-  const cats=['exact_match','same_class','novel'];
-  const catColors={exact_match:C.accent,same_class:C.blue,novel:C.coral};
-  const catLabels={exact_match:'Exact match',same_class:'Same class',novel:'Novel'};
-  const datasets=cats.map(cat=>({label:catLabels[cat],data:configs.map(cfg=>{const d=FP.mimicry_by_config[cfg]||{};const tot=Object.values(d).reduce((a,b)=>a+b,0)||1;return +((d[cat]||0)/tot*100).toFixed(1);}),backgroundColor:catColors[cat]+'cc',borderColor:catColors[cat],borderWidth:1,borderRadius:0}));
-  new Chart(document.getElementById('chartMimicry'),{type:'bar',data:{labels,datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:8}}},scales:{x:{stacked:true},y:{stacked:true,max:100,ticks:{callback:v=>v+'%'}}}}});
-})();
-
-// Interaction types
-(function(){
-  const intTypes=['mixed','hydrophobic','hydrogen_bond','salt_bridge','aromatic'];
-  const intLabels={mixed:'Mixed',hydrophobic:'Hydrophobic',hydrogen_bond:'H-bond',salt_bridge:'Salt bridge',aromatic:'Aromatic'};
-  const sources=['native','clusterA','clusterB','distributed'];
-  const srcLabels={native:'Native PD-1',clusterA:'Cluster A',clusterB:'Cluster B',distributed:'Distributed'};
-  const srcColors={native:C.purple,clusterA:C.blue,clusterB:C.coral,distributed:C.amber};
-  const datasets=sources.map(src=>({label:srcLabels[src],data:intTypes.map(t=>+((FP.interaction_types[src][t]||0)*100).toFixed(1)),backgroundColor:srcColors[src]+'99',borderColor:srcColors[src],borderWidth:1.5,borderRadius:3}));
-  new Chart(document.getElementById('chartIntTypes'),{type:'bar',data:{labels:intTypes.map(t=>intLabels[t]),datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:10}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%'},title:{display:true,text:'Fraction of contacts'}}}}});
-})();
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  initViewer();
-  buildGrid();
-  // Load rank 1 by default
-  loadDesign(DESIGNS[0]);
-});
+function applyStyles(){
+  if(!viewer) return; const color=HS_COLOR[currentDesign?currentDesign.hotspot_config:'clusterA']; viewer.setStyle({},{}); viewer.removeAllLabels();
+  if(currentStyle==='cartoon'){viewer.setStyle({chain:'A'},{cartoon:{color:'#6f6f6f',opacity:0.85}}); viewer.setStyle({chain:'B'},{cartoon:{color:color}});} 
+  else {viewer.setStyle({chain:'A'},{stick:{colorscheme:'grayCarbon',opacity:0.8,radius:0.15}}); viewer.setStyle({chain:'B'},{stick:{color:color,radius:0.2}});}
+  if(hotspotsVisible&&currentDesign) addHotspotHighlight(currentDesign.hotspot_config); viewer.render();
+}
+function addHotspotHighlight(config){
+  const residues=HOTSPOT_MAP[config]||[], color=HOTSPOT_COLOR;
+  residues.forEach(resi=>viewer.addStyle({chain:'A',resi:resi},{stick:{color:color,radius:0.34},sphere:{color:color,radius:0.78,opacity:0.45}}));
+  try{const model=viewer.getModel(); residues.forEach(resi=>{const atoms=model.selectedAtoms({chain:'A',resi:resi,atom:'CA'}); if(atoms&&atoms.length){const a=atoms[0]; viewer.addLabel('A'+resi,{position:{x:a.x,y:a.y,z:a.z},fontSize:11,fontColor:'#ffffff',backgroundColor:color,borderColor:'#ffffff',borderThickness:1,inFront:false});}});}catch(e){console.warn('Could not add hotspot labels:',e);}
+}
+function setStyle(style){currentStyle=style; document.getElementById('btn-cartoon').classList.toggle('active',style==='cartoon'); document.getElementById('btn-stick').classList.toggle('active',style==='stick'); if(viewer&&currentDesign) applyStyles();}
+function toggleSurface(){if(!viewer||!currentDesign) return; const btn=document.getElementById('btn-surface'); if(surfaceVisible){viewer.removeAllSurfaces(); surfaceVisible=false; btn.classList.remove('active');} else {viewer.addSurface($3Dmol.SurfaceType.VDW,{opacity:0.5,color:HS_COLOR[currentDesign.hotspot_config]},{chain:'B'}); surfaceVisible=true; btn.classList.add('active');} viewer.render();}
+function toggleHotspots(){if(!viewer||!currentDesign) return; hotspotsVisible=!hotspotsVisible; const btn=document.getElementById('btn-hotspots'); btn.classList.toggle('active',hotspotsVisible); btn.textContent=hotspotsVisible?'Hide hotspots':'Show hotspots'; applyStyles();}
+function resetView(){if(viewer&&currentDesign){viewer.zoomTo({chain:'B'}); viewer.render();}}
+function updateInfoPanel(d){
+  document.getElementById('di-rank').textContent='Rank '+d.rank+' of '+DESIGNS.length;
+  document.getElementById('di-name').textContent=d.condition_id;
+  document.getElementById('di-metrics').innerHTML=`<div class="di-metric"><div class="val">${d.alignment_rmsd.toFixed(2)} Å</div><div class="lbl">align RMSD</div></div><div class="di-metric"><div class="val">${d.length}</div><div class="lbl">residues</div></div><div class="di-metric"><div class="val">${d.noise}</div><div class="lbl">noise</div></div><div class="di-metric"><div class="val">${d.hotspot_config.replace('cluster','C')}</div><div class="lbl">hotspot</div></div>`;
+  const cls={clusterA:'badge-clusterA',clusterB:'badge-clusterB',distributed:'badge-distributed'}[d.hotspot_config];
+  document.getElementById('di-badges').innerHTML=`<span class="badge ${cls}">${d.hotspot_config}</span><span class="badge badge-len">${d.length}-mer</span><span class="badge badge-noise">noise ${d.noise}</span>`;
+}
+function buildGrid(){
+  const grid=document.getElementById('design-grid');
+  DESIGNS.forEach(d=>{const cls={clusterA:'badge-clusterA',clusterB:'badge-clusterB',distributed:'badge-distributed'}[d.hotspot_config]; const card=document.createElement('div'); card.className='design-card'; card.dataset.rank=d.rank; card.dataset.len=d.length; card.dataset.hs=d.hotspot_config; card.innerHTML=`<div class="card-hs-bar" style="background:${HS_COLOR[d.hotspot_config]}"></div><div class="card-rank">Rank ${d.rank}</div><div class="card-id">${d.condition_id.replace(/_noise/,'<br>noise ')}</div><div class="card-metrics"><div class="card-metric"><div class="v">${d.alignment_rmsd.toFixed(2)}</div><div class="l">align RMSD</div></div><div class="card-metric"><div class="v">${d.length}</div><div class="l">aa</div></div></div><span class="badge ${cls}" style="font-size:.62rem">${d.hotspot_config}</span>`; card.addEventListener('click',()=>loadDesign(d)); grid.appendChild(card);});
+}
+function highlightCard(rank){document.querySelectorAll('.design-card').forEach(c=>c.classList.toggle('selected',parseInt(c.dataset.rank)===rank));}
+const activeFilters={len:'all',hs:'all'};
+function filterGrid(btn,type,val){activeFilters[type]=val; document.querySelectorAll(`[data-filter-${type}]`).forEach(b=>b.classList.remove('active')); btn.classList.add('active'); let n=0; document.querySelectorAll('.design-card').forEach(card=>{const show=(activeFilters.len==='all'||card.dataset.len===activeFilters.len)&&(activeFilters.hs==='all'||card.dataset.hs===activeFilters.hs); card.classList.toggle('hidden',!show); if(show)n++;}); document.getElementById('grid-count').textContent=n+' design'+(n!==1?'s':'');}
+Chart.defaults.font.family="'DM Sans', sans-serif"; Chart.defaults.font.size=12; Chart.defaults.color='#5a5850';
+function getAllResidues(){const s=new Set(); ['clusterA','clusterB','distributed'].forEach(cfg=>Object.keys(FP.contact_frequency[cfg]).forEach(r=>s.add(+r))); return [...s].sort((a,b)=>a-b);}
+function barDataset(label,data,color){return {label,data,backgroundColor:color+'bb',borderColor:color,borderWidth:1.5,borderRadius:3};}
+(function contactFreq(){const residues=getAllResidues(); const cfgs=['clusterA','clusterB','distributed'], colors=[C.blue,C.coral,C.amber], labels=['Cluster A','Cluster B','Distributed']; const datasets=cfgs.map((cfg,i)=>barDataset(labels[i],residues.map(r=>FP.contact_frequency[cfg][r]||0),colors[i])); new Chart(document.getElementById('chartContactFreq'),{type:'bar',data:{labels:residues.map(String),datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12}}},scales:{x:{title:{display:true,text:'PD-L1 residue'}},y:{beginAtZero:true,max:105,ticks:{callback:v=>v+'%'},title:{display:true,text:'Fraction of designs'}}}}});})();
+(function coverage(){const cfgs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed']; const means=cfgs.map(c=>FP.hotspot_coverage[c].mean); new Chart(document.getElementById('chartCoverage'),{type:'bar',data:{labels,datasets:[{data:means,backgroundColor:[C.blue+'bb',C.coral+'bb',C.amber+'bb'],borderColor:[C.blue,C.coral,C.amber],borderWidth:1.5,borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:70,ticks:{callback:v=>v+'%'},title:{display:true,text:'% hotspots contacted'}}}}});})();
+(function coverageCompare(){const cfgs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed']; const bb=cfgs.map(c=>FP.comparison_to_backbone_only.backbone_coverage[c].mean*100); const fs=cfgs.map(c=>FP.comparison_to_backbone_only.full_sidechain_coverage[c]); new Chart(document.getElementById('chartCoverageCompare'),{type:'bar',data:{labels,datasets:[barDataset('Backbone-only',bb,C.purple),barDataset('Full sidechain',fs,C.accent)]},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12}}},scales:{y:{beginAtZero:true,max:70,ticks:{callback:v=>v+'%'},title:{display:true,text:'Mean coverage'}}}}});})();
+(function mimicryPie(){const o=FP.mimicry_summary.overall; new Chart(document.getElementById('chartMimicryPie'),{type:'doughnut',data:{labels:['Exact match','Same class','Novel'],datasets:[{data:[o.exact_match,o.same_class,o.novel],backgroundColor:[C.accent+'cc',C.blue+'cc',C.coral+'cc'],borderColor:[C.accent,C.blue,C.coral],borderWidth:2}]},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12}}}}});})();
+(function mimicryByConfig(){const cfgs=['clusterA','clusterB','distributed'],labels=['Cluster A','Cluster B','Distributed']; const cats=['exact_match','same_class','novel'],catLabels=['Exact match','Same class','Novel'],colors=[C.accent,C.blue,C.coral]; const datasets=cats.map((cat,i)=>({label:catLabels[i],data:cfgs.map(cfg=>{const d=FP.mimicry_summary.by_config[cfg]||{}; const tot=Object.values(d).reduce((a,b)=>a+b,0)||1; return ((d[cat]||0)/tot*100).toFixed(1);}),backgroundColor:colors[i]+'cc',borderColor:colors[i],borderWidth:1})); new Chart(document.getElementById('chartMimicry'),{type:'bar',data:{labels,datasets},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true,max:100,ticks:{callback:v=>v+'%'}}}}});})();
+(function intTypes(){const types=['mixed','hydrophobic_or_aromatic','hbond_compatible','salt_bridge_compatible']; const labels=['Mixed','Hydrophobic/aromatic','H-bond-compatible','Charged–charged']; const sources=['native','clusterA','clusterB','distributed']; const sourceLabels={native:'Native PD-1',clusterA:'Cluster A',clusterB:'Cluster B',distributed:'Distributed'}; const sourceColors={native:C.purple,clusterA:C.blue,clusterB:C.coral,distributed:C.amber}; const datasets=sources.map(src=>{const obj=src==='native'?FP.native_interaction_types:FP.interaction_types[src]; return barDataset(sourceLabels[src],types.map(t=>obj[t]||0),sourceColors[src]);}); new Chart(document.getElementById('chartIntTypes'),{type:'bar',data:{labels,datasets},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'%'},title:{display:true,text:'Fraction of contacts'}}}}});})();
+(function bsa(){const b=FP.extended_metrics.buried_surface_area.by_config; new Chart(document.getElementById('chartBSA'),{type:'bar',data:{labels:['Cluster A','Cluster B','Distributed'],datasets:[{data:[b.clusterA.mean,b.clusterB.mean,b.distributed.mean],backgroundColor:[C.blue+'bb',C.coral+'bb',C.amber+'bb'],borderColor:[C.blue,C.coral,C.amber],borderWidth:1.5,borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,title:{display:true,text:'BSA, Å²'}}}}});})();
+(function proxy(){const s=FP.extended_metrics.interface_normal_complementarity_proxy; new Chart(document.getElementById('chartProxy'),{type:'bar',data:{labels:['Cluster A','Cluster B','Distributed','Native'],datasets:[{data:[s.by_config.clusterA.mean,s.by_config.clusterB.mean,s.by_config.distributed.mean,s.native],backgroundColor:[C.blue+'bb',C.coral+'bb',C.amber+'bb',C.purple+'bb'],borderColor:[C.blue,C.coral,C.amber,C.purple],borderWidth:1.5,borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:0.35,title:{display:true,text:'Custom proxy score'}}}}});})();
+(function atomAnatomy(){const a=FP.extended_metrics.closest_atom_pair_anatomy; const cats=['SC-SC','SC-BB','BB-SC','BB-BB']; const groups=['overall','native']; const labels=['Designed, overall','Native PD-1']; const colors=[C.accent,C.purple]; const datasets=groups.map((g,i)=>barDataset(labels[i],cats.map(c=>a[g][c]||0),colors[i])); new Chart(document.getElementById('chartAtomAnatomy'),{type:'bar',data:{labels:cats,datasets},options:{plugins:{legend:{position:'bottom',labels:{boxWidth:12}}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},title:{display:true,text:'Fraction of nearest residue-pair contacts'}}}}});})();
+window.addEventListener('DOMContentLoaded',()=>{initViewer();buildGrid();loadDesign(DESIGNS[0]);});
 </script>
 </body>
 </html>
