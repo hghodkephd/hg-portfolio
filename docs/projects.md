@@ -15,7 +15,7 @@ Across these projects, common themes include mechanistic modeling, operational s
 
 **Summary:** Built an end-to-end computational protein design workflow for de novo mini binders targeting the PD-1 binding surface of PD-L1. The project uses RFdiffusion for backbone generation, ProteinMPNN for sequence design, and ESMFold-based structural validation to rank candidate binders by fold confidence and design recapitulation. Includes interactive visualization, candidate filtering, entropy-guided library design logic, and discussion of experimental validation requirements.
 
-**Links:** [De novo mini binder design](/hg-portfolio/projects/pdl1-mini-binder/Page1_denovo_minibinder_design) · [Parameter Sensitivity](/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity) · [Interaction Fingerprinting](/hg-portfolio/projects/pdl1-mini-binder/Page3_interaction_fingerprinting/) · [Molecular Dynamics Simulation](https://github.com/hghodkephd/hg-portfolio/blob/main/docs/projects/pdl1-mini-binder/Page4_MDsimulations/index.html) · [Code](https://github.com/hghodkephd/pdl1-mini-binder-design)
+**Links:** [De novo mini binder design](/hg-portfolio/projects/pdl1-mini-binder/Page1_denovo_minibinder_design) · [Parameter Sensitivity](/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity) · [Interaction Fingerprinting](/hg-portfolio/projects/pdl1-mini-binder/Page3_interaction_fingerprinting/) · [Molecular Dynamics Simulation](https://github.com/hghodkephd/hg-portfolio/blob/main/docs/projects/pdl1-mini-binder/Page4_MDsimulations) · [Code](https://github.com/hghodkephd/pdl1-mini-binder-design)
 
 ---
 
