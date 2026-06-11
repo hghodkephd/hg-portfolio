@@ -504,30 +504,84 @@ const TC_MAP = {
 "len70_distributed_noise0__design_5_0_rank2":"06_len70_distributed_noise0__design_5_0__design_5_0_rank2__threaded_complex.pdb"
 };
 
+// Cache fetched data to avoid re-downloading
+const dataCache = {};
+
+async function fetchData(url) {
+  if (dataCache[url]) return dataCache[url];
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status);
+  const text = await r.text();
+  dataCache[url] = text;
+  return text;
+}
+
+function getTCUrl(designName) {
+  const tcFile = TC_MAP[designName];
+  if (!tcFile) return null;
+  return REPO_BASE + TC_BASE + tcFile;
+}
+
+function getBoltzUrl(d) {
+  return REPO_BASE + d.boltz_cif;
+}
+
 function loadStructure(idx, mode) {
   const d = DESIGNS[idx];
   const el = document.getElementById('v'+idx);
   if (!el) return;
   el.innerHTML = '<div class="loading">Loading...</div>';
-  let url, fmt;
+
+  const tcUrl = getTCUrl(d.design_name);
+  const boltzUrl = getBoltzUrl(d);
+
   if (mode === 'boltz') {
-    url = REPO_BASE + d.boltz_cif;
-    fmt = 'cif';
+    // Load both structures: align Boltz chain A onto threaded complex chain A
+    if (!tcUrl) { el.innerHTML='<div class="loading" style="color:var(--coral)">Reference PDB not found</div>'; return; }
+    Promise.all([fetchData(tcUrl), fetchData(boltzUrl)]).then(([tcData, boltzData]) => {
+      el.innerHTML='';
+      const v = $3Dmol.createViewer(el, {backgroundColor:'#1a1a2e', antialias:true});
+
+      // Add reference (threaded complex) as hidden model for alignment
+      const refModel = v.addModel(tcData, 'pdb');
+
+      // Add Boltz model
+      const boltzModel = v.addModel(boltzData, 'cif');
+
+      // Align Boltz chain A onto reference chain A (PD-L1 target)
+      // alignTo: align boltzModel to refModel using CA atoms of chain A
+      var refSel = {chain:'A', atom:'CA'};
+      var movSel = {chain:'A', atom:'CA'};
+      v.alignModel(boltzModel.getID(), refModel.getID(), movSel, refSel);
+
+      // Hide the reference model
+      v.setStyle({model: refModel.getID()}, {});
+
+      // Style the Boltz model
+      v.setStyle({model: boltzModel.getID(), chain:'A'}, {cartoon:{color:'#22c55e', opacity:0.85}});
+      v.setStyle({model: boltzModel.getID(), chain:'B'}, {cartoon:{color:'#3b82f6', opacity:0.95}});
+
+      v.zoomTo({model: boltzModel.getID()});
+      v.render();
+      viewers[idx] = {viewer:v, mode};
+    }).catch(e => {
+      el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;
+    });
   } else {
-    const tcFile = TC_MAP[d.design_name];
-    if (!tcFile) { el.innerHTML='<div class="loading" style="color:var(--coral)">PDB not found</div>'; return; }
-    url = REPO_BASE + TC_BASE + tcFile;
-    fmt = 'pdb';
+    // Load threaded complex directly
+    if (!tcUrl) { el.innerHTML='<div class="loading" style="color:var(--coral)">PDB not found</div>'; return; }
+    fetchData(tcUrl).then(data => {
+      el.innerHTML='';
+      const v = $3Dmol.createViewer(el, {backgroundColor:'#1a1a2e', antialias:true});
+      v.addModel(data, 'pdb');
+      v.setStyle({chain:'A'}, {cartoon:{color:'#22c55e', opacity:0.85}});
+      v.setStyle({chain:'B'}, {cartoon:{color:'#3b82f6', opacity:0.95}});
+      v.zoomTo(); v.render();
+      viewers[idx] = {viewer:v, mode};
+    }).catch(e => {
+      el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;
+    });
   }
-  fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(data=>{
-    el.innerHTML='';
-    const v=$3Dmol.createViewer(el,{backgroundColor:'#1a1a2e',antialias:true});
-    v.addModel(data,fmt);
-    v.setStyle({chain:'A'},{cartoon:{color:'#22c55e',opacity:0.85}});
-    v.setStyle({chain:'B'},{cartoon:{color:'#3b82f6',opacity:0.95}});
-    v.zoomTo();v.render();
-    viewers[idx]={viewer:v,mode};
-  }).catch(e=>{el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;});
 }
 
 const grid = document.getElementById('grid');
