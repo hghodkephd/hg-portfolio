@@ -291,8 +291,15 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 </div>
 <p class="fig-caption"><strong>Figure 2.</strong> ipTM vs complex pLDDT for all 31 designs. The validated zone (upper right) contains 28 designs. The three uncertain designs have high pLDDT (the individual chains fold well) but lower ipTM (Boltz is less confident about the interface).</p>
 
-<h3>Boltz confidence is independent of prior metrics</h3>
-<p>An important finding: ipTM shows essentially zero correlation with ESMFold alignment RMSD (Spearman ρ = +0.004) and no significant correlation with ProteinMPNN scores. This means Boltz is measuring something genuinely independent from what the upstream pipeline measured — exactly what we want from an orthogonal validation. If ipTM simply tracked pLDDT, it wouldn't add information.</p>
+<h3>Relationship between Boltz confidence and prior metrics</h3>
+
+<div class="chart-grid">
+<div class="chart-card"><h3>ipTM vs ESMFold alignment RMSD</h3><canvas id="chart-corr-rmsd"></canvas></div>
+<div class="chart-card"><h3>ipTM vs ESMFold pLDDT</h3><canvas id="chart-corr-plddt"></canvas></div>
+</div>
+<p class="fig-caption"><strong>Figure 3.</strong> Boltz-2 ipTM plotted against ESMFold alignment RMSD (left, Spearman ρ = +0.004) and ESMFold mean pLDDT (right). Neither prior metric is a strong predictor of Boltz interface confidence.</p>
+
+<p>The ipTM scores from Boltz-2 do not reflect the same quantity captured by alignment RMSD or pLDDT from our ESMFold workflow. A design can have excellent single-chain fold recapitulation (low RMSD, high pLDDT) yet receive a modest ipTM if Boltz positions the binder differently relative to PD-L1. Conversely, a design with slightly worse fold metrics could receive a high ipTM if Boltz finds a confident docking geometry. One plausible reason: the binder could contact the same hotspot residues but approach PD-L1 from a different angle, or the ectodomain could be positioned differently in the predicted complex even though the local interface contacts are similar. ipTM captures global chain-to-chain positioning, while alignment RMSD captures local backbone accuracy — these are related but distinct structural questions.</p>
 
 <h3>The three uncertain designs</h3>
 <table class="param-table">
@@ -425,6 +432,52 @@ new Chart(document.getElementById('chart-scatter'), {
     plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
     scales: {
       x: {title:{display:true,text:'complex pLDDT',font:{family:'DM Sans'}}, min:0.8, max:1},
+      y: {title:{display:true,text:'ipTM',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// Chart 4: ipTM vs RMSD correlation
+new Chart(document.getElementById('chart-corr-rmsd'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: DESIGNS.filter(d=>d.hotspot_config===cfg).map(d=>({x:d.rmsd,y:d.ipTM})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'ESMFold alignment RMSD (Å)',font:{family:'DM Sans'}}},
+      y: {title:{display:true,text:'ipTM',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// Chart 5: ipTM vs pLDDT correlation
+new Chart(document.getElementById('chart-corr-plddt'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: DESIGNS.filter(d=>d.hotspot_config===cfg).map(d=>({x:d.mean_plddt,y:d.ipTM})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'ESMFold mean pLDDT',font:{family:'DM Sans'}}},
       y: {title:{display:true,text:'ipTM',font:{family:'DM Sans'}}, min:0, max:1}
     }
   }
