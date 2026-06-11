@@ -322,7 +322,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <!-- SECTION: Structure viewer -->
 <h2>Structure viewer: RFdiffusion vs Boltz-2</h2>
 
-<p>Each card below shows one of the 31 designs. Use the toggle to switch between the RFdiffusion-designed pose (the input to our pipeline) and the Boltz-2 predicted complex (the independent prediction from sequence alone). PD-L1 is shown in green, the designed binder in blue. Cards are sorted by ipTM and bordered green (validated) or amber (uncertain).</p>
+<p>Each card below shows one of the 31 designs. Use the toggle to switch between the designed pose (the threaded complex from our pipeline, with ProteinMPNN residues superimposed on the RFdiffusion backbone) and the Boltz-2 predicted complex (the independent prediction from sequence alone). PD-L1 is shown in green, the designed binder in blue. Cards are sorted by ipTM and bordered green (validated) or amber (uncertain).</p>
 
 <div class="viewer-controls" id="filters">
   <button class="filter-btn active" data-filter="all">All (31)</button>
@@ -454,7 +454,7 @@ function buildCard(d, idx) {
   card.innerHTML = `
     <div class="vcard-viewer" id="v${idx}"><div class="loading">Scroll to load</div></div>
     <div class="toggle-bar">
-      <button class="toggle-btn active" data-mode="rfdiffusion" data-idx="${idx}">RFdiffusion</button>
+      <button class="toggle-btn active" data-mode="rfdiffusion" data-idx="${idx}">Designed pose</button>
       <button class="toggle-btn" data-mode="boltz" data-idx="${idx}">Boltz-2</button>
     </div>
     <div class="vcard-body">
@@ -469,14 +469,43 @@ function buildCard(d, idx) {
   return card;
 }
 
-function loadStructure(idx, mode) {
+const TC_BASE = "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/";
+
+async function findThreadedComplex(designName) {
+  for (let nn = 1; nn <= 31; nn++) {
+    const prefix = String(nn).padStart(2,'0');
+    const url = REPO_BASE + TC_BASE + prefix + '_' + designName + '__threaded_complex.pdb';
+    try {
+      const r = await fetch(url, {method:'HEAD'});
+      if (r.ok) return {url, fmt:'pdb'};
+    } catch(e) {}
+  }
+  return null;
+}
+
+async function loadStructure(idx, mode) {
   const d = DESIGNS[idx];
   const el = document.getElementById('v'+idx);
   if (!el) return;
   el.innerHTML = '<div class="loading">Loading...</div>';
-  const url = REPO_BASE + (mode==='boltz' ? d.boltz_cif : d.rf_pdb);
-  const fmt = mode==='boltz' ? 'cif' : 'pdb';
-  fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(data=>{
+  let url, fmt;
+  if (mode === 'boltz') {
+    url = REPO_BASE + d.boltz_cif;
+    fmt = 'cif';
+  } else {
+    // Try to find the threaded complex with NN_ prefix
+    if (d._tc_url) {
+      url = d._tc_url; fmt = 'pdb';
+    } else {
+      const found = await findThreadedComplex(d.design_name);
+      if (found) { url = found.url; fmt = found.fmt; d._tc_url = url; }
+      else { el.innerHTML='<div class="loading" style="color:var(--coral)">PDB not found</div>'; return; }
+    }
+  }
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.text();
     el.innerHTML='';
     const v=$3Dmol.createViewer(el,{backgroundColor:'#1a1a2e',antialias:true});
     v.addModel(data,fmt);
@@ -484,7 +513,7 @@ function loadStructure(idx, mode) {
     v.setStyle({chain:'B'},{cartoon:{color:'#3b82f6',opacity:0.95}});
     v.zoomTo();v.render();
     viewers[idx]={viewer:v,mode};
-  }).catch(e=>{el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;});
+  } catch(e) { el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`; }
 }
 
 const grid = document.getElementById('grid');
