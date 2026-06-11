@@ -542,17 +542,88 @@ function loadStructure(idx, mode) {
       el.innerHTML='';
       const v = $3Dmol.createViewer(el, {backgroundColor:'#1a1a2e', antialias:true});
 
-      // Add reference (threaded complex) as hidden model for alignment
+      // Add reference (threaded complex) for alignment
       const refModel = v.addModel(tcData, 'pdb');
-
       // Add Boltz model
       const boltzModel = v.addModel(boltzData, 'cif');
 
-      // Align Boltz chain A onto reference chain A (PD-L1 target)
-      // alignTo: align boltzModel to refModel using CA atoms of chain A
-      var refSel = {chain:'A', atom:'CA'};
-      var movSel = {chain:'A', atom:'CA'};
-      v.alignModel(boltzModel.getID(), refModel.getID(), movSel, refSel);
+      // Extract CA coords from chain A of both models
+      var refAtoms = refModel.selectedAtoms({chain:'A', atom:'CA'});
+      var movAtoms = boltzModel.selectedAtoms({chain:'A', atom:'CA'});
+
+      // Use the shorter length (in case residue counts differ slightly)
+      var n = Math.min(refAtoms.length, movAtoms.length);
+      if (n >= 3) {
+        // Compute centroids
+        var refCen = {x:0,y:0,z:0}, movCen = {x:0,y:0,z:0};
+        for (var i=0;i<n;i++){
+          refCen.x+=refAtoms[i].x; refCen.y+=refAtoms[i].y; refCen.z+=refAtoms[i].z;
+          movCen.x+=movAtoms[i].x; movCen.y+=movAtoms[i].y; movCen.z+=movAtoms[i].z;
+        }
+        refCen.x/=n; refCen.y/=n; refCen.z/=n;
+        movCen.x/=n; movCen.y/=n; movCen.z/=n;
+
+        // Build 3x3 correlation matrix H
+        var H = [[0,0,0],[0,0,0],[0,0,0]];
+        for (var i=0;i<n;i++){
+          var p = [movAtoms[i].x-movCen.x, movAtoms[i].y-movCen.y, movAtoms[i].z-movCen.z];
+          var q = [refAtoms[i].x-refCen.x, refAtoms[i].y-refCen.y, refAtoms[i].z-refCen.z];
+          for(var r=0;r<3;r++) for(var c=0;c<3;c++) H[r][c]+=p[r]*q[c];
+        }
+
+        // SVD via Jacobi rotations (simple 3x3 SVD for Kabsch)
+        // Use 3Dmol's built-in matrix utilities or a simple quaternion approach
+        // Actually, 3Dmol has a utility: $3Dmol.symmetryAlignment or we use a direct approach
+
+        // Simpler: use 3Dmol's built-in superpose on all atoms of Boltz model
+        // by translating and applying rotation via the transform matrix
+
+        // Use the $3Dmol.alignViewer approach: compute optimal rotation via quaternion
+        // For robustness, let's use a direct SVD-free quaternion method (Davenport's q-method)
+
+        // Build the 4x4 key matrix for quaternion solution
+        var Sxx=H[0][0],Sxy=H[0][1],Sxz=H[0][2];
+        var Syx=H[1][0],Syy=H[1][1],Syz=H[1][2];
+        var Szx=H[2][0],Szy=H[2][1],Szz=H[2][2];
+
+        var N11=Sxx+Syy+Szz, N22=Sxx-Syy-Szz, N33=-Sxx+Syy-Szz, N44=-Sxx-Syy+Szz;
+        var N12=Syz-Szy, N13=Szx-Sxz, N14=Sxy-Syx;
+        var N23=Sxy+Syx, N24=Szx+Sxz, N34=Syz+Szy;
+
+        var K = [
+          [N11,N12,N13,N14],
+          [N12,N22,N23,N24],
+          [N13,N23,N33,N34],
+          [N14,N24,N34,N44]
+        ];
+
+        // Power iteration to find largest eigenvector of K
+        var q = [1,0,0,0];
+        for (var iter=0;iter<50;iter++){
+          var nq=[0,0,0,0];
+          for(var r=0;r<4;r++) for(var c=0;c<4;c++) nq[r]+=K[r][c]*q[c];
+          var norm=Math.sqrt(nq[0]*nq[0]+nq[1]*nq[1]+nq[2]*nq[2]+nq[3]*nq[3]);
+          q=[nq[0]/norm,nq[1]/norm,nq[2]/norm,nq[3]/norm];
+        }
+
+        // Quaternion to rotation matrix
+        var q0=q[0],q1=q[1],q2=q[2],q3=q[3];
+        var R = [
+          [q0*q0+q1*q1-q2*q2-q3*q3, 2*(q1*q2-q0*q3), 2*(q1*q3+q0*q2)],
+          [2*(q1*q2+q0*q3), q0*q0-q1*q1+q2*q2-q3*q3, 2*(q2*q3-q0*q1)],
+          [2*(q1*q3-q0*q2), 2*(q2*q3+q0*q1), q0*q0-q1*q1-q2*q2+q3*q3]
+        ];
+
+        // Apply transform to ALL atoms of Boltz model: R*(pos-movCen) + refCen
+        var allBoltz = boltzModel.selectedAtoms({});
+        for (var i=0;i<allBoltz.length;i++){
+          var a = allBoltz[i];
+          var dx=a.x-movCen.x, dy=a.y-movCen.y, dz=a.z-movCen.z;
+          a.x = R[0][0]*dx + R[0][1]*dy + R[0][2]*dz + refCen.x;
+          a.y = R[1][0]*dx + R[1][1]*dy + R[1][2]*dz + refCen.y;
+          a.z = R[2][0]*dx + R[2][1]*dy + R[2][2]*dz + refCen.z;
+        }
+      }
 
       // Hide the reference model
       v.setStyle({model: refModel.getID()}, {});
