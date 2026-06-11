@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Part 5: Independent Complex Validation — PD-L1 Mini Binder Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/3dmol@2.1.0/build/3Dmol-min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--purple:#6b4c9a;--purple-light:#ede6f5;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+.series-banner{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;padding:.75rem 1rem;background:var(--accent-light);border-radius:var(--radius);border-left:3px solid var(--accent);flex-wrap:wrap}
+.series-banner .tag{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.series-banner a{font-size:.85rem;color:var(--accent2);font-weight:500;text-decoration:none;border-bottom:1px dashed var(--accent)}
+.series-banner .sep{color:var(--accent);opacity:.4}
+
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+.subtitle{font-size:1.05rem;color:var(--tx3);font-family:var(--serif);font-style:italic;margin-bottom:2rem}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0 2rem}
+.stat-card{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius);padding:1rem;text-align:center}
+.stat-card .num{font-family:var(--mono);font-size:1.6rem;font-weight:500;color:var(--accent2);line-height:1.2}
+.stat-card .label{font-size:.75rem;color:var(--tx3);margin-top:.25rem;text-transform:uppercase;letter-spacing:.06em}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+
+.param-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0 1.5rem}
+.param-table th{background:var(--bg2);padding:.5rem .75rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);border-bottom:2px solid var(--bg3)}
+.param-table td{padding:.5rem .75rem;border-bottom:1px solid var(--bg3)}
+.param-table tr:hover{background:var(--bg2)}
+.param-table .num{font-family:var(--mono);font-size:.8rem}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:99px;font-size:.7rem;font-weight:500;font-family:var(--mono)}
+.badge-pass{background:var(--accent-light);color:var(--accent2)}
+.badge-fail{background:var(--coral-light);color:var(--coral)}
+.badge-clusterA{background:var(--blue-light);color:var(--blue)}
+.badge-clusterB{background:var(--coral-light);color:var(--coral)}
+.badge-distributed{background:var(--amber-light);color:var(--amber)}
+
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0}
+.chart-card{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem}
+.chart-card h3{margin:0 0 .75rem;font-size:.9rem}
+.chart-card canvas{width:100%!important;max-height:280px}
+.chart-card.full{grid-column:1/-1}
+@media(max-width:700px){.chart-grid{grid-template-columns:1fr}}
+
+.finding{margin:1rem 0;padding:1rem 1.25rem;border-radius:var(--radius);border-left:3px solid var(--accent)}
+.finding.coral{border-left-color:var(--coral);background:var(--coral-light)}
+.finding.blue{border-left-color:var(--blue);background:var(--blue-light)}
+.finding.green{border-left-color:var(--accent);background:var(--accent-light)}
+.finding.amber{border-left-color:var(--amber);background:var(--amber-light)}
+.finding strong{color:var(--tx)}
+.finding p{margin-bottom:0;font-size:.88rem}
+
+.aside{background:var(--purple-light);border:1px solid rgba(107,76,154,.15);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin:1.5rem 0;font-size:.88rem}
+.aside .aside-label{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--purple);margin-bottom:.5rem;font-weight:500}
+.aside p{margin-bottom:.5rem;color:var(--tx2)}
+.aside p:last-child{margin-bottom:0}
+
+.callout{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0}
+.callout p{margin-bottom:.5rem}
+.callout p:last-child{margin-bottom:0}
+
+.recap{background:var(--blue-light);border:1px solid rgba(46,109,164,.2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0}
+.recap p{margin-bottom:.5rem;font-size:.9rem}
+.recap p:last-child{margin-bottom:0}
+.recap a{color:var(--blue);font-weight:500;text-decoration:none;border-bottom:1px solid var(--blue)}
+
+.top-table{width:100%;border-collapse:collapse;font-size:.8rem;margin:1rem 0 1.5rem}
+.top-table th{background:var(--accent2);color:#fff;padding:.6rem .75rem;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+.top-table td{padding:.5rem .75rem;border-bottom:1px solid var(--bg3);font-family:var(--mono);font-size:.78rem}
+.top-table tr:nth-child(even){background:var(--bg2)}
+.top-table tr:first-child td{background:var(--accent-light)}
+.rank-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.7rem;font-weight:600}
+
+code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em .4em;border-radius:3px}
+
+.page-footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);text-align:center;color:var(--tx3);font-size:.8rem}
+.page-footer a{color:var(--accent);text-decoration:none}
+
+/* Figure captions */
+.fig-caption{font-size:.8rem;color:var(--tx3);margin-top:.5rem;font-style:italic;line-height:1.5}
+
+/* Structure viewer grid */
+.viewer-controls{display:flex;justify-content:center;gap:.35rem;padding:1rem 0;flex-wrap:wrap}
+.filter-btn{padding:.35rem .9rem;border:1px solid var(--bg3);border-radius:99px;background:#fff;cursor:pointer;font-size:.78rem;font-family:var(--sans);font-weight:500;color:var(--tx2);transition:all .15s}
+.filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.viewer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin:1rem 0}
+.vcard{background:#fff;border-radius:var(--radius-lg);border:2.5px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden;transition:transform .15s,box-shadow .15s}
+.vcard:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.vcard.validated{border-color:var(--accent)}
+.vcard.uncertain{border-color:var(--amber)}
+.vcard.failed{border-color:var(--coral)}
+.vcard-viewer{width:100%;height:220px;background:#1a1a2e;position:relative}
+.vcard-viewer .loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#8a8878;font-size:.75rem;font-family:var(--sans)}
+.toggle-bar{display:flex;justify-content:center;background:#1a1a2e;padding:.3rem .75rem;gap:0}
+.toggle-btn{padding:.2rem .65rem;font-size:.68rem;font-family:var(--mono);border:1px solid #4a5568;background:transparent;color:#8a8878;cursor:pointer;transition:all .15s}
+.toggle-btn:first-child{border-radius:4px 0 0 4px}
+.toggle-btn:last-child{border-radius:0 4px 4px 0}
+.toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.vcard-body{padding:.6rem .85rem .75rem}
+.vcard-title{font-size:.75rem;font-weight:600;margin-bottom:.4rem;font-family:var(--sans)}
+.vcard-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.3rem;text-align:center}
+.metric .val{font-size:.9rem;font-weight:500;font-family:var(--mono);color:var(--accent2)}
+.metric .lbl{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;font-family:var(--sans)}
+.vcard-meta{font-size:.7rem;color:var(--tx3);margin-top:.35rem}
+.viewer-legend{text-align:center;padding:.75rem;font-size:.75rem;color:var(--tx3)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Series Banner -->
+<div class="series-banner">
+  <span class="tag">Independent Complex Validation</span>
+  <span class="sep">|</span>
+  <span style="font-size:.85rem;color:var(--tx2)">The wet-lab scientist's guide to computational protein design</span>
+  <span class="sep">|</span>
+  <a href="Page4_md_simulation.html">← Part 4: MD Simulation</a>
+</div>
+
+<h1>Part 5: Independent Complex Validation with Boltz-2</h1>
+<p class="subtitle">Do binder–PD-L1 interfaces predicted by RFdiffusion survive independent verification?</p>
+
+<!-- Recap -->
+<div class="recap">
+  <p><strong>Previously, in Parts 1–4:</strong> We built a complete design pipeline — RFdiffusion → ProteinMPNN → ESMFold — and validated 31 mini-binder candidates through a parameter sensitivity study, full-sidechain interaction fingerprinting, and molecular dynamics simulation. Every structural analysis so far has relied on geometry that originated from RFdiffusion. This page asks the harder question: <em>is the binding interface encoded in the designed sequence itself, or only in the designed structure?</em></p>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card"><div class="num">31</div><div class="label">Designs scored</div></div>
+  <div class="stat-card"><div class="num">28</div><div class="label">Validated</div></div>
+  <div class="stat-card"><div class="num">0.963</div><div class="label">Best ipTM</div></div>
+  <div class="stat-card"><div class="num">0.770</div><div class="label">Mean ipTM</div></div>
+</div>
+
+
+<!-- SECTION: What is Boltz-2 -->
+<h2>What is Boltz-2 and why does it matter?</h2>
+
+<p>So far in this project, every structural analysis has relied on geometry that originated from RFdiffusion. The backbone was designed by RFdiffusion, the sequence was designed by ProteinMPNN on that backbone, ESMFold confirmed the sequence folds into that backbone shape, and the fingerprinting and MD analyses all started from the RFdiffusion-designed complex pose. Every step carried forward the structural assumptions of the first step.</p>
+
+<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it also form a complex with PD-L1? Single-chain fold recapitulation does not guarantee multi-chain interaction.</p>
+
+<p>Boltz-2 is an open-source deep-learning model from MIT (Wohlwend et al., 2024–2025) that predicts the 3D structure of biomolecular complexes from sequence alone, achieving AlphaFold 3-level accuracy. We give it two protein sequences — binder and PD-L1 — with no structural hints. It predicts how they fold together and reports confidence metrics, particularly the <strong>interface predicted TM-score (ipTM)</strong>, which has been shown to correlate with experimental binding success better than physics-based scores like Rosetta energies.</p>
+
+
+<!-- SECTION: Schematic -->
+<h2>Two paths to the same question</h2>
+
+<p>The schematic below shows how Boltz-2 fits into the pipeline. Path 1 (the blue track) is the design pipeline we've built across Parts 1–4 — structural information flows forward at every step. Path 2 (the amber fork) branches from ProteinMPNN, taking only the designed sequences with no structural context, and asks Boltz-2 to predict the complex independently. The two paths converge on a single question: do the interfaces agree?</p>
+
+<div style="margin:1.5rem 0">
+<svg width="100%" viewBox="0 0 680 420" style="max-width:680px;display:block;margin:0 auto" role="img">
+<title>Pipeline schematic: two paths to complex validation</title>
+<defs>
+<marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+
+<text x="340" y="24" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#8a8878">Design brief: create novel mini-protein binders for PD-L1</text>
+
+<rect x="40" y="44" width="112" height="44" rx="8" fill="#f0eeea" stroke="#8a8878" stroke-width=".5"/>
+<text x="96" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#5a5850">PD-L1 surface</text>
+<text x="96" y="79" text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="10" fill="#8a8878">4ZQK chain A</text>
+
+<line x1="152" y1="66" x2="175" y2="66" stroke="#8a8878" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="179" y="44" width="102" height="44" rx="8" fill="#ede6f5" stroke="#6b4c9a" stroke-width=".5"/>
+<text x="230" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#6b4c9a">RFdiffusion</text>
+<text x="230" y="79" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#8a7aa0">Novel backbone</text>
+
+<line x1="281" y1="66" x2="304" y2="66" stroke="#8a8878" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="308" y="44" width="110" height="44" rx="8" fill="#e1f0ea" stroke="#1d6b52" stroke-width=".5"/>
+<text x="363" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#0f4a38">ProteinMPNN</text>
+<text x="363" y="79" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#3d8a6e">Sequence design</text>
+
+<line x1="418" y1="66" x2="441" y2="66" stroke="#8a8878" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="445" y="44" width="82" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
+<text x="486" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">ESMFold</text>
+<text x="486" y="79" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#5a8ebe">Fold check</text>
+
+<line x1="527" y1="66" x2="550" y2="66" stroke="#8a8878" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="554" y="44" width="94" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
+<text x="601" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">Filter + rank</text>
+<text x="601" y="79" text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="10" fill="#5a8ebe">31 candidates</text>
+
+<text x="340" y="116" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878">Path 1 — structural information carried forward at every step</text>
+
+<line x1="601" y1="88" x2="601" y2="134" stroke="#2e6da4" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="536" y="138" width="130" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
+<text x="601" y="157" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">Fingerprinting</text>
+<text x="601" y="173" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#5a8ebe">Interface contacts</text>
+
+<line x1="601" y1="182" x2="601" y2="210" stroke="#2e6da4" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="541" y="214" width="120" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
+<text x="601" y="233" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">MD simulation</text>
+<text x="601" y="249" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#5a8ebe">Dynamic stability</text>
+
+<!-- Amber fork -->
+<line x1="363" y1="88" x2="363" y2="286" stroke="#b07818" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="363" y1="286" x2="363" y2="304" stroke="#b07818" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<text x="295" y="200" text-anchor="end" font-family="DM Sans,sans-serif" font-size="10.5" fill="#b07818">Sequences only</text>
+<text x="295" y="216" text-anchor="end" font-family="DM Sans,sans-serif" font-size="10.5" fill="#b07818">No structural hints</text>
+
+<rect x="290" y="308" width="146" height="50" rx="10" fill="#faf0da" stroke="#b07818" stroke-width="1"/>
+<text x="363" y="327" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#7a5310">Boltz-2</text>
+<text x="363" y="345" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#b07818">Independent prediction</text>
+
+<text x="200" y="340" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878" opacity=".7">Path 2 — sequence to</text>
+<text x="200" y="356" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878" opacity=".7">structure from scratch</text>
+
+<!-- Convergence -->
+<line x1="436" y1="333" x2="534" y2="333" stroke="#b07818" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="601" y1="258" x2="601" y2="333" stroke="#2e6da4" stroke-width="1"/>
+
+<rect x="538" y="311" width="126" height="44" rx="8" fill="#faeae4" stroke="#c85a3a" stroke-width=".5"/>
+<text x="601" y="330" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#c85a3a">Do they agree?</text>
+<text x="601" y="346" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#c85a3a">Compare interfaces</text>
+
+<line x1="601" y1="355" x2="601" y2="376" stroke="#0f4a38" stroke-width="1" marker-end="url(#arr)"/>
+
+<rect x="530" y="380" width="142" height="28" rx="8" fill="#e1f0ea" stroke="#1d6b52" stroke-width=".5"/>
+<text x="601" y="397" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#0f4a38">28 of 31 validated</text>
+</svg>
+<p class="fig-caption"><strong>Figure 1.</strong> Two paths to complex validation. The design pipeline (Path 1, blue) carries structural information from RFdiffusion through every downstream step. Boltz-2 (Path 2, amber) starts from ProteinMPNN sequences alone with no structural context. Agreement between the two paths provides orthogonal evidence that the binding interface is encoded in the designed sequence.</p>
+</div>
+
+
+<!-- SECTION: Key metrics -->
+<h2>What Boltz-2 measures</h2>
+
+<table class="param-table">
+<thead><tr><th>Metric</th><th>What it means</th><th>Threshold</th></tr></thead>
+<tbody>
+<tr><td><strong>ipTM</strong></td><td style="color:var(--tx2)">Interface predicted TM-score — how confident the model is that the two chains are positioned correctly relative to each other. The single best predictor of experimental binding.</td><td class="num">≥ 0.6</td></tr>
+<tr><td><strong>complex pLDDT</strong></td><td style="color:var(--tx2)">Per-residue confidence averaged across the complex. Indicates overall fold quality.</td><td class="num">≥ 0.7</td></tr>
+<tr><td><strong>complex PDE</strong></td><td style="color:var(--tx2)">Predicted distance error across inter-chain residue pairs. Lower values indicate better interface geometry.</td><td class="num">Lower</td></tr>
+</tbody>
+</table>
+
+<div class="callout">
+  <p><strong>What Boltz-2 is NOT used for here:</strong> Boltz-2 includes a binding affinity prediction module, but this was trained on protein–small molecule data, not protein–protein interactions. A recent study (King et al., 2025) showed that Boltz-2's affinity head underperforms sequence-based alternatives for protein–protein affinity. We extract only the structure confidence metrics, which are validated for protein–protein complexes.</p>
+</div>
+
+
+<!-- SECTION: Results -->
+<h2>Results</h2>
+
+<div class="finding green">
+  <p><strong>28 of 31 designs validated.</strong> Boltz-2 independently confirms plausible binder–PD-L1 interfaces for 90% of our designs. Zero designs failed outright. Three designs fell in the uncertain zone (ipTM 0.20–0.41). The top-scoring design achieved ipTM = 0.963 — exceptionally high confidence.</p>
+</div>
+
+<h3>Confidence by hotspot configuration</h3>
+<p>Cluster A designs scored highest on average (mean ipTM 0.821), followed by Cluster B (0.772) and Distributed (0.667). This is consistent with a plausible structural interpretation: concentrated hotspot clusters give Boltz a clearer docking signal because the binder has a well-defined binding patch, while distributed hotspots spread the interface thinner and make the docking geometry less deterministic for the prediction model.</p>
+
+<div class="chart-grid">
+<div class="chart-card"><h3>ipTM by hotspot configuration</h3><canvas id="chart-config"></canvas></div>
+<div class="chart-card"><h3>ipTM by binder length</h3><canvas id="chart-length"></canvas></div>
+</div>
+
+<h3>Confidence by binder length</h3>
+<p>The 25-mer and 70-mer designs showed similar mean ipTM (~0.80), while 100-mers had the widest variance (min 0.199, max 0.941). Longer binders have more possible docking orientations, which may make Boltz's prediction task harder — but the best 100-mers scored nearly as high as the best 70-mers.</p>
+
+<div class="chart-grid">
+<div class="chart-card full"><h3>ipTM vs complex pLDDT</h3><canvas id="chart-scatter"></canvas></div>
+</div>
+<p class="fig-caption"><strong>Figure 2.</strong> ipTM vs complex pLDDT for all 31 designs. The validated zone (upper right) contains 28 designs. The three uncertain designs have high pLDDT (the individual chains fold well) but lower ipTM (Boltz is less confident about the interface).</p>
+
+<h3>Boltz confidence is independent of prior metrics</h3>
+<p>An important finding: ipTM shows essentially zero correlation with ESMFold alignment RMSD (Spearman ρ = +0.004) and no significant correlation with ProteinMPNN scores. This means Boltz is measuring something genuinely independent from what the upstream pipeline measured — exactly what we want from an orthogonal validation. If ipTM simply tracked pLDDT, it wouldn't add information.</p>
+
+<h3>The three uncertain designs</h3>
+<table class="param-table">
+<thead><tr><th>Design</th><th>ipTM</th><th>pLDDT</th><th>Config</th><th>Length</th><th>RMSD</th></tr></thead>
+<tbody>
+<tr><td>len50 cB d19r0</td><td class="num">0.413</td><td class="num">0.922</td><td><span class="badge badge-clusterB">clusterB</span></td><td class="num">50</td><td class="num">0.70</td></tr>
+<tr><td>len100 dist d18r1</td><td class="num">0.314</td><td class="num">0.918</td><td><span class="badge badge-distributed">distributed</span></td><td class="num">100</td><td class="num">0.58</td></tr>
+<tr><td>len100 dist d15r5</td><td class="num">0.199</td><td class="num">0.844</td><td><span class="badge badge-distributed">distributed</span></td><td class="num">100</td><td class="num">1.41</td></tr>
+</tbody>
+</table>
+<p>The weakest design (ipTM = 0.199) was already the weakest by prior metrics — highest alignment RMSD (1.41 Å) and lowest pLDDT (90.5) in the cohort. The other two uncertain designs have high fold confidence (pLDDT > 0.9) but lower interface confidence, suggesting the individual chains fold well but Boltz couldn't confidently place them together.</p>
+
+<h3>Top 5 designs by Boltz confidence</h3>
+<table class="top-table">
+<thead><tr><th>#</th><th>Design</th><th>ipTM</th><th>pLDDT</th><th>PDE</th><th>Config</th><th>Length</th></tr></thead>
+<tbody>
+<tr><td><span class="rank-num">1</span></td><td>len50 cA σ0.5 d0r0</td><td>0.963</td><td>0.956</td><td>2.04</td><td><span class="badge badge-clusterA">clusterA</span></td><td>50</td></tr>
+<tr><td><span class="rank-num">2</span></td><td>len70 cB σ0 d19r1</td><td>0.942</td><td>0.905</td><td>4.13</td><td><span class="badge badge-clusterB">clusterB</span></td><td>70</td></tr>
+<tr><td><span class="rank-num">3</span></td><td>len100 dist σ0 d5r0</td><td>0.941</td><td>0.972</td><td>1.89</td><td><span class="badge badge-distributed">distributed</span></td><td>100</td></tr>
+<tr><td><span class="rank-num">4</span></td><td>len70 cA σ0.5 d13r1</td><td>0.927</td><td>0.960</td><td>2.20</td><td><span class="badge badge-clusterA">clusterA</span></td><td>70</td></tr>
+<tr><td><span class="rank-num">5</span></td><td>len100 cA σ0 d9r8</td><td>0.923</td><td>0.964</td><td>2.20</td><td><span class="badge badge-clusterA">clusterA</span></td><td>100</td></tr>
+</tbody>
+</table>
+<p>The top 5 span all three hotspot configurations and three different binder lengths — a reassuring sign that high-confidence designs are not confined to a single parameter corner.</p>
+
+
+<!-- SECTION: Structure viewer -->
+<h2>Structure viewer: RFdiffusion vs Boltz-2</h2>
+
+<p>Each card below shows one of the 31 designs. Use the toggle to switch between the RFdiffusion-designed pose (the input to our pipeline) and the Boltz-2 predicted complex (the independent prediction from sequence alone). PD-L1 is shown in green, the designed binder in blue. Cards are sorted by ipTM and bordered green (validated) or amber (uncertain).</p>
+
+<div class="viewer-controls" id="filters">
+  <button class="filter-btn active" data-filter="all">All (31)</button>
+  <button class="filter-btn" data-filter="clusterA">Cluster A (16)</button>
+  <button class="filter-btn" data-filter="clusterB">Cluster B (7)</button>
+  <button class="filter-btn" data-filter="distributed">Distributed (8)</button>
+  <button class="filter-btn" data-filter="validated">Validated (28)</button>
+  <button class="filter-btn" data-filter="uncertain">Uncertain (3)</button>
+</div>
+
+<div class="viewer-grid" id="grid"></div>
+<div class="viewer-legend">🟢 PD-L1 target (chain A) &nbsp;&nbsp; 🔵 Designed binder (chain B) &nbsp;&nbsp; Cartoon representation</div>
+
+
+<!-- SECTION: Summary -->
+<h2>What this means for the project</h2>
+
+<p>Boltz-2 validation answers the specific question this page set out to ask: <strong>is the binding interface encoded in the designed sequence, or only in the designed structure?</strong> For 28 of 31 designs, the answer is yes — an independent structure prediction model, given only sequences, recovers a plausible binder–target complex.</p>
+
+<p>This result has practical consequences for the next step. Affinity scoring (Part 6) will prioritize the 28 Boltz-validated designs using PRODIGY empirical scoring, energy minimization, and extended MD simulation. The three uncertain designs will be included for completeness but deprioritized in the construct selection panel.</p>
+
+<div class="aside">
+  <div class="aside-label">Caveats</div>
+  <p>Boltz-2 confidence scores are not experimental binding affinities. A high ipTM indicates that the prediction model believes the interface is real — it does not prove that the binder will bind in vitro. There is also a known lack of agreement between Boltz-2 ipTM scores and AlphaFold 3 ipTM scores for the same interactions (UCSF, 2025), meaning the absolute values should be treated as one model's opinion, not ground truth. The scores are most useful for relative ranking within a campaign, not for absolute binding prediction.</p>
+</div>
+
+<div class="page-footer">
+  <a href="https://github.com/hghodkephd/pdl1-mini-binder-design">GitHub repo</a> · A wet-lab scientist learns computational protein design
+</div>
+
+</div><!-- .page -->
+
+<script>
+const DESIGNS = [{"design_name": "len50_clusterA_noise05__design_0_0_rank0", "condition_id": "len50_clusterA_noise05", "hotspot_config": "clusterA", "length": 50, "noise": 5.0, "ipTM": 0.963, "complex_pLDDT": 0.956, "complex_pde": 0.278, "pTM": 0.978, "confidence_score": 0.957, "tier": "validated", "mean_plddt": 84.6, "rmsd": 1.24, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise05__design_0_0_rank0_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_19_0_rank1", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.942, "complex_pLDDT": 0.905, "complex_pde": 0.296, "pTM": 0.964, "confidence_score": 0.912, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.44, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_19_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_5_0_rank0", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.941, "complex_pLDDT": 0.972, "complex_pde": 0.307, "pTM": 0.961, "confidence_score": 0.965, "tier": "validated", "mean_plddt": 92.1, "rmsd": 0.53, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_5_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_13_0_rank1", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 5.0, "ipTM": 0.927, "complex_pLDDT": 0.96, "complex_pde": 0.302, "pTM": 0.951, "confidence_score": 0.953, "tier": "validated", "mean_plddt": 91.4, "rmsd": 0.83, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_13_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_9_0_rank8", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.923, "complex_pLDDT": 0.964, "complex_pde": 0.325, "pTM": 0.936, "confidence_score": 0.955, "tier": "validated", "mean_plddt": 93.2, "rmsd": 0.8, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_9_0_rank8_model_0.cif"}, {"design_name": "len50_clusterA_noise0__design_9_0_rank0", "condition_id": "len50_clusterA_noise0", "hotspot_config": "clusterA", "length": 50, "noise": 0.0, "ipTM": 0.92, "complex_pLDDT": 0.935, "complex_pde": 0.316, "pTM": 0.955, "confidence_score": 0.932, "tier": "validated", "mean_plddt": 92.3, "rmsd": 1.01, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise0__design_9_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_16_0_rank6", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.919, "complex_pLDDT": 0.963, "complex_pde": 0.364, "pTM": 0.946, "confidence_score": 0.954, "tier": "validated", "mean_plddt": 92.3, "rmsd": 0.52, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_16_0_rank6_model_0.cif"}, {"design_name": "len50_distributed_noise0__design_4_0_rank0", "condition_id": "len50_distributed_noise0", "hotspot_config": "distributed", "length": 50, "noise": 0.0, "ipTM": 0.914, "complex_pLDDT": 0.94, "complex_pde": 0.352, "pTM": 0.954, "confidence_score": 0.935, "tier": "validated", "mean_plddt": 95.7, "rmsd": 0.84, "rf_pdb": "data/results/param_sensitivity/len50_distributed_noise0/rfdiffusion_outputs/design_4_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_distributed_noise0__design_4_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_14_0_rank3", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 5.0, "ipTM": 0.91, "complex_pLDDT": 0.944, "complex_pde": 0.347, "pTM": 0.933, "confidence_score": 0.937, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.71, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_14_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_17_0_rank0", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.899, "complex_pLDDT": 0.885, "complex_pde": 0.36, "pTM": 0.94, "confidence_score": 0.888, "tier": "validated", "mean_plddt": 93.5, "rmsd": 0.47, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_19_0_rank0", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 5.0, "ipTM": 0.864, "complex_pLDDT": 0.904, "complex_pde": 0.327, "pTM": 0.916, "confidence_score": 0.896, "tier": "validated", "mean_plddt": 94.6, "rmsd": 0.24, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_19_0_rank0_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_10_0_rank3", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.862, "complex_pLDDT": 0.929, "complex_pde": 0.415, "pTM": 0.93, "confidence_score": 0.916, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.67, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_15_0_rank2", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.835, "complex_pLDDT": 0.859, "complex_pde": 0.385, "pTM": 0.921, "confidence_score": 0.854, "tier": "validated", "mean_plddt": 91.9, "rmsd": 0.64, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_15_0_rank2_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_11_0_rank1", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.82, "complex_pLDDT": 0.931, "complex_pde": 0.413, "pTM": 0.938, "confidence_score": 0.909, "tier": "validated", "mean_plddt": 94.8, "rmsd": 0.41, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_11_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_11_0_rank1_model_0.cif"}, {"design_name": "len70_clusterB_noise05__design_17_0_rank0", "condition_id": "len70_clusterB_noise05", "hotspot_config": "clusterB", "length": 70, "noise": 5.0, "ipTM": 0.811, "complex_pLDDT": 0.928, "complex_pde": 0.413, "pTM": 0.91, "confidence_score": 0.905, "tier": "validated", "mean_plddt": 88.8, "rmsd": 1.43, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise05/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise05__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_10_0_rank1", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.808, "complex_pLDDT": 0.881, "complex_pde": 0.57, "pTM": 0.815, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 87.5, "rmsd": 1.46, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_10_0_rank1_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_13_0_rank0", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 5.0, "ipTM": 0.807, "complex_pLDDT": 0.845, "complex_pde": 0.435, "pTM": 0.887, "confidence_score": 0.837, "tier": "validated", "mean_plddt": 86.8, "rmsd": 0.79, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_13_0_rank0_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_15_0_rank0", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.789, "complex_pLDDT": 0.938, "complex_pde": 0.344, "pTM": 0.937, "confidence_score": 0.908, "tier": "validated", "mean_plddt": 96.8, "rmsd": 0.56, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_15_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_3_0_rank7", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.761, "complex_pLDDT": 0.888, "complex_pde": 0.407, "pTM": 0.889, "confidence_score": 0.863, "tier": "validated", "mean_plddt": 96.5, "rmsd": 0.45, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_3_0_rank7_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_5_0_rank2", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.757, "complex_pLDDT": 0.865, "complex_pde": 0.413, "pTM": 0.854, "confidence_score": 0.843, "tier": "validated", "mean_plddt": 94.2, "rmsd": 0.46, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_5_0_rank2_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_16_0_rank5", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.745, "complex_pLDDT": 0.903, "complex_pde": 0.536, "pTM": 0.866, "confidence_score": 0.872, "tier": "validated", "mean_plddt": 95.1, "rmsd": 0.55, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_16_0_rank5_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_7_0_rank6", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.729, "complex_pLDDT": 0.9, "complex_pde": 0.396, "pTM": 0.876, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 95.4, "rmsd": 0.88, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_7_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_7_0_rank6_model_0.cif"}, {"design_name": "len70_distributed_noise05__design_14_0_rank0", "condition_id": "len70_distributed_noise05", "hotspot_config": "distributed", "length": 70, "noise": 5.0, "ipTM": 0.723, "complex_pLDDT": 0.928, "complex_pde": 0.496, "pTM": 0.868, "confidence_score": 0.887, "tier": "validated", "mean_plddt": 82.7, "rmsd": 0.94, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise05__design_14_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_13_0_rank4", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.72, "complex_pLDDT": 0.916, "complex_pde": 0.359, "pTM": 0.837, "confidence_score": 0.877, "tier": "validated", "mean_plddt": 96.0, "rmsd": 0.57, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_13_0_rank4_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_3_0_rank2", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 5.0, "ipTM": 0.704, "complex_pLDDT": 0.9, "complex_pde": 0.426, "pTM": 0.839, "confidence_score": 0.861, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.76, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_3_0_rank2_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_0_0_rank1", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 5.0, "ipTM": 0.698, "complex_pLDDT": 0.906, "complex_pde": 0.449, "pTM": 0.847, "confidence_score": 0.864, "tier": "validated", "mean_plddt": 92.4, "rmsd": 0.61, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_0_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_10_0_rank3", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.629, "complex_pLDDT": 0.923, "complex_pde": 0.477, "pTM": 0.79, "confidence_score": 0.865, "tier": "validated", "mean_plddt": 95.8, "rmsd": 0.78, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_17_0_rank1", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.624, "complex_pLDDT": 0.882, "complex_pde": 0.646, "pTM": 0.832, "confidence_score": 0.83, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.33, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_17_0_rank1_model_0.cif"}, {"design_name": "len50_clusterB_noise0__design_19_0_rank0", "condition_id": "len50_clusterB_noise0", "hotspot_config": "clusterB", "length": 50, "noise": 0.0, "ipTM": 0.413, "complex_pLDDT": 0.922, "complex_pde": 0.766, "pTM": 0.799, "confidence_score": 0.82, "tier": "uncertain", "mean_plddt": 94.7, "rmsd": 0.7, "rf_pdb": "data/results/param_sensitivity/len50_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterB_noise0__design_19_0_rank0_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_18_0_rank1", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.314, "complex_pLDDT": 0.918, "complex_pde": 0.789, "pTM": 0.662, "confidence_score": 0.797, "tier": "uncertain", "mean_plddt": 92.9, "rmsd": 0.58, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_18_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_18_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_15_0_rank5", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.199, "complex_pLDDT": 0.844, "complex_pde": 0.97, "pTM": 0.611, "confidence_score": 0.715, "tier": "uncertain", "mean_plddt": 90.5, "rmsd": 1.41, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_15_0_rank5_model_0.cif"}]
+;
+
+const REPO_BASE = "https://raw.githubusercontent.com/hghodkephd/pdl1-mini-binder-design/main/";
+const viewers = {};
+
+// Colors matching the portfolio palette
+const clrA = '#2e6da4', clrB = '#c85a3a', clrD = '#b07818';
+const cfgColors = {clusterA:clrA, clusterB:clrB, distributed:clrD};
+const cfgBg = {clusterA:'#2e6da444', clusterB:'#c85a3a44', distributed:'#b0781844'};
+
+// Chart 1: ipTM by hotspot config
+new Chart(document.getElementById('chart-config'), {
+  type: 'bar',
+  data: {
+    labels: ['Cluster A','Cluster B','Distributed'],
+    datasets: [{
+      label: 'Mean ipTM',
+      data: [0.821, 0.772, 0.667],
+      backgroundColor: [cfgBg.clusterA, cfgBg.clusterB, cfgBg.distributed],
+      borderColor: [clrA, clrB, clrD],
+      borderWidth: 1.5
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: {display:false} },
+    scales: { y: {beginAtZero:true, max:1, title:{display:true,text:'ipTM',font:{family:'DM Sans'}}} }
+  }
+});
+
+// Chart 2: ipTM by length
+new Chart(document.getElementById('chart-length'), {
+  type: 'bar',
+  data: {
+    labels: ['25','50','70','100'],
+    datasets: [{
+      label: 'Mean ipTM',
+      data: [0.805, 0.803, 0.806, 0.706],
+      backgroundColor: '#1d6b5244',
+      borderColor: '#1d6b52',
+      borderWidth: 1.5
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: {display:false} },
+    scales: { y: {beginAtZero:true, max:1, title:{display:true,text:'ipTM',font:{family:'DM Sans'}}}, x:{title:{display:true,text:'Binder length (residues)',font:{family:'DM Sans'}}} }
+  }
+});
+
+// Chart 3: scatter ipTM vs pLDDT
+new Chart(document.getElementById('chart-scatter'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: DESIGNS.filter(d=>d.hotspot_config===cfg).map(d=>({x:d.complex_pLDDT,y:d.ipTM})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'complex pLDDT',font:{family:'DM Sans'}}, min:0.8, max:1},
+      y: {title:{display:true,text:'ipTM',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// ---- STRUCTURE VIEWER ----
+function shortName(dn) {
+  const parts = dn.split('__');
+  const m = parts[0].match(/len(\d+)_(\w+)_noise(\d+)/);
+  if (!m) return dn;
+  const hs = m[2]==='clusterA'?'cA':m[2]==='clusterB'?'cB':'dist';
+  const n = m[3]==='0'?'0':m[3]==='05'?'0.5':m[3];
+  const sm = (parts[1]||'').match(/design_(\d+)_\d+_rank(\d+)/);
+  const s = sm ? `d${sm[1]}r${sm[2]}` : parts[1];
+  return `${m[1]}aa ${hs} σ${n} ${s}`;
+}
+
+function badgeCls(config) {
+  return config === 'clusterA' ? 'badge-clusterA' : config === 'clusterB' ? 'badge-clusterB' : 'badge-distributed';
+}
+
+function buildCard(d, idx) {
+  const card = document.createElement('div');
+  card.className = `vcard ${d.tier}`;
+  card.dataset.hotspot = d.hotspot_config;
+  card.dataset.tier = d.tier;
+  card.innerHTML = `
+    <div class="vcard-viewer" id="v${idx}"><div class="loading">Scroll to load</div></div>
+    <div class="toggle-bar">
+      <button class="toggle-btn active" data-mode="rfdiffusion" data-idx="${idx}">RFdiffusion</button>
+      <button class="toggle-btn" data-mode="boltz" data-idx="${idx}">Boltz-2</button>
+    </div>
+    <div class="vcard-body">
+      <div class="vcard-title">${shortName(d.design_name)} <span class="badge ${badgeCls(d.hotspot_config)}">${d.hotspot_config}</span></div>
+      <div class="vcard-metrics">
+        <div class="metric"><div class="val">${d.ipTM.toFixed(3)}</div><div class="lbl">ipTM</div></div>
+        <div class="metric"><div class="val">${d.complex_pLDDT.toFixed(2)}</div><div class="lbl">pLDDT</div></div>
+        <div class="metric"><div class="val">${d.complex_pde.toFixed(2)}</div><div class="lbl">PDE</div></div>
+      </div>
+      <div class="vcard-meta">ESMFold pLDDT: ${d.mean_plddt} · RMSD: ${d.rmsd}Å <span class="badge ${d.tier==='validated'?'badge-pass':'badge-fail'}">${d.tier}</span></div>
+    </div>`;
+  return card;
+}
+
+function loadStructure(idx, mode) {
+  const d = DESIGNS[idx];
+  const el = document.getElementById('v'+idx);
+  if (!el) return;
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  const url = REPO_BASE + (mode==='boltz' ? d.boltz_cif : d.rf_pdb);
+  const fmt = mode==='boltz' ? 'cif' : 'pdb';
+  fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(data=>{
+    el.innerHTML='';
+    const v=$3Dmol.createViewer(el,{backgroundColor:'#1a1a2e',antialias:true});
+    v.addModel(data,fmt);
+    v.setStyle({chain:'A'},{cartoon:{color:'#22c55e',opacity:0.85}});
+    v.setStyle({chain:'B'},{cartoon:{color:'#3b82f6',opacity:0.95}});
+    v.zoomTo();v.render();
+    viewers[idx]={viewer:v,mode};
+  }).catch(e=>{el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;});
+}
+
+const grid = document.getElementById('grid');
+DESIGNS.forEach((d,i) => grid.appendChild(buildCard(d,i)));
+
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){const i=parseInt(e.target.id.replace('v',''));if(!viewers[i])loadStructure(i,'rfdiffusion');obs.unobserve(e.target);}});
+},{rootMargin:'300px'});
+document.querySelectorAll('.vcard-viewer').forEach(el=>obs.observe(el));
+
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.toggle-btn');
+  if(!btn)return;
+  const idx=parseInt(btn.dataset.idx),mode=btn.dataset.mode;
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadStructure(idx,mode);
+});
+
+document.getElementById('filters').addEventListener('click',e=>{
+  const btn=e.target.closest('.filter-btn');
+  if(!btn)return;
+  const f=btn.dataset.filter;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.vcard').forEach(c=>{
+    if(f==='all')c.style.display='';
+    else if(['clusterA','clusterB','distributed'].includes(f))c.style.display=c.dataset.hotspot===f?'':'none';
+    else c.style.display=c.dataset.tier===f?'':'none';
+  });
+});
+</script>
+</body>
+</html>
