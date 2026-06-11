@@ -159,10 +159,10 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <p>So far in this project, every structural analysis has relied on geometry that originated from RFdiffusion. The backbone was designed by RFdiffusion, the sequence was designed by ProteinMPNN on that backbone, ESMFold confirmed the sequence folds into that backbone shape, and the fingerprinting and MD analyses all started from the RFdiffusion-designed complex pose. Every step carried forward the structural assumptions of the first step.</p>
 
-<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it also form a complex with PD-L1? Single-chain fold recapitulation does not guarantee multi-chain interaction.</p>
+<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it still form a complex with PD-L1 via the designed interface? Single-chain fold recapitulation does not guarantee multi-chain interaction since potentially other binding patches on the target could engage the designed binder non-specifically.
 
-<p>Boltz-2 is an open-source biomolecular structure prediction model (MIT, Wohlwend et al., 2024–2025) that predicts complexes involving proteins, nucleic acids, and small molecules. Here, we use it as an independent co-folding model: given only the binder and PD-L1 sequences — with no structural hints — does it recover a plausible protein–protein complex?</p>
-
+<p>Boltz-2 is an open-source biomolecular structure prediction model (MIT, Wohlwend et al., 2024–2025) that predicts complexes involving proteins, nucleic acids, and small molecules. Boltz-2 poses this question directly. By predicting the binder–PD-L1 complex from sequence alone, it asks: does the sequence contain enough information for an independent model to recover the designed interface, or does it find a different binding mode?
+ Here, we use it as an independent co-folding model: given only the binder and PD-L1 sequences — with no structural hints — does it recover the intended protein–protein complex</p>
 <p>The confidence metrics it produces, particularly the <strong>interface predicted TM-score (ipTM)</strong>, are commonly used as confidence metrics for predicted protein–protein interfaces. Here, we use ipTM as an orthogonal model-confidence score, not as a direct affinity estimate.</p>
 
 
