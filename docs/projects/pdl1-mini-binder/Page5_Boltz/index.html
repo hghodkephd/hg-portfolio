@@ -159,10 +159,10 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <p>So far in this project, every structural analysis has relied on geometry that originated from RFdiffusion. The backbone was designed by RFdiffusion, the sequence was designed by ProteinMPNN on that backbone, ESMFold confirmed the sequence folds into that backbone shape, and the fingerprinting and MD analyses all started from the RFdiffusion-designed complex pose. Every step carried forward the structural assumptions of the first step.</p>
 
-<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it still form a complex with PD-L1 via the designed interface? Single-chain fold recapitulation does not guarantee multi-chain interaction since potentially other binding patches on the target could engage the designed binder non-specifically.
+<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it still form a complex with PD-L1 via the designed interface? Single-chain fold recapitulation does not guarantee multi-chain interaction since potentially other binding patches on the target could engage the designed binder non-specifically.</p>
 
-<p>Boltz-2 is an open-source biomolecular structure prediction model (MIT, Wohlwend et al., 2024–2025) that predicts complexes involving proteins, nucleic acids, and small molecules. Boltz-2 poses this question directly. By predicting the binder–PD-L1 complex from sequence alone, it asks: does the sequence contain enough information for an independent model to recover the designed interface, or does it find a different binding mode?
- Here, we use it as an independent co-folding model: given only the binder and PD-L1 sequences — with no structural hints — does it recover the intended protein–protein complex</p>
+<p>Boltz-2 is an open-source biomolecular structure prediction model (MIT, Wohlwend et al., 2024–2025) that predicts complexes involving proteins, nucleic acids, and small molecules. Boltz-2 poses this question directly. By predicting the binder–PD-L1 complex from sequence alone, it asks: does the sequence contain enough information for an independent model to recover the designed interface, or does it find a different binding mode? Here, we use it as an independent co-folding model: given only the binder and PD-L1 sequences — with no structural hints — does it recover the intended protein–protein complex?</p>
+
 <p>The confidence metrics it produces, particularly the <strong>interface predicted TM-score (ipTM)</strong>, are commonly used as confidence metrics for predicted protein–protein interfaces. Here, we use ipTM as an orthogonal model-confidence score, not as a direct affinity estimate.</p>
 
 
@@ -294,20 +294,24 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <h3>Confidence by binder length</h3>
 <p>The 25-mer and 70-mer designs showed similar mean ipTM (~0.80), while 100-mers had the widest variance (min 0.199, max 0.941). Longer binders have more possible docking orientations, which may make Boltz's prediction task harder — but the best 100-mers scored nearly as high as the best 70-mers.</p>
 
+<h3>Interface confidence vs fold confidence</h3>
+<p>Boltz-2 reports two distinct confidence metrics: ipTM measures how confidently the model positions the two chains relative to each other (interface quality), while complex pLDDT measures how confidently it predicts the per-residue positions across the entire complex (fold quality). A design could have high fold confidence but low interface confidence if the individual chains are well-predicted but their relative positioning is uncertain. Plotting the two metrics together reveals whether any designs fall into this category — high pLDDT but low ipTM would indicate a well-folded complex where Boltz is uncertain about the docking geometry.</p>
+
 <div class="chart-grid">
 <div class="chart-card full"><h3>ipTM vs Boltz complex pLDDT (0–1 scale)</h3><canvas id="chart-scatter"></canvas></div>
 </div>
 <p class="fig-caption"><strong>Figure 2.</strong> Boltz ipTM vs Boltz complex pLDDT (0–1 scale) for all 31 designs. Designs in the upper right exceeded both confidence thresholds. The three uncertain designs have reasonable complex pLDDT (the predicted folds look plausible) but lower ipTM (Boltz is less confident about the interface positioning). Note: Boltz complex pLDDT (0–1 scale) is distinct from ESMFold binder pLDDT (0–100 scale) shown elsewhere.</p>
 
 <h3>Relationship between Boltz confidence and prior metrics</h3>
+<p>We can ask whether Boltz ipTM tracks the single-chain metrics computed earlier with ESMFold. If it does, the co-folding step is redundant — it recapitulates what we already know. If it doesn't, the two methods are capturing different aspects of design quality.</p>
 
 <div class="chart-grid">
 <div class="chart-card"><h3>Boltz ipTM vs ESMFold alignment RMSD</h3><canvas id="chart-corr-rmsd"></canvas></div>
 <div class="chart-card"><h3>Boltz ipTM vs ESMFold binder pLDDT (0–100)</h3><canvas id="chart-corr-plddt"></canvas></div>
 </div>
-<p class="fig-caption"><strong>Figure 3.</strong> Boltz-2 ipTM plotted against ESMFold alignment RMSD (left, Spearman ρ = +0.004) and ESMFold binder pLDDT on the 0–100 scale (right). Neither prior single-chain metric is a strong predictor of Boltz interface confidence — a design can fold well in isolation yet receive a modest ipTM if Boltz positions the chains differently.</p>
+<p class="fig-caption"><strong>Figure 3.</strong> Boltz-2 ipTM plotted against ESMFold alignment RMSD (left) and ESMFold binder pLDDT on the 0–100 scale (right). In this dataset of 31 designs, neither single-chain metric is a strong predictor of Boltz interface confidence (Spearman ρ = +0.004 for RMSD).</p>
 
-<p>The ipTM scores from Boltz-2 do not reflect the same quantity captured by alignment RMSD or pLDDT from our ESMFold workflow. A design can have excellent single-chain fold recapitulation (low RMSD, high pLDDT) yet receive a modest ipTM if Boltz positions the binder differently relative to PD-L1. Conversely, a design with slightly worse fold metrics could receive a high ipTM if Boltz finds a confident docking geometry. One plausible reason: the binder could contact the same hotspot residues but approach PD-L1 from a different angle, or the ectodomain could be positioned differently in the predicted complex even though the local interface contacts are similar. ipTM captures global chain-to-chain positioning, while alignment RMSD captures local backbone accuracy — these are related but distinct structural questions.</p>
+<p>In this dataset, Boltz ipTM does not track ESMFold alignment RMSD or ESMFold binder pLDDT. ESMFold alignment RMSD measures how well the single-chain predicted fold matches the designed backbone, while Boltz ipTM measures how confidently the model positions two chains relative to each other — these are different structural questions. A design with excellent single-chain fold recapitulation could still receive a modest ipTM if Boltz positions the binder at a different angle relative to PD-L1, contacting the correct hotspot residues but from a different approach direction. This dataset is small (n=31), so these correlations should not be over-interpreted, but the lack of obvious correlation is consistent with the two methods capturing distinct information.</p>
 
 <h3>The three uncertain designs</h3>
 <table class="param-table">
@@ -361,10 +365,8 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <div class="aside">
   <div class="aside-label">Caveats</div>
-  <p>Boltz-2 confidence scores are not experimental binding affinities. A high ipTM indicates that the prediction model finds a confident interface — it does not prove that the binder will bind in vitro.</p>
-  <p>A stronger future control would be to run the same Boltz-2 workflow on sequence-shuffled binders, unrelated mini-proteins, or the same binders against an unrelated target to estimate the false-positive rate of this validation step.</p>
-  <p>In a future version, I will quantify agreement between the designed and Boltz-predicted poses using PD-L1-aligned binder RMSD and hotspot contact recovery, rather than relying solely on Boltz confidence metrics.</p>
-  <p>There is also a known lack of agreement between Boltz-2 ipTM scores and AlphaFold 3 ipTM scores for the same interactions, meaning the absolute values should be treated as one model's opinion, not ground truth. The scores are most useful for relative ranking within a campaign.</p>
+  <p>Boltz-2 confidence scores are not experimental binding affinities. A high ipTM indicates that the prediction model finds a confident interface — it does not prove that the binder will bind in vitro. The absolute values should be treated as one model's opinion, not ground truth. The scores are most useful for relative ranking within a campaign.</p>
+  <p>A stronger control would be to run the same Boltz-2 workflow on sequence-shuffled binders, unrelated mini-proteins, or the same binders against an unrelated target to estimate the false-positive rate of this co-folding step.</p>
 </div>
 
 <div class="page-footer">
@@ -385,45 +387,107 @@ const clrA = '#2e6da4', clrB = '#c85a3a', clrD = '#b07818';
 const cfgColors = {clusterA:clrA, clusterB:clrB, distributed:clrD};
 const cfgBg = {clusterA:'#2e6da444', clusterB:'#c85a3a44', distributed:'#b0781844'};
 
-// Chart 1: ipTM by hotspot config
-new Chart(document.getElementById('chart-config'), {
-  type: 'bar',
-  data: {
-    labels: ['Cluster A','Cluster B','Distributed'],
-    datasets: [{
-      label: 'Mean ipTM',
-      data: [0.821, 0.772, 0.667],
-      backgroundColor: [cfgBg.clusterA, cfgBg.clusterB, cfgBg.distributed],
-      borderColor: [clrA, clrB, clrD],
-      borderWidth: 1.5
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: {display:false} },
-    scales: { y: {beginAtZero:true, max:1, title:{display:true,text:'ipTM',font:{family:'DM Sans'}}} }
-  }
-});
+// Chart 1: ipTM by hotspot config — strip plot with all data points
+(function(){
+  const configs = ['clusterA','clusterB','distributed'];
+  const labels = ['Cluster A','Cluster B','Distributed'];
+  const datasets = configs.map((cfg,ci) => {
+    const pts = DESIGNS.filter(d=>d.hotspot_config===cfg);
+    return {
+      label: labels[ci] + ' (n='+pts.length+')',
+      data: pts.map((d,i) => ({
+        x: ci + (Math.random()-0.5)*0.3,
+        y: d.ipTM
+      })),
+      backgroundColor: [clrA,clrB,clrD][ci]+'88',
+      borderColor: [clrA,clrB,clrD][ci],
+      borderWidth: 1,
+      pointRadius: 5,
+      pointHoverRadius: 7
+    };
+  });
+  // Add mean markers
+  const means = configs.map(cfg => {
+    const pts = DESIGNS.filter(d=>d.hotspot_config===cfg);
+    return pts.reduce((s,d)=>s+d.ipTM,0)/pts.length;
+  });
+  datasets.push({
+    label: 'Mean',
+    data: means.map((m,i)=>({x:i, y:m})),
+    backgroundColor: '#1a1a18',
+    borderColor: '#1a1a18',
+    borderWidth: 2,
+    pointRadius: 8,
+    pointStyle: 'rectRot',
+    pointHoverRadius: 10
+  });
+  new Chart(document.getElementById('chart-config'), {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true,
+      plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10}}} },
+      scales: {
+        x: {
+          type:'linear', min:-0.5, max:2.5,
+          ticks:{callback:function(v){return labels[Math.round(v)]||''},stepSize:1,font:{family:'DM Sans'}},
+          grid:{display:false}
+        },
+        y: {beginAtZero:true, max:1, title:{display:true,text:'Boltz ipTM',font:{family:'DM Sans'}}}
+      }
+    }
+  });
+})();
 
-// Chart 2: ipTM by length
-new Chart(document.getElementById('chart-length'), {
-  type: 'bar',
-  data: {
-    labels: ['25','50','70','100'],
-    datasets: [{
-      label: 'Mean ipTM',
-      data: [0.805, 0.803, 0.806, 0.706],
-      backgroundColor: '#1d6b5244',
-      borderColor: '#1d6b52',
-      borderWidth: 1.5
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: {display:false} },
-    scales: { y: {beginAtZero:true, max:1, title:{display:true,text:'ipTM',font:{family:'DM Sans'}}}, x:{title:{display:true,text:'Binder length (residues)',font:{family:'DM Sans'}}} }
-  }
-});
+// Chart 2: ipTM by length — strip plot with all data points
+(function(){
+  const lengths = [25,50,70,100];
+  const xMap = {25:0,50:1,70:2,100:3};
+  const datasets = [{
+    label: 'Individual designs',
+    data: DESIGNS.map(d => ({
+      x: xMap[d.length] + (Math.random()-0.5)*0.3,
+      y: d.ipTM
+    })),
+    backgroundColor: '#1d6b5288',
+    borderColor: '#1d6b52',
+    borderWidth: 1,
+    pointRadius: 5,
+    pointHoverRadius: 7
+  }];
+  // Add mean markers
+  const means = lengths.map(len => {
+    const pts = DESIGNS.filter(d=>d.length===len);
+    return pts.length > 0 ? pts.reduce((s,d)=>s+d.ipTM,0)/pts.length : null;
+  });
+  datasets.push({
+    label: 'Mean',
+    data: means.map((m,i)=>m!==null?{x:i,y:m}:null).filter(Boolean),
+    backgroundColor: '#1a1a18',
+    borderColor: '#1a1a18',
+    borderWidth: 2,
+    pointRadius: 8,
+    pointStyle: 'rectRot',
+    pointHoverRadius: 10
+  });
+  new Chart(document.getElementById('chart-length'), {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true,
+      plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10}}} },
+      scales: {
+        x: {
+          type:'linear', min:-0.5, max:3.5,
+          ticks:{callback:function(v){return lengths[Math.round(v)]||''},stepSize:1,font:{family:'DM Sans'}},
+          title:{display:true,text:'Binder length (residues)',font:{family:'DM Sans'}},
+          grid:{display:false}
+        },
+        y: {beginAtZero:true, max:1, title:{display:true,text:'Boltz ipTM',font:{family:'DM Sans'}}}
+      }
+    }
+  });
+})();
 
 // Chart 3: scatter ipTM vs pLDDT
 new Chart(document.getElementById('chart-scatter'), {
