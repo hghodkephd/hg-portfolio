@@ -118,7 +118,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .vcard-body{padding:.6rem .85rem .75rem}
 .vcard-title{font-size:.75rem;font-weight:600;margin-bottom:.4rem;font-family:var(--sans)}
-.vcard-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.3rem;text-align:center}
+.vcard-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:.35rem;text-align:center}
 .metric .val{font-size:.9rem;font-weight:500;font-family:var(--mono);color:var(--accent2)}
 .metric .lbl{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;font-family:var(--sans)}
 .vcard-meta{font-size:.7rem;color:var(--tx3);margin-top:.35rem}
@@ -130,7 +130,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <!-- Series Banner -->
 <div class="series-banner">
-  <span class="tag">Independent Complex Validation</span>
+  <span class="tag">Independent Complex Assessment</span>
   <span class="sep">|</span>
   <span style="font-size:.85rem;color:var(--tx2)">The wet-lab scientist's guide to computational protein design</span>
   <span class="sep">|</span>
@@ -142,7 +142,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <!-- Recap -->
 <div class="recap">
-  <p><strong>Previously, in Parts 1–4:</strong> We built a complete design pipeline — RFdiffusion → ProteinMPNN → ESMFold — and validated 31 mini-binder candidates through a parameter sensitivity study, full-sidechain interaction fingerprinting, and molecular dynamics simulation. Every structural analysis so far has relied on geometry that originated from RFdiffusion. This page asks the harder question: <em>is the binding interface encoded in the designed sequence itself, or only in the designed structure?</em></p>
+  <p><strong>Previously, in Parts 1–4:</strong> We built a complete design pipeline — RFdiffusion → ProteinMPNN → ESMFold — and validated 31 mini-binder candidates through a parameter sensitivity study, side-chain-level interaction fingerprinting, and molecular dynamics simulation. Every structural analysis so far has relied on geometry that originated from RFdiffusion. This page asks the harder question: <em>is the binding interface encoded in the designed sequence itself, or only in the designed structure?</em></p>
 </div>
 
 <!-- Stats -->
@@ -171,7 +171,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <div style="margin:1.5rem 0">
 <svg width="100%" viewBox="0 0 680 420" style="max-width:680px;display:block;margin:0 auto" role="img">
-<title>Pipeline schematic: two paths to complex validation</title>
+<title>Pipeline schematic: two paths to complex assessment</title>
 <defs>
 <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
 </defs>
@@ -247,7 +247,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <rect x="530" y="380" width="142" height="28" rx="8" fill="#e1f0ea" stroke="#1d6b52" stroke-width=".5"/>
 <text x="601" y="397" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#0f4a38">28 of 31 validated</text>
 </svg>
-<p class="fig-caption"><strong>Figure 1.</strong> Two paths to complex validation. The design pipeline (Path 1, blue) carries structural information from RFdiffusion through every downstream step. Boltz-2 (Path 2, amber) starts from ProteinMPNN sequences alone with no structural context. Agreement between the two paths provides orthogonal evidence that the binding interface is encoded in the designed sequence.</p>
+<p class="fig-caption"><strong>Figure 1.</strong> Two paths to complex assessment. The design pipeline (Path 1, blue) carries structural information from RFdiffusion through every downstream step. Boltz-2 (Path 2, amber) starts from ProteinMPNN sequences alone with no structural context. Agreement between the two paths provides orthogonal evidence that the binding interface is encoded in the designed sequence.</p>
 </div>
 
 
@@ -289,7 +289,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <div class="chart-grid">
 <div class="chart-card full"><h3>ipTM vs complex pLDDT</h3><canvas id="chart-scatter"></canvas></div>
 </div>
-<p class="fig-caption"><strong>Figure 2.</strong> ipTM vs complex pLDDT for all 31 designs. The validated zone (upper right) contains 28 designs. The three uncertain designs have high pLDDT (the individual chains fold well) but lower ipTM (Boltz is less confident about the interface).</p>
+<p class="fig-caption"><strong>Figure 2.</strong> ipTM vs complex pLDDT for all 31 designs. The Boltz-supported zone (upper right) contains 28 designs. The three uncertain designs have high pLDDT (the individual chains fold well) but lower ipTM (Boltz is less confident about the interface).</p>
 
 <h3>Boltz confidence is independent of prior metrics</h3>
 <p>An important finding: ipTM shows essentially zero correlation with ESMFold alignment RMSD (Spearman ρ = +0.004) and no significant correlation with ProteinMPNN scores. This means Boltz is measuring something genuinely independent from what the upstream pipeline measured — exactly what we want from an orthogonal validation. If ipTM simply tracked pLDDT, it wouldn't add information.</p>
@@ -331,6 +331,9 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
   <button class="filter-btn" data-filter="distributed">Distributed (8)</button>
   <button class="filter-btn" data-filter="validated">Validated (28)</button>
   <button class="filter-btn" data-filter="uncertain">Uncertain (3)</button>
+  <button class="filter-btn" data-filter="pose-convergent">Pose-convergent (14)</button>
+  <button class="filter-btn" data-filter="intermediate">Intermediate (5)</button>
+  <button class="filter-btn" data-filter="pose-divergent">Pose-divergent (12)</button>
 </div>
 
 <div class="viewer-grid" id="grid"></div>
@@ -340,7 +343,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <!-- SECTION: Summary -->
 <h2>What this means for the project</h2>
 
-<p>Boltz-2 validation answers the specific question this page set out to ask: <strong>is the binding interface encoded in the designed sequence, or only in the designed structure?</strong> For 28 of 31 designs, the answer is yes — an independent structure prediction model, given only sequences, recovers a plausible binder–target complex.</p>
+<p>Boltz-2 assessment answers the specific question this page set out to ask: <strong>is the binding interface encoded in the designed sequence, or only in the designed structure?</strong> For 28 of 31 designs, the answer is yes — an independent structure prediction model, given only sequences, recovers a plausible binder–target complex.</p>
 
 <p>This result has practical consequences for the next step. Affinity scoring (Part 6) will prioritize the 28 Boltz-validated designs using PRODIGY empirical scoring, energy minimization, and extended MD simulation. The three uncertain designs will be included for completeness but deprioritized in the construct selection panel.</p>
 
@@ -356,7 +359,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 </div><!-- .page -->
 
 <script>
-const DESIGNS = [{"design_name": "len50_clusterA_noise05__design_0_0_rank0", "condition_id": "len50_clusterA_noise05", "hotspot_config": "clusterA", "length": 50, "noise": 5.0, "ipTM": 0.963, "complex_pLDDT": 0.956, "complex_pde": 0.278, "pTM": 0.978, "confidence_score": 0.957, "tier": "validated", "mean_plddt": 84.6, "rmsd": 1.24, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise05__design_0_0_rank0_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_19_0_rank1", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.942, "complex_pLDDT": 0.905, "complex_pde": 0.296, "pTM": 0.964, "confidence_score": 0.912, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.44, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_19_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_5_0_rank0", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.941, "complex_pLDDT": 0.972, "complex_pde": 0.307, "pTM": 0.961, "confidence_score": 0.965, "tier": "validated", "mean_plddt": 92.1, "rmsd": 0.53, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_5_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_13_0_rank1", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 5.0, "ipTM": 0.927, "complex_pLDDT": 0.96, "complex_pde": 0.302, "pTM": 0.951, "confidence_score": 0.953, "tier": "validated", "mean_plddt": 91.4, "rmsd": 0.83, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_13_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_9_0_rank8", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.923, "complex_pLDDT": 0.964, "complex_pde": 0.325, "pTM": 0.936, "confidence_score": 0.955, "tier": "validated", "mean_plddt": 93.2, "rmsd": 0.8, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_9_0_rank8_model_0.cif"}, {"design_name": "len50_clusterA_noise0__design_9_0_rank0", "condition_id": "len50_clusterA_noise0", "hotspot_config": "clusterA", "length": 50, "noise": 0.0, "ipTM": 0.92, "complex_pLDDT": 0.935, "complex_pde": 0.316, "pTM": 0.955, "confidence_score": 0.932, "tier": "validated", "mean_plddt": 92.3, "rmsd": 1.01, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise0__design_9_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_16_0_rank6", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.919, "complex_pLDDT": 0.963, "complex_pde": 0.364, "pTM": 0.946, "confidence_score": 0.954, "tier": "validated", "mean_plddt": 92.3, "rmsd": 0.52, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_16_0_rank6_model_0.cif"}, {"design_name": "len50_distributed_noise0__design_4_0_rank0", "condition_id": "len50_distributed_noise0", "hotspot_config": "distributed", "length": 50, "noise": 0.0, "ipTM": 0.914, "complex_pLDDT": 0.94, "complex_pde": 0.352, "pTM": 0.954, "confidence_score": 0.935, "tier": "validated", "mean_plddt": 95.7, "rmsd": 0.84, "rf_pdb": "data/results/param_sensitivity/len50_distributed_noise0/rfdiffusion_outputs/design_4_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_distributed_noise0__design_4_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_14_0_rank3", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 5.0, "ipTM": 0.91, "complex_pLDDT": 0.944, "complex_pde": 0.347, "pTM": 0.933, "confidence_score": 0.937, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.71, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_14_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_17_0_rank0", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.899, "complex_pLDDT": 0.885, "complex_pde": 0.36, "pTM": 0.94, "confidence_score": 0.888, "tier": "validated", "mean_plddt": 93.5, "rmsd": 0.47, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_19_0_rank0", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 5.0, "ipTM": 0.864, "complex_pLDDT": 0.904, "complex_pde": 0.327, "pTM": 0.916, "confidence_score": 0.896, "tier": "validated", "mean_plddt": 94.6, "rmsd": 0.24, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_19_0_rank0_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_10_0_rank3", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.862, "complex_pLDDT": 0.929, "complex_pde": 0.415, "pTM": 0.93, "confidence_score": 0.916, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.67, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_15_0_rank2", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.835, "complex_pLDDT": 0.859, "complex_pde": 0.385, "pTM": 0.921, "confidence_score": 0.854, "tier": "validated", "mean_plddt": 91.9, "rmsd": 0.64, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_15_0_rank2_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_11_0_rank1", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.82, "complex_pLDDT": 0.931, "complex_pde": 0.413, "pTM": 0.938, "confidence_score": 0.909, "tier": "validated", "mean_plddt": 94.8, "rmsd": 0.41, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_11_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_11_0_rank1_model_0.cif"}, {"design_name": "len70_clusterB_noise05__design_17_0_rank0", "condition_id": "len70_clusterB_noise05", "hotspot_config": "clusterB", "length": 70, "noise": 5.0, "ipTM": 0.811, "complex_pLDDT": 0.928, "complex_pde": 0.413, "pTM": 0.91, "confidence_score": 0.905, "tier": "validated", "mean_plddt": 88.8, "rmsd": 1.43, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise05/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise05__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_10_0_rank1", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.808, "complex_pLDDT": 0.881, "complex_pde": 0.57, "pTM": 0.815, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 87.5, "rmsd": 1.46, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_10_0_rank1_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_13_0_rank0", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 5.0, "ipTM": 0.807, "complex_pLDDT": 0.845, "complex_pde": 0.435, "pTM": 0.887, "confidence_score": 0.837, "tier": "validated", "mean_plddt": 86.8, "rmsd": 0.79, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_13_0_rank0_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_15_0_rank0", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.789, "complex_pLDDT": 0.938, "complex_pde": 0.344, "pTM": 0.937, "confidence_score": 0.908, "tier": "validated", "mean_plddt": 96.8, "rmsd": 0.56, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_15_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_3_0_rank7", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.761, "complex_pLDDT": 0.888, "complex_pde": 0.407, "pTM": 0.889, "confidence_score": 0.863, "tier": "validated", "mean_plddt": 96.5, "rmsd": 0.45, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_3_0_rank7_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_5_0_rank2", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.757, "complex_pLDDT": 0.865, "complex_pde": 0.413, "pTM": 0.854, "confidence_score": 0.843, "tier": "validated", "mean_plddt": 94.2, "rmsd": 0.46, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_5_0_rank2_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_16_0_rank5", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.745, "complex_pLDDT": 0.903, "complex_pde": 0.536, "pTM": 0.866, "confidence_score": 0.872, "tier": "validated", "mean_plddt": 95.1, "rmsd": 0.55, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_16_0_rank5_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_7_0_rank6", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.729, "complex_pLDDT": 0.9, "complex_pde": 0.396, "pTM": 0.876, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 95.4, "rmsd": 0.88, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_7_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_7_0_rank6_model_0.cif"}, {"design_name": "len70_distributed_noise05__design_14_0_rank0", "condition_id": "len70_distributed_noise05", "hotspot_config": "distributed", "length": 70, "noise": 5.0, "ipTM": 0.723, "complex_pLDDT": 0.928, "complex_pde": 0.496, "pTM": 0.868, "confidence_score": 0.887, "tier": "validated", "mean_plddt": 82.7, "rmsd": 0.94, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise05__design_14_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_13_0_rank4", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.72, "complex_pLDDT": 0.916, "complex_pde": 0.359, "pTM": 0.837, "confidence_score": 0.877, "tier": "validated", "mean_plddt": 96.0, "rmsd": 0.57, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_13_0_rank4_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_3_0_rank2", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 5.0, "ipTM": 0.704, "complex_pLDDT": 0.9, "complex_pde": 0.426, "pTM": 0.839, "confidence_score": 0.861, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.76, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_3_0_rank2_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_0_0_rank1", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 5.0, "ipTM": 0.698, "complex_pLDDT": 0.906, "complex_pde": 0.449, "pTM": 0.847, "confidence_score": 0.864, "tier": "validated", "mean_plddt": 92.4, "rmsd": 0.61, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_0_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_10_0_rank3", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.629, "complex_pLDDT": 0.923, "complex_pde": 0.477, "pTM": 0.79, "confidence_score": 0.865, "tier": "validated", "mean_plddt": 95.8, "rmsd": 0.78, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_17_0_rank1", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.624, "complex_pLDDT": 0.882, "complex_pde": 0.646, "pTM": 0.832, "confidence_score": 0.83, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.33, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_17_0_rank1_model_0.cif"}, {"design_name": "len50_clusterB_noise0__design_19_0_rank0", "condition_id": "len50_clusterB_noise0", "hotspot_config": "clusterB", "length": 50, "noise": 0.0, "ipTM": 0.413, "complex_pLDDT": 0.922, "complex_pde": 0.766, "pTM": 0.799, "confidence_score": 0.82, "tier": "uncertain", "mean_plddt": 94.7, "rmsd": 0.7, "rf_pdb": "data/results/param_sensitivity/len50_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterB_noise0__design_19_0_rank0_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_18_0_rank1", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.314, "complex_pLDDT": 0.918, "complex_pde": 0.789, "pTM": 0.662, "confidence_score": 0.797, "tier": "uncertain", "mean_plddt": 92.9, "rmsd": 0.58, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_18_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_18_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_15_0_rank5", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.199, "complex_pLDDT": 0.844, "complex_pde": 0.97, "pTM": 0.611, "confidence_score": 0.715, "tier": "uncertain", "mean_plddt": 90.5, "rmsd": 1.41, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_15_0_rank5_model_0.cif"}]
+const DESIGNS = [{"design_name": "len50_clusterA_noise05__design_0_0_rank0", "condition_id": "len50_clusterA_noise05", "hotspot_config": "clusterA", "length": 50, "noise": 0.5, "ipTM": 0.963, "complex_pLDDT": 0.956, "complex_pde": 0.278, "pTM": 0.978, "confidence_score": 0.957, "tier": "validated", "mean_plddt": 84.6, "rmsd": 1.24, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise05__design_0_0_rank0_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_19_0_rank1", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.942, "complex_pLDDT": 0.905, "complex_pde": 0.296, "pTM": 0.964, "confidence_score": 0.912, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.44, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_19_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_5_0_rank0", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.941, "complex_pLDDT": 0.972, "complex_pde": 0.307, "pTM": 0.961, "confidence_score": 0.965, "tier": "validated", "mean_plddt": 92.1, "rmsd": 0.53, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_5_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_13_0_rank1", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 0.5, "ipTM": 0.927, "complex_pLDDT": 0.96, "complex_pde": 0.302, "pTM": 0.951, "confidence_score": 0.953, "tier": "validated", "mean_plddt": 91.4, "rmsd": 0.83, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_13_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_9_0_rank8", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.923, "complex_pLDDT": 0.964, "complex_pde": 0.325, "pTM": 0.936, "confidence_score": 0.955, "tier": "validated", "mean_plddt": 93.2, "rmsd": 0.8, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_9_0_rank8_model_0.cif"}, {"design_name": "len50_clusterA_noise0__design_9_0_rank0", "condition_id": "len50_clusterA_noise0", "hotspot_config": "clusterA", "length": 50, "noise": 0.0, "ipTM": 0.92, "complex_pLDDT": 0.935, "complex_pde": 0.316, "pTM": 0.955, "confidence_score": 0.932, "tier": "validated", "mean_plddt": 92.3, "rmsd": 1.01, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise0__design_9_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_16_0_rank6", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.919, "complex_pLDDT": 0.963, "complex_pde": 0.364, "pTM": 0.946, "confidence_score": 0.954, "tier": "validated", "mean_plddt": 92.3, "rmsd": 0.52, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_16_0_rank6_model_0.cif"}, {"design_name": "len50_distributed_noise0__design_4_0_rank0", "condition_id": "len50_distributed_noise0", "hotspot_config": "distributed", "length": 50, "noise": 0.0, "ipTM": 0.914, "complex_pLDDT": 0.94, "complex_pde": 0.352, "pTM": 0.954, "confidence_score": 0.935, "tier": "validated", "mean_plddt": 95.7, "rmsd": 0.84, "rf_pdb": "data/results/param_sensitivity/len50_distributed_noise0/rfdiffusion_outputs/design_4_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_distributed_noise0__design_4_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_14_0_rank3", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 0.5, "ipTM": 0.91, "complex_pLDDT": 0.944, "complex_pde": 0.347, "pTM": 0.933, "confidence_score": 0.937, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.71, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_14_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_17_0_rank0", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.899, "complex_pLDDT": 0.885, "complex_pde": 0.36, "pTM": 0.94, "confidence_score": 0.888, "tier": "validated", "mean_plddt": 93.5, "rmsd": 0.47, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_19_0_rank0", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 0.5, "ipTM": 0.864, "complex_pLDDT": 0.904, "complex_pde": 0.327, "pTM": 0.916, "confidence_score": 0.896, "tier": "validated", "mean_plddt": 94.6, "rmsd": 0.24, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_19_0_rank0_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_10_0_rank3", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.862, "complex_pLDDT": 0.929, "complex_pde": 0.415, "pTM": 0.93, "confidence_score": 0.916, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.67, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_15_0_rank2", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.835, "complex_pLDDT": 0.859, "complex_pde": 0.385, "pTM": 0.921, "confidence_score": 0.854, "tier": "validated", "mean_plddt": 91.9, "rmsd": 0.64, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_15_0_rank2_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_11_0_rank1", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.82, "complex_pLDDT": 0.931, "complex_pde": 0.413, "pTM": 0.938, "confidence_score": 0.909, "tier": "validated", "mean_plddt": 94.8, "rmsd": 0.41, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_11_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_11_0_rank1_model_0.cif"}, {"design_name": "len70_clusterB_noise05__design_17_0_rank0", "condition_id": "len70_clusterB_noise05", "hotspot_config": "clusterB", "length": 70, "noise": 0.5, "ipTM": 0.811, "complex_pLDDT": 0.928, "complex_pde": 0.413, "pTM": 0.91, "confidence_score": 0.905, "tier": "validated", "mean_plddt": 88.8, "rmsd": 1.43, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise05/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise05__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_10_0_rank1", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.808, "complex_pLDDT": 0.881, "complex_pde": 0.57, "pTM": 0.815, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 87.5, "rmsd": 1.46, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_10_0_rank1_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_13_0_rank0", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 0.5, "ipTM": 0.807, "complex_pLDDT": 0.845, "complex_pde": 0.435, "pTM": 0.887, "confidence_score": 0.837, "tier": "validated", "mean_plddt": 86.8, "rmsd": 0.79, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_13_0_rank0_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_15_0_rank0", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.789, "complex_pLDDT": 0.938, "complex_pde": 0.344, "pTM": 0.937, "confidence_score": 0.908, "tier": "validated", "mean_plddt": 96.8, "rmsd": 0.56, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_15_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_3_0_rank7", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.761, "complex_pLDDT": 0.888, "complex_pde": 0.407, "pTM": 0.889, "confidence_score": 0.863, "tier": "validated", "mean_plddt": 96.5, "rmsd": 0.45, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_3_0_rank7_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_5_0_rank2", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.757, "complex_pLDDT": 0.865, "complex_pde": 0.413, "pTM": 0.854, "confidence_score": 0.843, "tier": "validated", "mean_plddt": 94.2, "rmsd": 0.46, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_5_0_rank2_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_16_0_rank5", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.745, "complex_pLDDT": 0.903, "complex_pde": 0.536, "pTM": 0.866, "confidence_score": 0.872, "tier": "validated", "mean_plddt": 95.1, "rmsd": 0.55, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_16_0_rank5_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_7_0_rank6", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.729, "complex_pLDDT": 0.9, "complex_pde": 0.396, "pTM": 0.876, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 95.4, "rmsd": 0.88, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_7_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_7_0_rank6_model_0.cif"}, {"design_name": "len70_distributed_noise05__design_14_0_rank0", "condition_id": "len70_distributed_noise05", "hotspot_config": "distributed", "length": 70, "noise": 0.5, "ipTM": 0.723, "complex_pLDDT": 0.928, "complex_pde": 0.496, "pTM": 0.868, "confidence_score": 0.887, "tier": "validated", "mean_plddt": 82.7, "rmsd": 0.94, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise05__design_14_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_13_0_rank4", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.72, "complex_pLDDT": 0.916, "complex_pde": 0.359, "pTM": 0.837, "confidence_score": 0.877, "tier": "validated", "mean_plddt": 96.0, "rmsd": 0.57, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_13_0_rank4_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_3_0_rank2", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 0.5, "ipTM": 0.704, "complex_pLDDT": 0.9, "complex_pde": 0.426, "pTM": 0.839, "confidence_score": 0.861, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.76, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_3_0_rank2_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_0_0_rank1", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 0.5, "ipTM": 0.698, "complex_pLDDT": 0.906, "complex_pde": 0.449, "pTM": 0.847, "confidence_score": 0.864, "tier": "validated", "mean_plddt": 92.4, "rmsd": 0.61, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_0_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_10_0_rank3", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.629, "complex_pLDDT": 0.923, "complex_pde": 0.477, "pTM": 0.79, "confidence_score": 0.865, "tier": "validated", "mean_plddt": 95.8, "rmsd": 0.78, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_17_0_rank1", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.624, "complex_pLDDT": 0.882, "complex_pde": 0.646, "pTM": 0.832, "confidence_score": 0.83, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.33, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_17_0_rank1_model_0.cif"}, {"design_name": "len50_clusterB_noise0__design_19_0_rank0", "condition_id": "len50_clusterB_noise0", "hotspot_config": "clusterB", "length": 50, "noise": 0.0, "ipTM": 0.413, "complex_pLDDT": 0.922, "complex_pde": 0.766, "pTM": 0.799, "confidence_score": 0.82, "tier": "uncertain", "mean_plddt": 94.7, "rmsd": 0.7, "rf_pdb": "data/results/param_sensitivity/len50_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterB_noise0__design_19_0_rank0_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_18_0_rank1", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.314, "complex_pLDDT": 0.918, "complex_pde": 0.789, "pTM": 0.662, "confidence_score": 0.797, "tier": "uncertain", "mean_plddt": 92.9, "rmsd": 0.58, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_18_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_18_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_15_0_rank5", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.199, "complex_pLDDT": 0.844, "complex_pde": 0.97, "pTM": 0.611, "confidence_score": 0.715, "tier": "uncertain", "mean_plddt": 90.5, "rmsd": 1.41, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_15_0_rank5_model_0.cif"}]
 ;
 
 const REPO_BASE = "https://raw.githubusercontent.com/hghodkephd/pdl1-mini-binder-design/main/";
@@ -446,59 +449,290 @@ function badgeCls(config) {
   return config === 'clusterA' ? 'badge-clusterA' : config === 'clusterB' ? 'badge-clusterB' : 'badge-distributed';
 }
 
+const poseLookup = {};
+POSE_DATA.forEach(p => { poseLookup[p.design_name] = p; });
+
+function poseClass(rmsd) {
+  if (rmsd < 5) return 'pose-convergent';
+  if (rmsd < 15) return 'intermediate';
+  return 'pose-divergent';
+}
+
+function poseBadge(rmsd) {
+  const cls = poseClass(rmsd);
+  const colors = {
+    'pose-convergent': 'background:#e1f0ea;color:#0f4a38;',
+    'intermediate': 'background:#faf0da;color:#7a5310;',
+    'pose-divergent': 'background:#faeae4;color:#c85a3a;'
+  };
+  return `<span style="${colors[cls]}font-size:.65rem;padding:2px 6px;border-radius:4px;font-weight:500">${cls}</span>`;
+}
+
 function buildCard(d, idx) {
   const card = document.createElement('div');
   card.className = `vcard ${d.tier}`;
   card.dataset.hotspot = d.hotspot_config;
   card.dataset.tier = d.tier;
+
+  const pose = poseLookup[d.design_name];
+  card.dataset.pose = pose ? poseClass(pose.rmsd) : '';
+
+  const poseRmsd = pose ? pose.rmsd.toFixed(1) : '—';
+  const paratopeJ = pose ? pose.binder_jaccard.toFixed(2) : '—';
+  const pBadge = pose ? poseBadge(pose.rmsd) : '';
+
   card.innerHTML = `
     <div class="vcard-viewer" id="v${idx}"><div class="loading">Scroll to load</div></div>
     <div class="toggle-bar">
-      <button class="toggle-btn active" data-mode="rfdiffusion" data-idx="${idx}">RFdiffusion</button>
+      <button class="toggle-btn active" data-mode="rfdiffusion" data-idx="${idx}">Designed pose</button>
       <button class="toggle-btn" data-mode="boltz" data-idx="${idx}">Boltz-2</button>
     </div>
     <div class="vcard-body">
       <div class="vcard-title">${shortName(d.design_name)} <span class="badge ${badgeCls(d.hotspot_config)}">${d.hotspot_config}</span></div>
       <div class="vcard-metrics">
-        <div class="metric"><div class="val">${d.ipTM.toFixed(3)}</div><div class="lbl">ipTM</div></div>
-        <div class="metric"><div class="val">${d.complex_pLDDT.toFixed(2)}</div><div class="lbl">pLDDT</div></div>
-        <div class="metric"><div class="val">${d.complex_pde.toFixed(2)}</div><div class="lbl">PDE</div></div>
+        <div class="metric"><div class="val">${d.ipTM.toFixed(3)}</div><div class="lbl">ipTM<sub>Boltz</sub></div></div>
+        <div class="metric"><div class="val">${d.complex_pLDDT.toFixed(2)}</div><div class="lbl">pLDDT<sub>Boltz</sub></div></div>
+        <div class="metric"><div class="val">${poseRmsd}</div><div class="lbl">Pose RMSD (Å)</div></div>
+        <div class="metric"><div class="val">${paratopeJ}</div><div class="lbl">Paratope J.</div></div>
       </div>
-      <div class="vcard-meta">ESMFold pLDDT: ${d.mean_plddt} · RMSD: ${d.rmsd}Å <span class="badge ${d.tier==='validated'?'badge-pass':'badge-fail'}">${d.tier}</span></div>
+      <div class="vcard-meta">Fold RMSD: ${d.rmsd}Å · ESMFold pLDDT: ${d.mean_plddt} <span class="badge ${d.tier==='validated'?'badge-pass':'badge-fail'}">${d.tier==='validated'?'Boltz-supported':'uncertain'}</span> ${pBadge}</div>
     </div>`;
   return card;
+}
+
+// ---------- Alignment helpers ----------
+// The viewer uses the threaded/designed complex as the reference coordinate frame.
+// Boltz is loaded as a mobile model and aligned onto the reference target chain.
+// Target/binder chains are inferred from Cα counts: longest chain = PD-L1 target, shortest chain = binder.
+
+function getChainCounts(model) {
+  const counts = {};
+  model.selectedAtoms({atom:'CA'}).forEach(a => {
+    counts[a.chain] = (counts[a.chain] || 0) + 1;
+  });
+  return counts;
+}
+
+function inferTargetAndBinderChains(model) {
+  const counts = getChainCounts(model);
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  return {
+    target: sorted[0] ? sorted[0][0] : 'A',
+    binder: sorted.length > 1 ? sorted[sorted.length - 1][0] : 'B'
+  };
+}
+
+function getCAAtoms(model, chain) {
+  return model.selectedAtoms({chain: chain, atom: 'CA'})
+    .filter(a => Number.isFinite(a.x) && Number.isFinite(a.y) && Number.isFinite(a.z));
+}
+
+function getMatchedCA(refModel, mobModel, refChain, mobChain) {
+  const refAtoms = getCAAtoms(refModel, refChain);
+  const mobAtoms = getCAAtoms(mobModel, mobChain);
+
+  const refByResi = new Map(refAtoms.map(a => [String(a.resi), a]));
+  const mobByResi = new Map(mobAtoms.map(a => [String(a.resi), a]));
+
+  const ref = [];
+  const mob = [];
+
+  refByResi.forEach((ra, resi) => {
+    const ma = mobByResi.get(resi);
+    if (ma) {
+      ref.push([ra.x, ra.y, ra.z]);
+      mob.push([ma.x, ma.y, ma.z]);
+    }
+  });
+
+  if (ref.length < 10) {
+    ref.length = 0;
+    mob.length = 0;
+    const n = Math.min(refAtoms.length, mobAtoms.length);
+    for (let i = 0; i < n; i++) {
+      ref.push([refAtoms[i].x, refAtoms[i].y, refAtoms[i].z]);
+      mob.push([mobAtoms[i].x, mobAtoms[i].y, mobAtoms[i].z]);
+    }
+  }
+
+  return {ref, mob};
+}
+
+function mean3(points) {
+  const c = [0,0,0];
+  points.forEach(p => { c[0]+=p[0]; c[1]+=p[1]; c[2]+=p[2]; });
+  const n = points.length || 1;
+  return [c[0]/n, c[1]/n, c[2]/n];
+}
+
+function subtract3(a,b) {
+  return [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+}
+
+function normQuat(q) {
+  const n = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
+  return q.map(v => v/n);
+}
+
+function quatToRot(q) {
+  const [w,x,y,z] = q;
+  return [
+    [1-2*y*y-2*z*z, 2*x*y-2*z*w,   2*x*z+2*y*w],
+    [2*x*y+2*z*w,   1-2*x*x-2*z*z, 2*y*z-2*x*w],
+    [2*x*z-2*y*w,   2*y*z+2*x*w,   1-2*x*x-2*y*y]
+  ];
+}
+
+function matVecMul(M, v) {
+  return [
+    M[0][0]*v[0] + M[0][1]*v[1] + M[0][2]*v[2],
+    M[1][0]*v[0] + M[1][1]*v[1] + M[1][2]*v[2],
+    M[2][0]*v[0] + M[2][1]*v[1] + M[2][2]*v[2]
+  ];
+}
+
+function kabschQuaternion(ref, mob) {
+  const cRef = mean3(ref);
+  const cMob = mean3(mob);
+
+  let Sxx=0,Sxy=0,Sxz=0,Syx=0,Syy=0,Syz=0,Szx=0,Szy=0,Szz=0;
+
+  for (let i=0; i<ref.length; i++) {
+    const r = subtract3(ref[i], cRef);
+    const m = subtract3(mob[i], cMob);
+
+    Sxx += m[0]*r[0]; Sxy += m[0]*r[1]; Sxz += m[0]*r[2];
+    Syx += m[1]*r[0]; Syy += m[1]*r[1]; Syz += m[1]*r[2];
+    Szx += m[2]*r[0]; Szy += m[2]*r[1]; Szz += m[2]*r[2];
+  }
+
+  const N = [
+    [Sxx+Syy+Szz, Syz-Szy,     Szx-Sxz,     Sxy-Syx],
+    [Syz-Szy,     Sxx-Syy-Szz, Sxy+Syx,     Szx+Sxz],
+    [Szx-Sxz,     Sxy+Syx,    -Sxx+Syy-Szz, Syz+Szy],
+    [Sxy-Syx,     Szx+Sxz,     Syz+Szy,    -Sxx-Syy+Szz]
+  ];
+
+  let q = [1,0,0,0];
+  for (let iter=0; iter<60; iter++) {
+    const nq = [
+      N[0][0]*q[0]+N[0][1]*q[1]+N[0][2]*q[2]+N[0][3]*q[3],
+      N[1][0]*q[0]+N[1][1]*q[1]+N[1][2]*q[2]+N[1][3]*q[3],
+      N[2][0]*q[0]+N[2][1]*q[1]+N[2][2]*q[2]+N[2][3]*q[3],
+      N[3][0]*q[0]+N[3][1]*q[1]+N[3][2]*q[2]+N[3][3]*q[3]
+    ];
+    q = normQuat(nq);
+  }
+
+  return {R: quatToRot(q), cRef, cMob, n: ref.length};
+}
+
+function applyTransformToModel(model, transform) {
+  const {R, cRef, cMob} = transform;
+
+  model.selectedAtoms({}).forEach(a => {
+    const p = [a.x - cMob[0], a.y - cMob[1], a.z - cMob[2]];
+    const rp = matVecMul(R, p);
+    a.x = rp[0] + cRef[0];
+    a.y = rp[1] + cRef[1];
+    a.z = rp[2] + cRef[2];
+  });
+}
+
+function setVisibleModel(viewerObj, mode) {
+  const {viewer, rfModel, boltzModel, rfChains, boltzChains} = viewerObj;
+
+  rfModel.setStyle({}, {});
+  boltzModel.setStyle({}, {});
+
+  if (mode === 'rfdiffusion') {
+    rfModel.setStyle({chain:rfChains.target}, {cartoon:{color:'#22c55e',opacity:0.85}});
+    rfModel.setStyle({chain:rfChains.binder}, {cartoon:{color:'#3b82f6',opacity:0.95}});
+  } else {
+    boltzModel.setStyle({chain:boltzChains.target}, {cartoon:{color:'#22c55e',opacity:0.85}});
+    boltzModel.setStyle({chain:boltzChains.binder}, {cartoon:{color:'#3b82f6',opacity:0.95}});
+  }
+
+  viewer.render();
 }
 
 function loadStructure(idx, mode) {
   const d = DESIGNS[idx];
   const el = document.getElementById('v'+idx);
   if (!el) return;
-  el.innerHTML = '<div class="loading">Loading...</div>';
-  const url = REPO_BASE + (mode==='boltz' ? d.boltz_cif : d.rf_pdb);
-  const fmt = mode==='boltz' ? 'cif' : 'pdb';
-  fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(data=>{
-    el.innerHTML='';
-    const v=$3Dmol.createViewer(el,{backgroundColor:'#1a1a2e',antialias:true});
-    v.addModel(data,fmt);
-    v.setStyle({chain:'A'},{cartoon:{color:'#22c55e',opacity:0.85}});
-    v.setStyle({chain:'B'},{cartoon:{color:'#3b82f6',opacity:0.95}});
-    v.zoomTo();v.render();
-    viewers[idx]={viewer:v,mode};
-  }).catch(e=>{el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;});
+
+  if (viewers[idx]) {
+    setVisibleModel(viewers[idx], mode);
+    viewers[idx].mode = mode;
+    return;
+  }
+
+  el.innerHTML = '<div class="loading">Loading and aligning...</div>';
+
+  const rfUrl = REPO_BASE + d.rf_pdb;
+  const boltzUrl = REPO_BASE + d.boltz_cif;
+
+  Promise.all([
+    fetch(rfUrl).then(r => { if(!r.ok) throw new Error(`Designed pose ${r.status}`); return r.text(); }),
+    fetch(boltzUrl).then(r => { if(!r.ok) throw new Error(`Boltz ${r.status}`); return r.text(); })
+  ]).then(([rfData, boltzData]) => {
+    el.innerHTML = '';
+
+    const viewer = $3Dmol.createViewer(el, {
+      backgroundColor:'#1a1a2e',
+      antialias:true
+    });
+
+    const rfModel = viewer.addModel(rfData, 'pdb');
+    const boltzModel = viewer.addModel(boltzData, 'cif');
+
+    const rfChains = inferTargetAndBinderChains(rfModel);
+    const boltzChains = inferTargetAndBinderChains(boltzModel);
+
+    const matched = getMatchedCA(rfModel, boltzModel, rfChains.target, boltzChains.target);
+
+    if (matched.ref.length >= 10) {
+      const transform = kabschQuaternion(matched.ref, matched.mob);
+      applyTransformToModel(boltzModel, transform);
+    } else {
+      console.warn(`Insufficient matched target Cα atoms for ${d.design_name}: ${matched.ref.length}`);
+    }
+
+    viewers[idx] = {
+      viewer,
+      rfModel,
+      boltzModel,
+      rfChains,
+      boltzChains,
+      mode
+    };
+
+    setVisibleModel(viewers[idx], mode);
+    viewer.zoomTo();
+    viewer.render();
+  }).catch(e => {
+    el.innerHTML = `<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;
+  });
 }
 
 const grid = document.getElementById('grid');
 DESIGNS.forEach((d,i) => grid.appendChild(buildCard(d,i)));
 
 const obs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){const i=parseInt(e.target.id.replace('v',''));if(!viewers[i])loadStructure(i,'rfdiffusion');obs.unobserve(e.target);}});
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const i=parseInt(e.target.id.replace('v',''));
+      if(!viewers[i]) loadStructure(i,'rfdiffusion');
+      obs.unobserve(e.target);
+    }
+  });
 },{rootMargin:'300px'});
 document.querySelectorAll('.vcard-viewer').forEach(el=>obs.observe(el));
 
 document.addEventListener('click',e=>{
   const btn=e.target.closest('.toggle-btn');
   if(!btn)return;
-  const idx=parseInt(btn.dataset.idx),mode=btn.dataset.mode;
+  const idx=parseInt(btn.dataset.idx), mode=btn.dataset.mode;
   btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   loadStructure(idx,mode);
@@ -511,8 +745,9 @@ document.getElementById('filters').addEventListener('click',e=>{
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.vcard').forEach(c=>{
-    if(f==='all')c.style.display='';
-    else if(['clusterA','clusterB','distributed'].includes(f))c.style.display=c.dataset.hotspot===f?'':'none';
+    if(f==='all') c.style.display='';
+    else if(['clusterA','clusterB','distributed'].includes(f)) c.style.display=c.dataset.hotspot===f?'':'none';
+    else if(['pose-convergent','intermediate','pose-divergent'].includes(f)) c.style.display=c.dataset.pose===f?'':'none';
     else c.style.display=c.dataset.tier===f?'':'none';
   });
 });
