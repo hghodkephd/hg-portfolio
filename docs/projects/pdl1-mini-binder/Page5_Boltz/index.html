@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Part 5: Independent Complex Validation — PD-L1 Mini Binder Design</title>
+<title>Part 5: Independent Complex Assessment — PD-L1 Mini Binder Design</title>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3dmol@2.1.0/build/3Dmol-min.js"></script>
@@ -41,6 +41,7 @@ p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
 .stat-card .num{font-family:var(--mono);font-size:1.6rem;font-weight:500;color:var(--accent2);line-height:1.2}
 .stat-card .label{font-size:.75rem;color:var(--tx3);margin-top:.25rem;text-transform:uppercase;letter-spacing:.06em}
 @media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.step-grid-5{grid-template-columns:repeat(2,1fr)!important}.step-grid-5 > div:last-child{grid-column:1/-1}}
 
 .param-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0 1.5rem}
 .param-table th{background:var(--bg2);padding:.5rem .75rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);border-bottom:2px solid var(--bg3)}
@@ -118,7 +119,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .vcard-body{padding:.6rem .85rem .75rem}
 .vcard-title{font-size:.75rem;font-weight:600;margin-bottom:.4rem;font-family:var(--sans)}
-.vcard-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:.35rem;text-align:center}
+.vcard-metrics{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.3rem;text-align:center}
 .metric .val{font-size:.9rem;font-weight:500;font-family:var(--mono);color:var(--accent2)}
 .metric .lbl{font-size:.58rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;font-family:var(--sans)}
 .vcard-meta{font-size:.7rem;color:var(--tx3);margin-top:.35rem}
@@ -130,27 +131,27 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <!-- Series Banner -->
 <div class="series-banner">
-  <span class="tag">Independent Complex Assessment</span>
+  <span class="tag">Independent Complex Validation</span>
   <span class="sep">|</span>
-  <span style="font-size:.85rem;color:var(--tx2)">The wet-lab scientist's guide to computational protein design</span>
+  <span style="font-size:.85rem;color:var(--tx2)"><a href="https://hghodkephd.github.io/hg-portfolio/projects/" style="color:var(--tx2);text-decoration:none;border-bottom:1px dashed var(--accent)">The wet-lab scientist's guide to computational protein design</a></span>
   <span class="sep">|</span>
   <a href="Page4_md_simulation.html">← Part 4: MD Simulation</a>
 </div>
 
-<h1>Part 5: Independent Complex Validation with Boltz-2</h1>
-<p class="subtitle">Do binder–PD-L1 interfaces predicted by RFdiffusion survive independent verification?</p>
+<h1>Part 5: Independent Complex Assessment with Boltz-2</h1>
+<p class="subtitle">When two algorithms predict binder–PD-L1 complexes independently, do they agree on the interface — and what counts as agreement?</p>
 
 <!-- Recap -->
 <div class="recap">
-  <p><strong>Previously, in Parts 1–4:</strong> We built a complete design pipeline — RFdiffusion → ProteinMPNN → ESMFold — and validated 31 mini-binder candidates through a parameter sensitivity study, side-chain-level interaction fingerprinting, and molecular dynamics simulation. Every structural analysis so far has relied on geometry that originated from RFdiffusion. This page asks the harder question: <em>is the binding interface encoded in the designed sequence itself, or only in the designed structure?</em></p>
+  <p><strong>Previously, in Parts 1–4:</strong> We built a complete design pipeline — RFdiffusion → ProteinMPNN → ESMFold — and characterized 31 mini-binder candidates through a parameter sensitivity study and full-sidechain interaction fingerprinting. Part 4 ran molecular dynamics on three representative designs to test the simulation workflow. Every structural analysis so far has relied on geometry that originated from RFdiffusion. This page asks the harder question: <em>is the binding interface encoded in the designed sequence itself, or only in the designed structure?</em></p>
 </div>
 
 <!-- Stats -->
 <div class="stats-row">
-  <div class="stat-card"><div class="num">31</div><div class="label">Designs scored</div></div>
-  <div class="stat-card"><div class="num">28</div><div class="label">Validated</div></div>
-  <div class="stat-card"><div class="num">0.963</div><div class="label">Best ipTM</div></div>
-  <div class="stat-card"><div class="num">0.770</div><div class="label">Mean ipTM</div></div>
+  <div class="stat-card"><div class="num">28/31</div><div class="label">Confident complexes</div></div>
+  <div class="stat-card"><div class="num">14/31</div><div class="label">Pose-convergent</div></div>
+  <div class="stat-card"><div class="num">0.963</div><div class="label">Best ipTM<sub>Boltz</sub></div></div>
+  <div class="stat-card"><div class="num">0.69</div><div class="label">Interface overlap<br>(convergent)</div></div>
 </div>
 
 
@@ -159,19 +160,25 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <p>So far in this project, every structural analysis has relied on geometry that originated from RFdiffusion. The backbone was designed by RFdiffusion, the sequence was designed by ProteinMPNN on that backbone, ESMFold confirmed the sequence folds into that backbone shape, and the fingerprinting and MD analyses all started from the RFdiffusion-designed complex pose. Every step carried forward the structural assumptions of the first step.</p>
 
-<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it also form a complex with PD-L1? Single-chain fold recapitulation does not guarantee multi-chain interaction.</p>
+<p>That raises a question: if the binder sequence folds correctly on its own (passing the ESMFold check), does it also form a complex with PD-L1? Single-chain fold recapitulation does not guarantee multi-chain interaction. These interactions could be transient, unstable, or non-specific since the design specifications do not explicitly optimize for binding energy.</p>
 
-<p>Boltz-2 is an open-source deep-learning model from MIT (Wohlwend et al., 2024–2025) that predicts the 3D structure of biomolecular complexes from sequence alone, achieving AlphaFold 3-level accuracy. We give it two protein sequences — binder and PD-L1 — with no structural hints. It predicts how they fold together and reports confidence metrics, particularly the <strong>interface predicted TM-score (ipTM)</strong>, which has been shown to correlate with experimental binding success better than physics-based scores like Rosetta energies.</p>
+<p>Of course, the die-hard experimentalist's go-to approach would be: "let's test it in the lab". That approach is fine for one, or a handful of designs. But generative technology can give us an arbitrarily large number of designs, and at scale, testing in the lab without prior vetting is neither cost-effective, nor wise.</p>
+
+<p>So, can we use other computational tools to independently assess whether these sequences encode plausible binder–target complexes? Turns out, we can.</p>
+
+<p>Boltz-2 is an open-source biomolecular interaction model from MIT/Recursion (Passaro et al., 2025), building on Boltz-1 (Wohlwend et al., 2024). Boltz-1 was introduced as an open-source model approaching AlphaFold 3-level complex-structure prediction accuracy; Boltz-2 extends this family by jointly modeling biomolecular structures and affinities. We give it two protein sequences — binder and PD-L1 — with no structural hints. It predicts how they fold together and reports confidence metrics, particularly the <strong>interface predicted TM-score (ipTM)</strong>.</p>
+
+<p>In this study, we use Boltz-2 to independently predict binder–PD-L1 complexes from the ProteinMPNN-designed sequences alone. We then ask, how do these sequence-only complex predictions compare to the RFdiffusion-derived design poses?</p>
 
 
 <!-- SECTION: Schematic -->
 <h2>Two paths to the same question</h2>
 
-<p>The schematic below shows how Boltz-2 fits into the pipeline. Path 1 (the blue track) is the design pipeline we've built across Parts 1–4 — structural information flows forward at every step. Path 2 (the amber fork) branches from ProteinMPNN, taking only the designed sequences with no structural context, and asks Boltz-2 to predict the complex independently. The two paths converge on a single question: do the interfaces agree?</p>
+<p>The schematic below shows how Boltz-2 fits into the pipeline. Path 1 (the blue track) is the design pipeline we've built across Parts 1–3 — structural information flows forward at every step, from RFdiffusion through ESMFold filtering and interaction fingerprinting. Path 2 (the amber fork) branches from ProteinMPNN, taking only the designed sequences with no structural context, and asks Boltz-2 to predict the complex independently. The two paths converge after fingerprinting: do the structurally-derived poses and the sequence-only predictions agree on the interface?</p>
 
 <div style="margin:1.5rem 0">
-<svg width="100%" viewBox="0 0 680 420" style="max-width:680px;display:block;margin:0 auto" role="img">
-<title>Pipeline schematic: two paths to complex assessment</title>
+<svg width="100%" viewBox="0 0 680 400" style="max-width:680px;display:block;margin:0 auto" role="img">
+<title>Pipeline schematic: two paths to complex validation</title>
 <defs>
 <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
 </defs>
@@ -194,19 +201,21 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <text x="363" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#0f4a38">ProteinMPNN</text>
 <text x="363" y="79" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#3d8a6e">Sequence design</text>
 
-<line x1="418" y1="66" x2="441" y2="66" stroke="#8a8878" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Path 1 label -->
+<text x="540" y="116" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#2e6da4">Path 1 — structural information carried forward</text>
+
+<!-- Path 1: right arm (blue) -->
+<line x1="418" y1="66" x2="441" y2="66" stroke="#2e6da4" stroke-width="1" marker-end="url(#arr)"/>
 
 <rect x="445" y="44" width="82" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
 <text x="486" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">ESMFold</text>
 <text x="486" y="79" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#5a8ebe">Fold check</text>
 
-<line x1="527" y1="66" x2="550" y2="66" stroke="#8a8878" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="527" y1="66" x2="550" y2="66" stroke="#2e6da4" stroke-width="1" marker-end="url(#arr)"/>
 
 <rect x="554" y="44" width="94" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
 <text x="601" y="63" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">Filter + rank</text>
 <text x="601" y="79" text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="10" fill="#5a8ebe">31 candidates</text>
-
-<text x="340" y="116" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878">Path 1 — structural information carried forward at every step</text>
 
 <line x1="601" y1="88" x2="601" y2="134" stroke="#2e6da4" stroke-width="1" marker-end="url(#arr)"/>
 
@@ -214,41 +223,83 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <text x="601" y="157" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">Fingerprinting</text>
 <text x="601" y="173" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#5a8ebe">Interface contacts</text>
 
-<line x1="601" y1="182" x2="601" y2="210" stroke="#2e6da4" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Path 1 arm down to convergence -->
+<line x1="601" y1="182" x2="601" y2="230" stroke="#2e6da4" stroke-width="1"/>
 
-<rect x="541" y="214" width="120" height="44" rx="8" fill="#e6f0fa" stroke="#2e6da4" stroke-width=".5"/>
-<text x="601" y="233" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#2e6da4">MD simulation</text>
-<text x="601" y="249" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#5a8ebe">Dynamic stability</text>
+<!-- Path 2: amber fork down from ProteinMPNN -->
+<line x1="363" y1="88" x2="363" y2="195" stroke="#b07818" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="363" y1="195" x2="363" y2="215" stroke="#b07818" stroke-width="1.5" marker-end="url(#arr)"/>
 
-<!-- Amber fork -->
-<line x1="363" y1="88" x2="363" y2="286" stroke="#b07818" stroke-width="1.5" stroke-dasharray="4 3"/>
-<line x1="363" y1="286" x2="363" y2="304" stroke="#b07818" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="295" y="160" text-anchor="end" font-family="DM Sans,sans-serif" font-size="10.5" fill="#b07818">Sequences only</text>
+<text x="295" y="176" text-anchor="end" font-family="DM Sans,sans-serif" font-size="10.5" fill="#b07818">No structural hints</text>
 
-<text x="295" y="200" text-anchor="end" font-family="DM Sans,sans-serif" font-size="10.5" fill="#b07818">Sequences only</text>
-<text x="295" y="216" text-anchor="end" font-family="DM Sans,sans-serif" font-size="10.5" fill="#b07818">No structural hints</text>
+<text x="200" y="250" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878" opacity=".7">Path 2 — sequence to</text>
+<text x="200" y="266" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878" opacity=".7">structure from scratch</text>
 
-<rect x="290" y="308" width="146" height="50" rx="10" fill="#faf0da" stroke="#b07818" stroke-width="1"/>
-<text x="363" y="327" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#7a5310">Boltz-2</text>
-<text x="363" y="345" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#b07818">Independent prediction</text>
-
-<text x="200" y="340" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878" opacity=".7">Path 2 — sequence to</text>
-<text x="200" y="356" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878" opacity=".7">structure from scratch</text>
+<rect x="290" y="219" width="146" height="50" rx="10" fill="#faf0da" stroke="#b07818" stroke-width="1"/>
+<text x="363" y="238" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="13" font-weight="600" fill="#7a5310">Boltz-2</text>
+<text x="363" y="256" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#b07818">Independent prediction</text>
 
 <!-- Convergence -->
-<line x1="436" y1="333" x2="534" y2="333" stroke="#b07818" stroke-width="1.5" marker-end="url(#arr)"/>
-<line x1="601" y1="258" x2="601" y2="333" stroke="#2e6da4" stroke-width="1"/>
+<line x1="436" y1="244" x2="534" y2="244" stroke="#b07818" stroke-width="1.5" marker-end="url(#arr)"/>
 
-<rect x="538" y="311" width="126" height="44" rx="8" fill="#faeae4" stroke="#c85a3a" stroke-width=".5"/>
-<text x="601" y="330" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#c85a3a">Do they agree?</text>
-<text x="601" y="346" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#c85a3a">Compare interfaces</text>
+<rect x="538" y="222" width="126" height="44" rx="8" fill="#faeae4" stroke="#c85a3a" stroke-width=".5"/>
+<text x="601" y="241" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#c85a3a">Do they agree?</text>
+<text x="601" y="257" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#c85a3a">Compare interfaces</text>
 
-<line x1="601" y1="355" x2="601" y2="376" stroke="#0f4a38" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="601" y1="266" x2="601" y2="290" stroke="#0f4a38" stroke-width="1" marker-end="url(#arr)"/>
 
-<rect x="530" y="380" width="142" height="28" rx="8" fill="#e1f0ea" stroke="#1d6b52" stroke-width=".5"/>
-<text x="601" y="397" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#0f4a38">28 of 31 validated</text>
+<rect x="530" y="294" width="142" height="28" rx="8" fill="#e1f0ea" stroke="#1d6b52" stroke-width=".5"/>
+<text x="601" y="311" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="12" font-weight="600" fill="#0f4a38">28 of 31 Boltz-supported</text>
+
+<!-- Downstream: MD + scoring (gray, future) -->
+<line x1="601" y1="322" x2="601" y2="348" stroke="#8a8878" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+<rect x="531" y="352" width="140" height="40" rx="8" fill="#f0eeea" stroke="#8a8878" stroke-width=".5"/>
+<text x="601" y="367" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="11" font-weight="600" fill="#5a5850">MD + affinity scoring</text>
+<text x="601" y="383" text-anchor="middle" dominant-baseline="central" font-family="DM Sans,sans-serif" font-size="10" fill="#8a8878">Parts 6–7 (next)</text>
 </svg>
-<p class="fig-caption"><strong>Figure 1.</strong> Two paths to complex assessment. The design pipeline (Path 1, blue) carries structural information from RFdiffusion through every downstream step. Boltz-2 (Path 2, amber) starts from ProteinMPNN sequences alone with no structural context. Agreement between the two paths provides orthogonal evidence that the binding interface is encoded in the designed sequence.</p>
+<p class="fig-caption"><strong>Figure 1.</strong> Two paths to complex validation. The design pipeline (Path 1, blue) carries structural information from RFdiffusion through ESMFold filtering and interaction fingerprinting. Boltz-2 (Path 2, amber) starts from ProteinMPNN sequences alone with no structural context. The two paths converge after fingerprinting: agreement provides orthogonal evidence that the binding interface is encoded in the designed sequence, not only in the designed structure. MD simulation and affinity scoring (dashed) follow downstream on the validated set.</p>
 </div>
+
+<!-- SECTION: How we ran this check -->
+<h3>How we ran this check</h3>
+
+<div class="step-grid-5" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:1.5rem 0">
+
+<div style="background:var(--amber-light);border:1px solid rgba(176,120,24,.2);border-radius:var(--radius-lg);padding:.75rem 1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px">Step 1</div>
+<div style="font-weight:600;font-size:.85rem;color:#7a5310;margin-bottom:4px">Prepare inputs</div>
+<div style="font-size:.75rem;color:var(--tx2)">Pair each binder sequence with PD-L1 — no structures, just sequences</div>
+</div>
+
+<div style="background:var(--amber-light);border:1px solid rgba(176,120,24,.2);border-radius:var(--radius-lg);padding:.75rem 1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px">Step 2</div>
+<div style="font-weight:600;font-size:.85rem;color:#7a5310;margin-bottom:4px">Run Boltz-2</div>
+<div style="font-size:.75rem;color:var(--tx2)">Predict complex structure from sequence alone on Colab T4 GPU</div>
+</div>
+
+<div style="background:var(--amber-light);border:1px solid rgba(176,120,24,.2);border-radius:var(--radius-lg);padding:.75rem 1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px">Step 3</div>
+<div style="font-weight:600;font-size:.85rem;color:#7a5310;margin-bottom:4px">Extract confidence</div>
+<div style="font-size:.75rem;color:var(--tx2)">ipTM<sub>Boltz</sub>, pLDDT<sub>Boltz</sub>, pTM<sub>Boltz</sub>, and PDE<sub>Boltz</sub> per design</div>
+</div>
+
+<div style="background:var(--amber-light);border:1px solid rgba(176,120,24,.2);border-radius:var(--radius-lg);padding:.75rem 1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px">Step 4</div>
+<div style="font-weight:600;font-size:.85rem;color:#7a5310;margin-bottom:4px">Classify tiers</div>
+<div style="font-size:.75rem;color:var(--tx2)">Validated, uncertain, or failed based on confidence thresholds</div>
+</div>
+
+<div style="background:var(--amber-light);border:1px solid rgba(176,120,24,.2);border-radius:var(--radius-lg);padding:.75rem 1rem;text-align:center">
+<div style="font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:4px">Step 5</div>
+<div style="font-weight:600;font-size:.85rem;color:#7a5310;margin-bottom:4px">Compare poses</div>
+<div style="font-size:.75rem;color:var(--tx2)">Align PD-L1, measure binder displacement and interface residue overlap</div>
+</div>
+
+</div>
+
+<p>Steps 1–4 answer: <em>does an independent model agree that these are plausible complexes?</em> Step 5 answers the harder question: <em>does Boltz-2 find the same binding mode, and do the same residues mediate the interface?</em> Agreement at the confidence level (Steps 1–4) is necessary but not sufficient — the real test is whether both algorithms converge on the same structural interface.</p>
 
 
 <!-- SECTION: Key metrics -->
@@ -257,99 +308,159 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <table class="param-table">
 <thead><tr><th>Metric</th><th>What it means</th><th>Threshold</th></tr></thead>
 <tbody>
-<tr><td><strong>ipTM</strong></td><td style="color:var(--tx2)">Interface predicted TM-score — how confident the model is that the two chains are positioned correctly relative to each other. The single best predictor of experimental binding.</td><td class="num">≥ 0.6</td></tr>
-<tr><td><strong>complex pLDDT</strong></td><td style="color:var(--tx2)">Per-residue confidence averaged across the complex. Indicates overall fold quality.</td><td class="num">≥ 0.7</td></tr>
+<tr><td><strong>ipTM<sub>Boltz</sub></strong></td><td style="color:var(--tx2)">Interface predicted TM-score — a model-internal confidence metric for the predicted inter-chain arrangement. High interface confidence is useful for triage, but should be interpreted as model confidence rather than binding affinity.</td><td class="num">≥ 0.6</td></tr>
+<tr><td><strong>pLDDT<sub>Boltz</sub></strong></td><td style="color:var(--tx2)">Per-residue confidence averaged across the complex. Indicates overall fold quality.</td><td class="num">≥ 0.7</td></tr>
 <tr><td><strong>complex PDE</strong></td><td style="color:var(--tx2)">Predicted distance error across inter-chain residue pairs. Lower values indicate better interface geometry.</td><td class="num">Lower</td></tr>
 </tbody>
 </table>
 
 <div class="callout">
-  <p><strong>What Boltz-2 is NOT used for here:</strong> Boltz-2 includes a binding affinity prediction module, but this was trained on protein–small molecule data, not protein–protein interactions. A recent study (King et al., 2025) showed that Boltz-2's affinity head underperforms sequence-based alternatives for protein–protein affinity. We extract only the structure confidence metrics, which are validated for protein–protein complexes.</p>
+  <p><strong>What Boltz-2 is NOT used for here:</strong> Boltz-2 includes an affinity-prediction module, but we do not use it here. The released affinity workflow is intended for protein–ligand affinity prediction, not protein–protein affinity. This page uses only structure-confidence and interface-agreement metrics.</p>
 </div>
 
 
 <!-- SECTION: Results -->
 <h2>Results</h2>
 
-<div class="finding green">
-  <p><strong>28 of 31 designs validated.</strong> Boltz-2 independently confirms plausible binder–PD-L1 interfaces for 90% of our designs. Zero designs failed outright. Three designs fell in the uncertain zone (ipTM 0.20–0.41). The top-scoring design achieved ipTM = 0.963 — exceptionally high confidence.</p>
+<div class="callout">
+<strong>Terminology.</strong> We use <em>Boltz-supported</em> for designs with ipTM<sub>Boltz</sub> ≥ 0.6, <em>uncertain</em> for designs where individual chains fold but interface confidence is low, and <em>pose-convergent</em> for designs with binder Cα RMSD < 5 Å after PD-L1 alignment between the RFdiffusion and Boltz-2 structures. <em>Pose-divergent</em> means RMSD ≥ 15 Å.
 </div>
 
-<h3>Confidence by hotspot configuration</h3>
-<p>Cluster A designs scored highest on average (mean ipTM 0.821), followed by Cluster B (0.772) and Distributed (0.667). This is consistent with a plausible structural interpretation: concentrated hotspot clusters give Boltz a clearer docking signal because the binder has a well-defined binding patch, while distributed hotspots spread the interface thinner and make the docking geometry less deterministic for the prediction model.</p>
+<!-- SECTION: Structure viewer (data first, before interpretation) -->
+<h3>The data: side-by-side structure predictions</h3>
 
-<div class="chart-grid">
-<div class="chart-card"><h3>ipTM by hotspot configuration</h3><canvas id="chart-config"></canvas></div>
-<div class="chart-card"><h3>ipTM by binder length</h3><canvas id="chart-length"></canvas></div>
-</div>
-
-<h3>Confidence by binder length</h3>
-<p>The 25-mer and 70-mer designs showed similar mean ipTM (~0.80), while 100-mers had the widest variance (min 0.199, max 0.941). Longer binders have more possible docking orientations, which may make Boltz's prediction task harder — but the best 100-mers scored nearly as high as the best 70-mers.</p>
-
-<div class="chart-grid">
-<div class="chart-card full"><h3>ipTM vs complex pLDDT</h3><canvas id="chart-scatter"></canvas></div>
-</div>
-<p class="fig-caption"><strong>Figure 2.</strong> ipTM vs complex pLDDT for all 31 designs. The Boltz-supported zone (upper right) contains 28 designs. The three uncertain designs have high pLDDT (the individual chains fold well) but lower ipTM (Boltz is less confident about the interface).</p>
-
-<h3>Boltz confidence is independent of prior metrics</h3>
-<p>An important finding: ipTM shows essentially zero correlation with ESMFold alignment RMSD (Spearman ρ = +0.004) and no significant correlation with ProteinMPNN scores. This means Boltz is measuring something genuinely independent from what the upstream pipeline measured — exactly what we want from an orthogonal validation. If ipTM simply tracked pLDDT, it wouldn't add information.</p>
-
-<h3>The three uncertain designs</h3>
-<table class="param-table">
-<thead><tr><th>Design</th><th>ipTM</th><th>pLDDT</th><th>Config</th><th>Length</th><th>RMSD</th></tr></thead>
-<tbody>
-<tr><td>len50 cB d19r0</td><td class="num">0.413</td><td class="num">0.922</td><td><span class="badge badge-clusterB">clusterB</span></td><td class="num">50</td><td class="num">0.70</td></tr>
-<tr><td>len100 dist d18r1</td><td class="num">0.314</td><td class="num">0.918</td><td><span class="badge badge-distributed">distributed</span></td><td class="num">100</td><td class="num">0.58</td></tr>
-<tr><td>len100 dist d15r5</td><td class="num">0.199</td><td class="num">0.844</td><td><span class="badge badge-distributed">distributed</span></td><td class="num">100</td><td class="num">1.41</td></tr>
-</tbody>
-</table>
-<p>The weakest design (ipTM = 0.199) was already the weakest by prior metrics — highest alignment RMSD (1.41 Å) and lowest pLDDT (90.5) in the cohort. The other two uncertain designs have high fold confidence (pLDDT > 0.9) but lower interface confidence, suggesting the individual chains fold well but Boltz couldn't confidently place them together.</p>
-
-<h3>Top 5 designs by Boltz confidence</h3>
-<table class="top-table">
-<thead><tr><th>#</th><th>Design</th><th>ipTM</th><th>pLDDT</th><th>PDE</th><th>Config</th><th>Length</th></tr></thead>
-<tbody>
-<tr><td><span class="rank-num">1</span></td><td>len50 cA σ0.5 d0r0</td><td>0.963</td><td>0.956</td><td>2.04</td><td><span class="badge badge-clusterA">clusterA</span></td><td>50</td></tr>
-<tr><td><span class="rank-num">2</span></td><td>len70 cB σ0 d19r1</td><td>0.942</td><td>0.905</td><td>4.13</td><td><span class="badge badge-clusterB">clusterB</span></td><td>70</td></tr>
-<tr><td><span class="rank-num">3</span></td><td>len100 dist σ0 d5r0</td><td>0.941</td><td>0.972</td><td>1.89</td><td><span class="badge badge-distributed">distributed</span></td><td>100</td></tr>
-<tr><td><span class="rank-num">4</span></td><td>len70 cA σ0.5 d13r1</td><td>0.927</td><td>0.960</td><td>2.20</td><td><span class="badge badge-clusterA">clusterA</span></td><td>70</td></tr>
-<tr><td><span class="rank-num">5</span></td><td>len100 cA σ0 d9r8</td><td>0.923</td><td>0.964</td><td>2.20</td><td><span class="badge badge-clusterA">clusterA</span></td><td>100</td></tr>
-</tbody>
-</table>
-<p>The top 5 span all three hotspot configurations and three different binder lengths — a reassuring sign that high-confidence designs are not confined to a single parameter corner.</p>
-
-
-<!-- SECTION: Structure viewer -->
-<h2>Structure viewer: RFdiffusion vs Boltz-2</h2>
-
-<p>Each card below shows one of the 31 designs. Use the toggle to switch between the RFdiffusion-designed pose (the input to our pipeline) and the Boltz-2 predicted complex (the independent prediction from sequence alone). PD-L1 is shown in green, the designed binder in blue. Cards are sorted by ipTM and bordered green (validated) or amber (uncertain).</p>
+<p>Before interpreting metrics, it helps to see what the two algorithms actually produce. Each card below shows one of the 31 designs. Toggle between the RFdiffusion-designed pose (Path 1) and the Boltz-2 predicted complex (Path 2). PD-L1 is shown in green, the binder in blue. Cards are sorted by ipTM<sub>Boltz</sub> and show both Boltz confidence metrics and pose-agreement metrics. Spend a moment toggling through a few designs — some predictions are strikingly similar, others clearly different. The analysis that follows quantifies what your eye is already seeing.</p>
 
 <div class="viewer-controls" id="filters">
   <button class="filter-btn active" data-filter="all">All (31)</button>
   <button class="filter-btn" data-filter="clusterA">Cluster A (16)</button>
   <button class="filter-btn" data-filter="clusterB">Cluster B (7)</button>
   <button class="filter-btn" data-filter="distributed">Distributed (8)</button>
-  <button class="filter-btn" data-filter="validated">Validated (28)</button>
+  <button class="filter-btn" data-filter="validated">Boltz-supported (28)</button>
   <button class="filter-btn" data-filter="uncertain">Uncertain (3)</button>
-  <button class="filter-btn" data-filter="pose-convergent">Pose-convergent (14)</button>
-  <button class="filter-btn" data-filter="intermediate">Intermediate (5)</button>
-  <button class="filter-btn" data-filter="pose-divergent">Pose-divergent (12)</button>
 </div>
 
 <div class="viewer-grid" id="grid"></div>
 <div class="viewer-legend">🟢 PD-L1 target (chain A) &nbsp;&nbsp; 🔵 Designed binder (chain B) &nbsp;&nbsp; Cartoon representation</div>
 
+<h3>Layer 1: Boltz-2 confidence</h3>
+
+<div class="finding green">
+  <p><strong>28 of 31 designs produce confident Boltz-2 complexes.</strong> ipTM<sub>Boltz</sub> ≥ 0.6 for 28 designs, with the top-scoring design at 0.963. Three designs fell in the uncertain zone (ipTM<sub>Boltz</sub> 0.20–0.41). Zero designs failed outright. Importantly, the five highest-confidence designs are not merely high-ipTM predictions — they all show strong pose convergence with RMSD < 3 Å and paratope Jaccard > 0.6 (detailed in Layer 2 below).</p>
+</div>
+
+<h3>Confidence by hotspot configuration</h3>
+<p>Cluster A designs scored highest on average (mean ipTM<sub>Boltz</sub> 0.821), followed by Cluster B (0.772) and Distributed (0.667). This is consistent with a plausible structural interpretation: concentrated hotspot clusters give Boltz a clearer docking signal because the binder has a well-defined binding patch, while distributed hotspots spread the interface thinner and make the docking geometry less deterministic for the prediction model.</p>
+
+<div class="chart-grid">
+<div class="chart-card"><h3>ipTM<sub>Boltz</sub> by hotspot configuration</h3><canvas id="chart-config"></canvas></div>
+<div class="chart-card"><h3>ipTM<sub>Boltz</sub> by binder length</h3><canvas id="chart-length"></canvas></div>
+</div>
+
+<h3>Confidence by binder length</h3>
+<p>The 25-mer and 70-mer designs showed similar mean ipTM<sub>Boltz</sub> (~0.80), while 100-mers had the widest variance (min 0.199, max 0.941). Longer binders have more possible docking orientations, which may make Boltz's prediction task harder — but the best 100-mers scored nearly as high as the best 70-mers.</p>
+
+<div class="chart-grid">
+<div class="chart-card full"><h3>ipTM<sub>Boltz</sub> vs pLDDT<sub>Boltz</sub></h3><canvas id="chart-scatter"></canvas></div>
+</div>
+<p class="fig-caption"><strong>Figure 2.</strong> ipTM<sub>Boltz</sub> vs pLDDT<sub>Boltz</sub> for all 31 designs. The validated zone (upper right) contains 28 designs. The three uncertain designs have high pLDDT<sub>Boltz</sub> (the individual chains fold well) but lower ipTM<sub>Boltz</sub> (Boltz is less confident about the interface).</p>
+
+<p>These confidence metrics tell us that Boltz-2 believes these sequences encode plausible binder–PD-L1 complexes. But confidence alone doesn't tell us whether Boltz found the <em>same</em> complex as RFdiffusion — only that it found <em>a</em> complex. The next two layers ask the harder question.</p>
+
+<!-- Layer 2: Pose agreement -->
+<h3>Layer 2: Does Boltz-2 recover the same binding pose?</h3>
+
+<p>Confidence tells us Boltz believes a complex exists. But does it find the <em>same</em> complex? To test this, we aligned PD-L1 between the RFdiffusion-designed threaded complex and the Boltz-2 predicted complex, then measured binder Cα RMSD after alignment. If both algorithms place the binder in the same position on PD-L1, this RMSD should be low.</p>
+
+<div class="finding green">
+  <p><strong>14 of 31 designs show strong pose agreement</strong> (binder RMSD < 5 Å), with a mean ipTM<sub>Boltz</sub> of 0.87. <strong>12 designs show a different geometric binding mode</strong> (RMSD ≥ 15 Å) — the binder sits in a different orientation on PD-L1, despite Boltz being confident about its prediction. Five designs fall in between (5–15 Å).</p>
+</div>
+
+<div class="chart-grid">
+<div class="chart-card"><h3>ipTM<sub>Boltz</sub> vs binder RMSD<sub>pose</sub></h3><canvas id="chart-pose-rmsd"></canvas></div>
+<div class="chart-card"><h3>ipTM<sub>Boltz</sub> vs binder paratope Jaccard</h3><canvas id="chart-pose-jaccard"></canvas></div>
+</div>
+<p class="fig-caption"><strong>Figure 3.</strong> Pose agreement between RFdiffusion and Boltz-2 predictions. <em>Left:</em> binder Cα RMSD after PD-L1 alignment — lower means the binder is in the same position. <em>Right:</em> binder paratope Jaccard overlap — higher means the same binder residues are at the interface. Points colored by hotspot configuration. ipTM<sub>Boltz</sub> correlates with both metrics (ρ = −0.54 for RMSD, ρ = +0.60 for Jaccard, both p < 0.001), but high ipTM does not guarantee pose agreement.</p>
+
+<p>This is a critical result: <strong>high ipTM<sub>Boltz</sub> does not guarantee the same binding mode.</strong> Several designs with ipTM > 0.8 have binder RMSD > 20 Å — Boltz is confident about a complex, just a different one than RFdiffusion designed. In small-molecule docking, a high-confidence but wrong pose is often immediately problematic because the pose defines the interaction geometry. For protein-protein interfaces, the interpretation can be more nuanced: are the same <em>residues</em> mediating contact, regardless of the overall binder orientation?</p>
+
+<!-- Layer 3: Residue-level agreement -->
+<h3>Layer 3: Are the same residues at the interface?</h3>
+
+<p>Even when the binder approaches PD-L1 from a different angle, the functionally relevant question is whether the same binder residues engage the same target surface. We computed three residue-level overlap metrics using Cα contacts at 8 Å: binder paratope Jaccard, target epitope Jaccard, and hotspot recovery.</p>
+
+<div class="callout">
+<strong>What is a Jaccard index?</strong> The Jaccard index measures how much two sets overlap, on a scale from 0 (no overlap) to 1 (identical sets). If the threaded complex contacts PD-L1 residues {A, B, C, D} and the Boltz complex contacts {B, C, D, E}, the shared set is {B, C, D} and the combined set is {A, B, C, D, E}. The Jaccard index is 3/5 = 0.60. We apply this separately to binder-side residues (the <em>paratope</em> — which parts of the binder are at the interface) and target-side residues (the <em>epitope</em> — which parts of PD-L1 are contacted).
+</div>
+
+<div class="stats-row">
+  <div class="stat-card"><div class="num">0.69</div><div class="label">Paratope Jaccard<br>(convergent)</div></div>
+  <div class="stat-card"><div class="num">0.71</div><div class="label">Epitope Jaccard<br>(convergent)</div></div>
+  <div class="stat-card"><div class="num">0.29</div><div class="label">Epitope Jaccard<br>(divergent)</div></div>
+  <div class="stat-card"><div class="num">58%</div><div class="label">Hotspots contacted<br>(either pose)</div></div>
+</div>
+
+<p>For the 14 convergent designs (RMSD < 5 Å), residue-level overlap is strong: binder paratope Jaccard averages 0.69 and target epitope Jaccard averages 0.71. Both algorithms agree on which face of the binder contacts which surface of PD-L1.</p>
+
+<p>For the 12 divergent designs (RMSD ≥ 15 Å), the residue overlap drops — but not to zero. Target epitope Jaccard averages 0.29, meaning about a third of the PD-L1 contact residues are shared even when the binder approaches from a different angle. And the fraction of hotspot residues contacted in <em>either</em> pose holds at 58% across all three RMSD buckets. The hotspot residues are being engaged; the two algorithms disagree on how the binder reaches them.</p>
+
+<div class="chart-grid">
+<div class="chart-card"><h3>Target epitope Jaccard vs binder RMSD<sub>pose</sub></h3><canvas id="chart-epitope-rmsd"></canvas></div>
+<div class="chart-card"><h3>Hotspot recovery vs binder RMSD<sub>pose</sub></h3><canvas id="chart-hotspot-rmsd"></canvas></div>
+</div>
+<p class="fig-caption"><strong>Figure 4.</strong> Residue-level interface agreement vs geometric pose divergence. <em>Left:</em> target epitope Jaccard decreases with RMSD but remains above zero even for highly divergent poses — the binder contacts partially overlapping PD-L1 residues from a different approach angle. <em>Right:</em> fraction of canonical hotspot residues contacted in both poses. One design (len70 cA d10r1, RMSD = 31.7 Å) recovers 75% of hotspot contacts despite a completely different binder orientation.</p>
+
+<p>The standout example is len70_clusterA_noise0 design 10 (RMSD = 31.7 Å, ipTM<sub>Boltz</sub> = 0.81): the binder is in a completely different orientation but still contacts 3 of 4 canonical clusterA hotspot residues. Pose divergence does not automatically equal complete interface disagreement — but pose-divergent designs should be treated as lower-confidence candidates until relaxation and MD in Part 6 shows whether those contacts are physically stable.</p>
+
+<h3>How close do binders get to hotspot residues?</h3>
+
+<p>The residue-level metrics above use an 8 Å Cα–Cα cutoff to call contacts. To understand what that cutoff is doing — and where edge cases live — we plotted the distribution of minimum binder Cα → hotspot Cα distances across all 31 designs and all hotspot residues (163 design×hotspot pairs per structure source).</p>
+
+<div class="chart-grid">
+<div class="chart-card"><h3>RFdiffusion/ESMFold threaded</h3><canvas id="chart-hist-threaded"></canvas></div>
+<div class="chart-card"><h3>Boltz-2 predicted</h3><canvas id="chart-hist-boltz"></canvas></div>
+</div>
+<p class="fig-caption"><strong>Figure 5.</strong> Distribution of minimum binder Cα → hotspot Cα distances for threaded complexes (left, blue) and Boltz-2 predictions (right, amber). Red dashed line marks the 8 Å contact cutoff. The threaded distribution is compressed into a narrower range (roughly 4–12 Å) while the Boltz distribution spreads across a wider range (4–22 Å). RFdiffusion was explicitly conditioned on these hotspot residues, constraining the binder close to them; Boltz-2 found the same general region from sequence alone but with more positional variance.</p>
+
+<p>These are unrelaxed structures — neither has been through energy minimization. Energy minimization and short MD in Part 6 will test whether local relaxation sharpens predicted interfaces, removes bad contacts, and stabilizes residue-level interactions. If the Boltz and threaded distance distributions become more similar after relaxation, that would support the idea that some of the current disagreement reflects local geometric imprecision rather than genuine model disagreement. If they remain different, the divergence should be treated as real and factored into candidate prioritization.</p>
+
+<h3>The three uncertain designs</h3>
+<table class="param-table">
+<thead><tr><th>Design</th><th>ipTM<sub>Boltz</sub></th><th>pLDDT<sub>Boltz</sub></th><th>Config</th><th>Length</th><th>RMSD<sub>pose</sub></th></tr></thead>
+<tbody>
+<tr><td>len50 cB d19r0</td><td class="num">0.413</td><td class="num">0.922</td><td><span class="badge badge-clusterB">clusterB</span></td><td class="num">50</td><td class="num">23.6</td></tr>
+<tr><td>len100 dist d18r1</td><td class="num">0.314</td><td class="num">0.918</td><td><span class="badge badge-distributed">distributed</span></td><td class="num">100</td><td class="num">21.9</td></tr>
+<tr><td>len100 dist d15r5</td><td class="num">0.199</td><td class="num">0.844</td><td><span class="badge badge-distributed">distributed</span></td><td class="num">100</td><td class="num">21.9</td></tr>
+</tbody>
+</table>
+<p>All three uncertain designs also show high pose divergence and near-zero binder paratope overlap — consistent across both confidence and structural metrics. These will be deprioritized going forward.</p>
+
+<h3>Top 5 designs by Boltz confidence</h3>
+<table class="top-table">
+<thead><tr><th>#</th><th>Design</th><th>ipTM<sub>Boltz</sub></th><th>pLDDT<sub>Boltz</sub></th><th>RMSD<sub>pose</sub></th><th>Paratope Jac.</th><th>Config</th></tr></thead>
+<tbody>
+<tr><td><span class="rank-num">1</span></td><td>len50 cA σ0.5 d0r0</td><td>0.963</td><td>0.956</td><td>2.7 Å</td><td>0.64</td><td><span class="badge badge-clusterA">clusterA</span></td></tr>
+<tr><td><span class="rank-num">2</span></td><td>len70 cB σ0 d19r1</td><td>0.942</td><td>0.905</td><td>2.1 Å</td><td>0.87</td><td><span class="badge badge-clusterB">clusterB</span></td></tr>
+<tr><td><span class="rank-num">3</span></td><td>len100 dist σ0 d5r0</td><td>0.941</td><td>0.972</td><td>2.2 Å</td><td>0.61</td><td><span class="badge badge-distributed">distributed</span></td></tr>
+<tr><td><span class="rank-num">4</span></td><td>len70 cA σ0.5 d13r1</td><td>0.927</td><td>0.960</td><td>2.1 Å</td><td>0.76</td><td><span class="badge badge-clusterA">clusterA</span></td></tr>
+<tr><td><span class="rank-num">5</span></td><td>len100 cA σ0 d9r8</td><td>0.923</td><td>0.964</td><td>2.2 Å</td><td>0.72</td><td><span class="badge badge-clusterA">clusterA</span></td></tr>
+</tbody>
+</table>
+<p>All five top-confidence designs also show strong pose convergence (RMSD < 3 Å) and high paratope overlap (Jaccard > 0.6). At the top of the confidence ranking, ipTM<sub>Boltz</sub> is a reliable indicator of binding-mode agreement.</p>
+
 
 <!-- SECTION: Summary -->
 <h2>What this means for the project</h2>
 
-<p>Boltz-2 assessment answers the specific question this page set out to ask: <strong>is the binding interface encoded in the designed sequence, or only in the designed structure?</strong> For 28 of 31 designs, the answer is yes — an independent structure prediction model, given only sequences, recovers a plausible binder–target complex.</p>
+<p>Boltz-2 validation answers the specific question this page set out to ask: <strong>is the binding interface encoded in the designed sequence, or only in the designed structure?</strong> The answer has three layers. First, 28 of 31 designs produce confident Boltz-2 complexes — the sequences encode plausible binder–target interactions. Second, about half of those (14/31) recover the same geometric binding mode as RFdiffusion. Third, even where the geometric pose diverges, the target epitope is partially conserved — both algorithms find the same functional surface on PD-L1, sometimes from different approach angles.</p>
 
-<p>This result has practical consequences for the next step. Affinity scoring (Part 6) will prioritize the 28 Boltz-validated designs using PRODIGY empirical scoring, energy minimization, and extended MD simulation. The three uncertain designs will be included for completeness but deprioritized in the construct selection panel.</p>
+<p>For protein-protein interactions, this distinction between pose and interface may matter more than it would for small-molecule docking, where a wrong pose typically means a wrong drug. In our data, both algorithms engage overlapping PD-L1 surface residues even when they disagree on the binder's approach angle — suggesting that the hotspot engagement is a robust feature of the designed sequences, not an artifact of RFdiffusion's structural conditioning. Whether these alternative poses represent genuinely accessible binding modes or simply reflect the uncertainty in unrelaxed structure prediction is a question that energy minimization and MD (Part 6) can begin to address.</p>
+
+<p>This result has practical consequences for the next steps. Energy minimization and MD simulation (<a href="Page6_md_simulation.html" style="color:var(--accent);font-weight:500;text-decoration:none;border-bottom:1px solid var(--accent)">Part 6</a>) will run on all 28 Boltz-supported designs, followed by affinity and stability scoring (Part 7). The three uncertain designs will be included for completeness but deprioritized in the construct selection panel. Of course, if we knew that one method was definitively "better" than the other, we might make different choices when it comes to the three constructs where the two algorithms disagree. At this time, it seems wiser to move forward where there is consensus.</p>
 
 <div class="aside">
   <div class="aside-label">Caveats</div>
-  <p>Boltz-2 confidence scores are not experimental binding affinities. A high ipTM indicates that the prediction model believes the interface is real — it does not prove that the binder will bind in vitro. There is also a known lack of agreement between Boltz-2 ipTM scores and AlphaFold 3 ipTM scores for the same interactions (UCSF, 2025), meaning the absolute values should be treated as one model's opinion, not ground truth. The scores are most useful for relative ranking within a campaign, not for absolute binding prediction.</p>
+  <p>Boltz-2 confidence scores are not experimental binding affinities. A high ipTM<sub>Boltz</sub> indicates that the prediction model believes the interface is real — it does not prove that the binder will bind in vitro. There is also a known lack of agreement between Boltz-2 ipTM scores and AlphaFold 3 ipTM scores for the same interactions (UCSF, 2025), meaning the absolute values should be treated as one model's opinion, not ground truth. The scores are most useful for relative ranking within a campaign, not for absolute binding prediction.</p>
 </div>
 
 <div class="page-footer">
@@ -359,7 +470,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 </div><!-- .page -->
 
 <script>
-const DESIGNS = [{"design_name": "len50_clusterA_noise05__design_0_0_rank0", "condition_id": "len50_clusterA_noise05", "hotspot_config": "clusterA", "length": 50, "noise": 0.5, "ipTM": 0.963, "complex_pLDDT": 0.956, "complex_pde": 0.278, "pTM": 0.978, "confidence_score": 0.957, "tier": "validated", "mean_plddt": 84.6, "rmsd": 1.24, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise05__design_0_0_rank0_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_19_0_rank1", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.942, "complex_pLDDT": 0.905, "complex_pde": 0.296, "pTM": 0.964, "confidence_score": 0.912, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.44, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_19_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_5_0_rank0", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.941, "complex_pLDDT": 0.972, "complex_pde": 0.307, "pTM": 0.961, "confidence_score": 0.965, "tier": "validated", "mean_plddt": 92.1, "rmsd": 0.53, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_5_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_13_0_rank1", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 0.5, "ipTM": 0.927, "complex_pLDDT": 0.96, "complex_pde": 0.302, "pTM": 0.951, "confidence_score": 0.953, "tier": "validated", "mean_plddt": 91.4, "rmsd": 0.83, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_13_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_9_0_rank8", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.923, "complex_pLDDT": 0.964, "complex_pde": 0.325, "pTM": 0.936, "confidence_score": 0.955, "tier": "validated", "mean_plddt": 93.2, "rmsd": 0.8, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_9_0_rank8_model_0.cif"}, {"design_name": "len50_clusterA_noise0__design_9_0_rank0", "condition_id": "len50_clusterA_noise0", "hotspot_config": "clusterA", "length": 50, "noise": 0.0, "ipTM": 0.92, "complex_pLDDT": 0.935, "complex_pde": 0.316, "pTM": 0.955, "confidence_score": 0.932, "tier": "validated", "mean_plddt": 92.3, "rmsd": 1.01, "rf_pdb": "data/results/param_sensitivity/len50_clusterA_noise0/rfdiffusion_outputs/design_9_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise0__design_9_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_16_0_rank6", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.919, "complex_pLDDT": 0.963, "complex_pde": 0.364, "pTM": 0.946, "confidence_score": 0.954, "tier": "validated", "mean_plddt": 92.3, "rmsd": 0.52, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_16_0_rank6_model_0.cif"}, {"design_name": "len50_distributed_noise0__design_4_0_rank0", "condition_id": "len50_distributed_noise0", "hotspot_config": "distributed", "length": 50, "noise": 0.0, "ipTM": 0.914, "complex_pLDDT": 0.94, "complex_pde": 0.352, "pTM": 0.954, "confidence_score": 0.935, "tier": "validated", "mean_plddt": 95.7, "rmsd": 0.84, "rf_pdb": "data/results/param_sensitivity/len50_distributed_noise0/rfdiffusion_outputs/design_4_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_distributed_noise0__design_4_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_14_0_rank3", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 0.5, "ipTM": 0.91, "complex_pLDDT": 0.944, "complex_pde": 0.347, "pTM": 0.933, "confidence_score": 0.937, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.71, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_14_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_17_0_rank0", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.899, "complex_pLDDT": 0.885, "complex_pde": 0.36, "pTM": 0.94, "confidence_score": 0.888, "tier": "validated", "mean_plddt": 93.5, "rmsd": 0.47, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_19_0_rank0", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 0.5, "ipTM": 0.864, "complex_pLDDT": 0.904, "complex_pde": 0.327, "pTM": 0.916, "confidence_score": 0.896, "tier": "validated", "mean_plddt": 94.6, "rmsd": 0.24, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise05/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_19_0_rank0_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_10_0_rank3", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.862, "complex_pLDDT": 0.929, "complex_pde": 0.415, "pTM": 0.93, "confidence_score": 0.916, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.67, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_15_0_rank2", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.835, "complex_pLDDT": 0.859, "complex_pde": 0.385, "pTM": 0.921, "confidence_score": 0.854, "tier": "validated", "mean_plddt": 91.9, "rmsd": 0.64, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_15_0_rank2_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_11_0_rank1", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.82, "complex_pLDDT": 0.931, "complex_pde": 0.413, "pTM": 0.938, "confidence_score": 0.909, "tier": "validated", "mean_plddt": 94.8, "rmsd": 0.41, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_11_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_11_0_rank1_model_0.cif"}, {"design_name": "len70_clusterB_noise05__design_17_0_rank0", "condition_id": "len70_clusterB_noise05", "hotspot_config": "clusterB", "length": 70, "noise": 0.5, "ipTM": 0.811, "complex_pLDDT": 0.928, "complex_pde": 0.413, "pTM": 0.91, "confidence_score": 0.905, "tier": "validated", "mean_plddt": 88.8, "rmsd": 1.43, "rf_pdb": "data/results/param_sensitivity/len70_clusterB_noise05/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise05__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_10_0_rank1", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.808, "complex_pLDDT": 0.881, "complex_pde": 0.57, "pTM": 0.815, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 87.5, "rmsd": 1.46, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_10_0_rank1_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_13_0_rank0", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 0.5, "ipTM": 0.807, "complex_pLDDT": 0.845, "complex_pde": 0.435, "pTM": 0.887, "confidence_score": 0.837, "tier": "validated", "mean_plddt": 86.8, "rmsd": 0.79, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_13_0_rank0_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_15_0_rank0", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.789, "complex_pLDDT": 0.938, "complex_pde": 0.344, "pTM": 0.937, "confidence_score": 0.908, "tier": "validated", "mean_plddt": 96.8, "rmsd": 0.56, "rf_pdb": "data/results/param_sensitivity/len25_clusterA_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_15_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_3_0_rank7", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.761, "complex_pLDDT": 0.888, "complex_pde": 0.407, "pTM": 0.889, "confidence_score": 0.863, "tier": "validated", "mean_plddt": 96.5, "rmsd": 0.45, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_3_0_rank7_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_5_0_rank2", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.757, "complex_pLDDT": 0.865, "complex_pde": 0.413, "pTM": 0.854, "confidence_score": 0.843, "tier": "validated", "mean_plddt": 94.2, "rmsd": 0.46, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_5_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_5_0_rank2_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_16_0_rank5", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.745, "complex_pLDDT": 0.903, "complex_pde": 0.536, "pTM": 0.866, "confidence_score": 0.872, "tier": "validated", "mean_plddt": 95.1, "rmsd": 0.55, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_16_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_16_0_rank5_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_7_0_rank6", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.729, "complex_pLDDT": 0.9, "complex_pde": 0.396, "pTM": 0.876, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 95.4, "rmsd": 0.88, "rf_pdb": "data/results/param_sensitivity/len70_clusterA_noise0/rfdiffusion_outputs/design_7_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_7_0_rank6_model_0.cif"}, {"design_name": "len70_distributed_noise05__design_14_0_rank0", "condition_id": "len70_distributed_noise05", "hotspot_config": "distributed", "length": 70, "noise": 0.5, "ipTM": 0.723, "complex_pLDDT": 0.928, "complex_pde": 0.496, "pTM": 0.868, "confidence_score": 0.887, "tier": "validated", "mean_plddt": 82.7, "rmsd": 0.94, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise05/rfdiffusion_outputs/design_14_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise05__design_14_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_13_0_rank4", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.72, "complex_pLDDT": 0.916, "complex_pde": 0.359, "pTM": 0.837, "confidence_score": 0.877, "tier": "validated", "mean_plddt": 96.0, "rmsd": 0.57, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_13_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_13_0_rank4_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_3_0_rank2", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 0.5, "ipTM": 0.704, "complex_pLDDT": 0.9, "complex_pde": 0.426, "pTM": 0.839, "confidence_score": 0.861, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.76, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise05/rfdiffusion_outputs/design_3_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_3_0_rank2_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_0_0_rank1", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 0.5, "ipTM": 0.698, "complex_pLDDT": 0.906, "complex_pde": 0.449, "pTM": 0.847, "confidence_score": 0.864, "tier": "validated", "mean_plddt": 92.4, "rmsd": 0.61, "rf_pdb": "data/results/param_sensitivity/len100_clusterB_noise05/rfdiffusion_outputs/design_0_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_0_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_10_0_rank3", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.629, "complex_pLDDT": 0.923, "complex_pde": 0.477, "pTM": 0.79, "confidence_score": 0.865, "tier": "validated", "mean_plddt": 95.8, "rmsd": 0.78, "rf_pdb": "data/results/param_sensitivity/len100_clusterA_noise0/rfdiffusion_outputs/design_10_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_17_0_rank1", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.624, "complex_pLDDT": 0.882, "complex_pde": 0.646, "pTM": 0.832, "confidence_score": 0.83, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.33, "rf_pdb": "data/results/param_sensitivity/len70_distributed_noise0/rfdiffusion_outputs/design_17_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_17_0_rank1_model_0.cif"}, {"design_name": "len50_clusterB_noise0__design_19_0_rank0", "condition_id": "len50_clusterB_noise0", "hotspot_config": "clusterB", "length": 50, "noise": 0.0, "ipTM": 0.413, "complex_pLDDT": 0.922, "complex_pde": 0.766, "pTM": 0.799, "confidence_score": 0.82, "tier": "uncertain", "mean_plddt": 94.7, "rmsd": 0.7, "rf_pdb": "data/results/param_sensitivity/len50_clusterB_noise0/rfdiffusion_outputs/design_19_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterB_noise0__design_19_0_rank0_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_18_0_rank1", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.314, "complex_pLDDT": 0.918, "complex_pde": 0.789, "pTM": 0.662, "confidence_score": 0.797, "tier": "uncertain", "mean_plddt": 92.9, "rmsd": 0.58, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_18_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_18_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_15_0_rank5", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.199, "complex_pLDDT": 0.844, "complex_pde": 0.97, "pTM": 0.611, "confidence_score": 0.715, "tier": "uncertain", "mean_plddt": 90.5, "rmsd": 1.41, "rf_pdb": "data/results/param_sensitivity/len100_distributed_noise0/rfdiffusion_outputs/design_15_0.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_15_0_rank5_model_0.cif"}]
+const DESIGNS = [{"design_name": "len50_clusterA_noise05__design_0_0_rank0", "condition_id": "len50_clusterA_noise05", "hotspot_config": "clusterA", "length": 50, "noise": 0.5, "ipTM": 0.963, "complex_pLDDT": 0.956, "complex_pde": 0.278, "pTM": 0.978, "confidence_score": 0.957, "tier": "validated", "mean_plddt": 84.6, "rmsd": 1.24, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/28_len50_clusterA_noise05__design_0_0__design_0_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise05__design_0_0_rank0_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_19_0_rank1", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.942, "complex_pLDDT": 0.905, "complex_pde": 0.296, "pTM": 0.964, "confidence_score": 0.912, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.44, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/04_len70_clusterB_noise0__design_19_0__design_19_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_19_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_5_0_rank0", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.941, "complex_pLDDT": 0.972, "complex_pde": 0.307, "pTM": 0.961, "confidence_score": 0.965, "tier": "validated", "mean_plddt": 92.1, "rmsd": 0.53, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/09_len100_distributed_noise0__design_5_0__design_5_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_5_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_13_0_rank1", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 0.5, "ipTM": 0.927, "complex_pLDDT": 0.96, "complex_pde": 0.302, "pTM": 0.951, "confidence_score": 0.953, "tier": "validated", "mean_plddt": 91.4, "rmsd": 0.83, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/23_len70_clusterA_noise05__design_13_0__design_13_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_13_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_9_0_rank8", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.923, "complex_pLDDT": 0.964, "complex_pde": 0.325, "pTM": 0.936, "confidence_score": 0.955, "tier": "validated", "mean_plddt": 93.2, "rmsd": 0.8, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/22_len100_clusterA_noise0__design_9_0__design_9_0_rank8__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_9_0_rank8_model_0.cif"}, {"design_name": "len50_clusterA_noise0__design_9_0_rank0", "condition_id": "len50_clusterA_noise0", "hotspot_config": "clusterA", "length": 50, "noise": 0.0, "ipTM": 0.92, "complex_pLDDT": 0.935, "complex_pde": 0.316, "pTM": 0.955, "confidence_score": 0.932, "tier": "validated", "mean_plddt": 92.3, "rmsd": 1.01, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/27_len50_clusterA_noise0__design_9_0__design_9_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterA_noise0__design_9_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_16_0_rank6", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.919, "complex_pLDDT": 0.963, "complex_pde": 0.364, "pTM": 0.946, "confidence_score": 0.954, "tier": "validated", "mean_plddt": 92.3, "rmsd": 0.52, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/08_len100_clusterA_noise0__design_16_0__design_16_0_rank6__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_16_0_rank6_model_0.cif"}, {"design_name": "len50_distributed_noise0__design_4_0_rank0", "condition_id": "len50_distributed_noise0", "hotspot_config": "distributed", "length": 50, "noise": 0.0, "ipTM": 0.914, "complex_pLDDT": 0.94, "complex_pde": 0.352, "pTM": 0.954, "confidence_score": 0.935, "tier": "validated", "mean_plddt": 95.7, "rmsd": 0.84, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/24_len50_distributed_noise0__design_4_0__design_4_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_distributed_noise0__design_4_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_14_0_rank3", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 0.5, "ipTM": 0.91, "complex_pLDDT": 0.944, "complex_pde": 0.347, "pTM": 0.933, "confidence_score": 0.937, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.71, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/18_len100_clusterA_noise05__design_14_0__design_14_0_rank3__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_14_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_17_0_rank0", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.899, "complex_pLDDT": 0.885, "complex_pde": 0.36, "pTM": 0.94, "confidence_score": 0.888, "tier": "validated", "mean_plddt": 93.5, "rmsd": 0.47, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/07_len70_clusterB_noise0__design_17_0__design_17_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise05__design_19_0_rank0", "condition_id": "len70_clusterA_noise05", "hotspot_config": "clusterA", "length": 70, "noise": 0.5, "ipTM": 0.864, "complex_pLDDT": 0.904, "complex_pde": 0.327, "pTM": 0.916, "confidence_score": 0.896, "tier": "validated", "mean_plddt": 94.6, "rmsd": 0.24, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/01_len70_clusterA_noise05__design_19_0__design_19_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise05__design_19_0_rank0_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_10_0_rank3", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.862, "complex_pLDDT": 0.929, "complex_pde": 0.415, "pTM": 0.93, "confidence_score": 0.916, "tier": "validated", "mean_plddt": 94.0, "rmsd": 0.67, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/16_len70_distributed_noise0__design_10_0__design_10_0_rank3__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_clusterB_noise0__design_15_0_rank2", "condition_id": "len70_clusterB_noise0", "hotspot_config": "clusterB", "length": 70, "noise": 0.0, "ipTM": 0.835, "complex_pLDDT": 0.859, "complex_pde": 0.385, "pTM": 0.921, "confidence_score": 0.854, "tier": "validated", "mean_plddt": 91.9, "rmsd": 0.64, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/15_len70_clusterB_noise0__design_15_0__design_15_0_rank2__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise0__design_15_0_rank2_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_11_0_rank1", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.82, "complex_pLDDT": 0.931, "complex_pde": 0.413, "pTM": 0.938, "confidence_score": 0.909, "tier": "validated", "mean_plddt": 94.8, "rmsd": 0.41, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/03_len25_clusterA_noise0__design_11_0__design_11_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_11_0_rank1_model_0.cif"}, {"design_name": "len70_clusterB_noise05__design_17_0_rank0", "condition_id": "len70_clusterB_noise05", "hotspot_config": "clusterB", "length": 70, "noise": 0.5, "ipTM": 0.811, "complex_pLDDT": 0.928, "complex_pde": 0.413, "pTM": 0.91, "confidence_score": 0.905, "tier": "validated", "mean_plddt": 88.8, "rmsd": 1.43, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/30_len70_clusterB_noise05__design_17_0__design_17_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterB_noise05__design_17_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_10_0_rank1", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.808, "complex_pLDDT": 0.881, "complex_pde": 0.57, "pTM": 0.815, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 87.5, "rmsd": 1.46, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/31_len70_clusterA_noise0__design_10_0__design_10_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_10_0_rank1_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_13_0_rank0", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 0.5, "ipTM": 0.807, "complex_pLDDT": 0.845, "complex_pde": 0.435, "pTM": 0.887, "confidence_score": 0.837, "tier": "validated", "mean_plddt": 86.8, "rmsd": 0.79, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/21_len100_clusterB_noise05__design_13_0__design_13_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_13_0_rank0_model_0.cif"}, {"design_name": "len25_clusterA_noise0__design_15_0_rank0", "condition_id": "len25_clusterA_noise0", "hotspot_config": "clusterA", "length": 25, "noise": 0.0, "ipTM": 0.789, "complex_pLDDT": 0.938, "complex_pde": 0.344, "pTM": 0.937, "confidence_score": 0.908, "tier": "validated", "mean_plddt": 96.8, "rmsd": 0.56, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/11_len25_clusterA_noise0__design_15_0__design_15_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len25_clusterA_noise0__design_15_0_rank0_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_3_0_rank7", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.761, "complex_pLDDT": 0.888, "complex_pde": 0.407, "pTM": 0.889, "confidence_score": 0.863, "tier": "validated", "mean_plddt": 96.5, "rmsd": 0.45, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/05_len70_clusterA_noise0__design_3_0__design_3_0_rank7__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_3_0_rank7_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_5_0_rank2", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.757, "complex_pLDDT": 0.865, "complex_pde": 0.413, "pTM": 0.854, "confidence_score": 0.843, "tier": "validated", "mean_plddt": 94.2, "rmsd": 0.46, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/06_len70_distributed_noise0__design_5_0__design_5_0_rank2__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_5_0_rank2_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_16_0_rank5", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.745, "complex_pLDDT": 0.903, "complex_pde": 0.536, "pTM": 0.866, "confidence_score": 0.872, "tier": "validated", "mean_plddt": 95.1, "rmsd": 0.55, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/10_len70_clusterA_noise0__design_16_0__design_16_0_rank5__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_16_0_rank5_model_0.cif"}, {"design_name": "len70_clusterA_noise0__design_7_0_rank6", "condition_id": "len70_clusterA_noise0", "hotspot_config": "clusterA", "length": 70, "noise": 0.0, "ipTM": 0.729, "complex_pLDDT": 0.9, "complex_pde": 0.396, "pTM": 0.876, "confidence_score": 0.866, "tier": "validated", "mean_plddt": 95.4, "rmsd": 0.88, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/25_len70_clusterA_noise0__design_7_0__design_7_0_rank6__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_clusterA_noise0__design_7_0_rank6_model_0.cif"}, {"design_name": "len70_distributed_noise05__design_14_0_rank0", "condition_id": "len70_distributed_noise05", "hotspot_config": "distributed", "length": 70, "noise": 0.5, "ipTM": 0.723, "complex_pLDDT": 0.928, "complex_pde": 0.496, "pTM": 0.868, "confidence_score": 0.887, "tier": "validated", "mean_plddt": 82.7, "rmsd": 0.94, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/26_len70_distributed_noise05__design_14_0__design_14_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise05__design_14_0_rank0_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_13_0_rank4", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.72, "complex_pLDDT": 0.916, "complex_pde": 0.359, "pTM": 0.837, "confidence_score": 0.877, "tier": "validated", "mean_plddt": 96.0, "rmsd": 0.57, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/12_len100_clusterA_noise0__design_13_0__design_13_0_rank4__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_13_0_rank4_model_0.cif"}, {"design_name": "len100_clusterA_noise05__design_3_0_rank2", "condition_id": "len100_clusterA_noise05", "hotspot_config": "clusterA", "length": 100, "noise": 0.5, "ipTM": 0.704, "complex_pLDDT": 0.9, "complex_pde": 0.426, "pTM": 0.839, "confidence_score": 0.861, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.76, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/19_len100_clusterA_noise05__design_3_0__design_3_0_rank2__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise05__design_3_0_rank2_model_0.cif"}, {"design_name": "len100_clusterB_noise05__design_0_0_rank1", "condition_id": "len100_clusterB_noise05", "hotspot_config": "clusterB", "length": 100, "noise": 0.5, "ipTM": 0.698, "complex_pLDDT": 0.906, "complex_pde": 0.449, "pTM": 0.847, "confidence_score": 0.864, "tier": "validated", "mean_plddt": 92.4, "rmsd": 0.61, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/14_len100_clusterB_noise05__design_0_0__design_0_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterB_noise05__design_0_0_rank1_model_0.cif"}, {"design_name": "len100_clusterA_noise0__design_10_0_rank3", "condition_id": "len100_clusterA_noise0", "hotspot_config": "clusterA", "length": 100, "noise": 0.0, "ipTM": 0.629, "complex_pLDDT": 0.923, "complex_pde": 0.477, "pTM": 0.79, "confidence_score": 0.865, "tier": "validated", "mean_plddt": 95.8, "rmsd": 0.78, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/20_len100_clusterA_noise0__design_10_0__design_10_0_rank3__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_clusterA_noise0__design_10_0_rank3_model_0.cif"}, {"design_name": "len70_distributed_noise0__design_17_0_rank1", "condition_id": "len70_distributed_noise0", "hotspot_config": "distributed", "length": 70, "noise": 0.0, "ipTM": 0.624, "complex_pLDDT": 0.882, "complex_pde": 0.646, "pTM": 0.832, "confidence_score": 0.83, "tier": "validated", "mean_plddt": 94.3, "rmsd": 0.33, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/02_len70_distributed_noise0__design_17_0__design_17_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len70_distributed_noise0__design_17_0_rank1_model_0.cif"}, {"design_name": "len50_clusterB_noise0__design_19_0_rank0", "condition_id": "len50_clusterB_noise0", "hotspot_config": "clusterB", "length": 50, "noise": 0.0, "ipTM": 0.413, "complex_pLDDT": 0.922, "complex_pde": 0.766, "pTM": 0.799, "confidence_score": 0.82, "tier": "uncertain", "mean_plddt": 94.7, "rmsd": 0.7, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/17_len50_clusterB_noise0__design_19_0__design_19_0_rank0__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len50_clusterB_noise0__design_19_0_rank0_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_18_0_rank1", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.314, "complex_pLDDT": 0.918, "complex_pde": 0.789, "pTM": 0.662, "confidence_score": 0.797, "tier": "uncertain", "mean_plddt": 92.9, "rmsd": 0.58, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/13_len100_distributed_noise0__design_18_0__design_18_0_rank1__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_18_0_rank1_model_0.cif"}, {"design_name": "len100_distributed_noise0__design_15_0_rank5", "condition_id": "len100_distributed_noise0", "hotspot_config": "distributed", "length": 100, "noise": 0.0, "ipTM": 0.199, "complex_pLDDT": 0.844, "complex_pde": 0.97, "pTM": 0.611, "confidence_score": 0.715, "tier": "uncertain", "mean_plddt": 90.5, "rmsd": 1.41, "rf_pdb": "portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/29_len100_distributed_noise0__design_15_0__design_15_0_rank5__threaded_complex.pdb", "boltz_cif": "portfolio_pages/Page5_boltz/cif/len100_distributed_noise0__design_15_0_rank5_model_0.cif"}]
 ;
 
 const REPO_BASE = "https://raw.githubusercontent.com/hghodkephd/pdl1-mini-binder-design/main/";
@@ -370,47 +481,153 @@ const clrA = '#2e6da4', clrB = '#c85a3a', clrD = '#b07818';
 const cfgColors = {clusterA:clrA, clusterB:clrB, distributed:clrD};
 const cfgBg = {clusterA:'#2e6da444', clusterB:'#c85a3a44', distributed:'#b0781844'};
 
-// Chart 1: ipTM by hotspot config
-new Chart(document.getElementById('chart-config'), {
-  type: 'bar',
-  data: {
-    labels: ['Cluster A','Cluster B','Distributed'],
-    datasets: [{
-      label: 'Mean ipTM',
-      data: [0.821, 0.772, 0.667],
-      backgroundColor: [cfgBg.clusterA, cfgBg.clusterB, cfgBg.distributed],
-      borderColor: [clrA, clrB, clrD],
-      borderWidth: 1.5
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: {display:false} },
-    scales: { y: {beginAtZero:true, max:1, title:{display:true,text:'ipTM',font:{family:'DM Sans'}}} }
+// Helper: compute box stats (median, Q1, Q3, min, max)
+function boxStats(arr) {
+  const s = [...arr].sort((a,b)=>a-b);
+  const n = s.length;
+  const q = p => {
+    const i = (n-1)*p;
+    const lo = Math.floor(i);
+    const hi = Math.min(lo+1, n-1);
+    return s[lo] + (s[hi] - s[lo]) * (i - lo);
+  };
+  return { min: s[0], q1: q(0.25), median: q(0.5), q3: q(0.75), max: s[n-1], mean: arr.reduce((a,b)=>a+b,0)/n };
+}
+
+// Strip-plot with box overlay — pure canvas, no Chart.js
+function drawStripBox(canvasId, groups, opts = {}) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth - 40;
+  const H = opts.height || 280;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const margin = { top: 10, right: 15, bottom: 40, left: 50 };
+  const pw = W - margin.left - margin.right;
+  const ph = H - margin.top - margin.bottom;
+
+  const yMin = opts.yMin ?? 0, yMax = opts.yMax ?? 1;
+  const toY = v => margin.top + ph * (1 - (v - yMin) / (yMax - yMin));
+  const nGroups = groups.length;
+  const gw = pw / nGroups;
+
+  // Grid lines
+  ctx.strokeStyle = '#e6e3dc';
+  ctx.lineWidth = 0.5;
+  for (let v = 0; v <= 1; v += 0.2) {
+    const y = toY(v);
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(margin.left + pw, y); ctx.stroke();
   }
+
+  // Y axis labels
+  ctx.fillStyle = '#8a8878';
+  ctx.font = '11px DM Sans';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  for (let v = 0; v <= 1; v += 0.2) {
+    ctx.fillText(v.toFixed(1), margin.left - 6, toY(v));
+  }
+
+  // Y axis title
+  ctx.save();
+  ctx.translate(12, margin.top + ph/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.textAlign = 'center';
+  ctx.font = '11px DM Sans';
+  ctx.fillStyle = '#5a5850';
+  ctx.fillText(opts.yLabel || 'ipTM (Boltz)', 0, 0);
+  ctx.restore();
+
+  // Seeded PRNG for jitter
+  let seed = 42;
+  const rng = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+
+  groups.forEach((g, i) => {
+    const cx = margin.left + gw * (i + 0.5);
+    const bw = Math.min(24, gw * 0.3);
+    const s = g.stats;
+
+    // Box (IQR)
+    const yQ1 = toY(s.q1), yQ3 = toY(s.q3);
+    ctx.fillStyle = g.boxFill || 'rgba(29,107,82,0.08)';
+    ctx.fillRect(cx - bw, yQ3, bw * 2, yQ1 - yQ3);
+    ctx.strokeStyle = g.boxStroke || 'rgba(29,107,82,0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cx - bw, yQ3, bw * 2, yQ1 - yQ3);
+
+    // Median
+    ctx.beginPath();
+    ctx.moveTo(cx - bw, toY(s.median));
+    ctx.lineTo(cx + bw, toY(s.median));
+    ctx.strokeStyle = g.boxStroke || 'rgba(29,107,82,0.8)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Whiskers
+    ctx.strokeStyle = g.boxStroke || 'rgba(29,107,82,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, yQ3); ctx.lineTo(cx, toY(s.max)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, yQ1); ctx.lineTo(cx, toY(s.min)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-10, toY(s.max)); ctx.lineTo(cx+10, toY(s.max)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-10, toY(s.min)); ctx.lineTo(cx+10, toY(s.min)); ctx.stroke();
+
+    // Points
+    g.values.forEach(v => {
+      const jitter = (rng() - 0.5) * bw * 1.6;
+      const py = toY(v.y);
+      ctx.beginPath();
+      ctx.arc(cx + jitter, py, 4, 0, Math.PI * 2);
+      ctx.fillStyle = v.color || g.boxStroke;
+      ctx.globalAlpha = 0.8;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    });
+
+    // X label
+    ctx.fillStyle = '#5a5850';
+    ctx.font = '11px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(g.label, cx, margin.top + ph + 8);
+  });
+}
+
+// Chart 1: ipTM by hotspot config
+const cfgGroups = ['clusterA','clusterB','distributed'];
+const cfgLabels = ['Cluster A','Cluster B','Distributed'];
+const cfgStripData = cfgGroups.map((cfg, i) => {
+  const vals = DESIGNS.filter(d=>d.hotspot_config===cfg).map(d=>({y:d.ipTM, color:cfgColors[cfg]}));
+  return { values: vals, stats: boxStats(vals.map(v=>v.y)), boxFill: cfgBg[cfg], boxStroke: cfgColors[cfg], label: cfgLabels[i] };
 });
+drawStripBox('chart-config', cfgStripData, {yLabel:'ipTM (Boltz)'});
 
 // Chart 2: ipTM by length
-new Chart(document.getElementById('chart-length'), {
-  type: 'bar',
-  data: {
-    labels: ['25','50','70','100'],
-    datasets: [{
-      label: 'Mean ipTM',
-      data: [0.805, 0.803, 0.806, 0.706],
-      backgroundColor: '#1d6b5244',
-      borderColor: '#1d6b52',
-      borderWidth: 1.5
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: {display:false} },
-    scales: { y: {beginAtZero:true, max:1, title:{display:true,text:'ipTM',font:{family:'DM Sans'}}}, x:{title:{display:true,text:'Binder length (residues)',font:{family:'DM Sans'}}} }
-  }
+const lenGroups = [25,50,70,100];
+const lenStripData = lenGroups.map(len => {
+  const vals = DESIGNS.filter(d=>d.length===len).map(d=>({y:d.ipTM, color:cfgColors[d.hotspot_config]}));
+  return { values: vals, stats: boxStats(vals.map(v=>v.y)), boxFill:'rgba(29,107,82,0.08)', boxStroke:'rgba(29,107,82,0.6)', label: String(len) };
+});
+drawStripBox('chart-length', lenStripData, {yLabel:'ipTM (Boltz)'});
+
+// Redraw custom canvases on resize
+let _rsz;
+window.addEventListener('resize', () => {
+  clearTimeout(_rsz);
+  _rsz = setTimeout(() => {
+    drawStripBox('chart-config', cfgStripData, {yLabel:'ipTM (Boltz)'});
+    drawStripBox('chart-length', lenStripData, {yLabel:'ipTM (Boltz)'});
+  }, 200);
 });
 
-// Chart 3: scatter ipTM vs pLDDT
+// Chart 3: scatter ipTM_Boltz vs pLDDT_Boltz
 new Chart(document.getElementById('chart-scatter'), {
   type: 'scatter',
   data: {
@@ -427,8 +644,189 @@ new Chart(document.getElementById('chart-scatter'), {
     responsive: true,
     plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
     scales: {
-      x: {title:{display:true,text:'complex pLDDT',font:{family:'DM Sans'}}, min:0.8, max:1},
-      y: {title:{display:true,text:'ipTM',font:{family:'DM Sans'}}, min:0, max:1}
+      x: {title:{display:true,text:'pLDDT (Boltz)',font:{family:'DM Sans'}}, min:0.8, max:1},
+      y: {title:{display:true,text:'ipTM (Boltz)',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// ---- POSE AGREEMENT DATA ----
+const POSE_DATA = [{"design_name": "len100_clusterA_noise05__design_14_0_rank3", "config": "clusterA", "length": 100, "rmsd": 1.48, "ipTM": 0.9102, "binder_jaccard": 0.591, "epitope_jaccard": 0.765, "hotspot_both": 0.75, "hotspot_either": 0.75}, {"design_name": "len100_clusterA_noise05__design_3_0_rank2", "config": "clusterA", "length": 100, "rmsd": 2.66, "ipTM": 0.7037, "binder_jaccard": 0.733, "epitope_jaccard": 0.667, "hotspot_both": 0.5, "hotspot_either": 0.75}, {"design_name": "len100_clusterA_noise0__design_10_0_rank3", "config": "clusterA", "length": 100, "rmsd": 29.42, "ipTM": 0.6291, "binder_jaccard": 0.0, "epitope_jaccard": 0.211, "hotspot_both": 0.25, "hotspot_either": 0.75}, {"design_name": "len100_clusterA_noise0__design_13_0_rank4", "config": "clusterA", "length": 100, "rmsd": 20.06, "ipTM": 0.7198, "binder_jaccard": 0.294, "epitope_jaccard": 0.471, "hotspot_both": 0.5, "hotspot_either": 0.75}, {"design_name": "len100_clusterA_noise0__design_16_0_rank6", "config": "clusterA", "length": 100, "rmsd": 2.84, "ipTM": 0.9195, "binder_jaccard": 0.778, "epitope_jaccard": 0.8, "hotspot_both": 0.5, "hotspot_either": 0.75}, {"design_name": "len100_clusterA_noise0__design_9_0_rank8", "config": "clusterA", "length": 100, "rmsd": 2.18, "ipTM": 0.923, "binder_jaccard": 0.722, "epitope_jaccard": 0.722, "hotspot_both": 0.75, "hotspot_either": 0.75}, {"design_name": "len100_clusterB_noise05__design_0_0_rank1", "config": "clusterB", "length": 100, "rmsd": 12.77, "ipTM": 0.6978, "binder_jaccard": 0.391, "epitope_jaccard": 0.5, "hotspot_both": 0.4, "hotspot_either": 0.6}, {"design_name": "len100_clusterB_noise05__design_13_0_rank0", "config": "clusterB", "length": 100, "rmsd": 46.07, "ipTM": 0.807, "binder_jaccard": 0.571, "epitope_jaccard": 0.029, "hotspot_both": 0.0, "hotspot_either": 0.4}, {"design_name": "len100_distributed_noise0__design_15_0_rank5", "config": "distributed", "length": 100, "rmsd": 21.86, "ipTM": 0.1989, "binder_jaccard": 0.0, "epitope_jaccard": 0.5, "hotspot_both": 0.375, "hotspot_either": 0.625}, {"design_name": "len100_distributed_noise0__design_18_0_rank1", "config": "distributed", "length": 100, "rmsd": 21.9, "ipTM": 0.3141, "binder_jaccard": 0.0, "epitope_jaccard": 0.2, "hotspot_both": 0.0, "hotspot_either": 0.5}, {"design_name": "len100_distributed_noise0__design_5_0_rank0", "config": "distributed", "length": 100, "rmsd": 2.19, "ipTM": 0.9412, "binder_jaccard": 0.611, "epitope_jaccard": 0.706, "hotspot_both": 0.375, "hotspot_either": 0.5}, {"design_name": "len25_clusterA_noise0__design_11_0_rank1", "config": "clusterA", "length": 25, "rmsd": 11.03, "ipTM": 0.8199, "binder_jaccard": 0.217, "epitope_jaccard": 0.545, "hotspot_both": 0.25, "hotspot_either": 0.5}, {"design_name": "len25_clusterA_noise0__design_15_0_rank0", "config": "clusterA", "length": 25, "rmsd": 3.6, "ipTM": 0.7892, "binder_jaccard": 0.462, "epitope_jaccard": 0.462, "hotspot_both": 0.5, "hotspot_either": 0.5}, {"design_name": "len50_clusterA_noise05__design_0_0_rank0", "config": "clusterA", "length": 50, "rmsd": 2.69, "ipTM": 0.9629, "binder_jaccard": 0.636, "epitope_jaccard": 0.7, "hotspot_both": 0.5, "hotspot_either": 0.5}, {"design_name": "len50_clusterA_noise0__design_9_0_rank0", "config": "clusterA", "length": 50, "rmsd": 13.91, "ipTM": 0.9205, "binder_jaccard": 0.25, "epitope_jaccard": 0.259, "hotspot_both": 0.5, "hotspot_either": 0.75}, {"design_name": "len50_clusterB_noise0__design_19_0_rank0", "config": "clusterB", "length": 50, "rmsd": 23.61, "ipTM": 0.4127, "binder_jaccard": 0.0, "epitope_jaccard": 0.381, "hotspot_both": 0.2, "hotspot_either": 0.2}, {"design_name": "len50_distributed_noise0__design_4_0_rank0", "config": "distributed", "length": 50, "rmsd": 2.64, "ipTM": 0.9142, "binder_jaccard": 0.529, "epitope_jaccard": 0.632, "hotspot_both": 0.25, "hotspot_either": 0.5}, {"design_name": "len70_clusterA_noise05__design_13_0_rank1", "config": "clusterA", "length": 70, "rmsd": 2.08, "ipTM": 0.9269, "binder_jaccard": 0.762, "epitope_jaccard": 0.765, "hotspot_both": 0.75, "hotspot_either": 1.0}, {"design_name": "len70_clusterA_noise05__design_19_0_rank0", "config": "clusterA", "length": 70, "rmsd": 32.17, "ipTM": 0.8642, "binder_jaccard": 0.0, "epitope_jaccard": 0.111, "hotspot_both": 0.25, "hotspot_either": 0.5}, {"design_name": "len70_clusterA_noise0__design_10_0_rank1", "config": "clusterA", "length": 70, "rmsd": 31.67, "ipTM": 0.808, "binder_jaccard": 0.174, "epitope_jaccard": 0.389, "hotspot_both": 0.75, "hotspot_either": 0.75}, {"design_name": "len70_clusterA_noise0__design_16_0_rank5", "config": "clusterA", "length": 70, "rmsd": 23.89, "ipTM": 0.745, "binder_jaccard": 0.292, "epitope_jaccard": 0.28, "hotspot_both": 0.5, "hotspot_either": 1.0}, {"design_name": "len70_clusterA_noise0__design_3_0_rank7", "config": "clusterA", "length": 70, "rmsd": 23.0, "ipTM": 0.7611, "binder_jaccard": 0.2, "epitope_jaccard": 0.36, "hotspot_both": 0.25, "hotspot_either": 0.5}, {"design_name": "len70_clusterA_noise0__design_7_0_rank6", "config": "clusterA", "length": 70, "rmsd": 30.95, "ipTM": 0.7293, "binder_jaccard": 0.333, "epitope_jaccard": 0.294, "hotspot_both": 0.0, "hotspot_either": 0.5}, {"design_name": "len70_clusterB_noise05__design_17_0_rank0", "config": "clusterB", "length": 70, "rmsd": 2.57, "ipTM": 0.8114, "binder_jaccard": 0.8, "epitope_jaccard": 0.833, "hotspot_both": 0.2, "hotspot_either": 0.2}, {"design_name": "len70_clusterB_noise0__design_15_0_rank2", "config": "clusterB", "length": 70, "rmsd": 6.64, "ipTM": 0.8352, "binder_jaccard": 0.65, "epitope_jaccard": 0.5, "hotspot_both": 0.4, "hotspot_either": 0.6}, {"design_name": "len70_clusterB_noise0__design_17_0_rank0", "config": "clusterB", "length": 70, "rmsd": 2.1, "ipTM": 0.8995, "binder_jaccard": 0.81, "epitope_jaccard": 0.739, "hotspot_both": 0.4, "hotspot_either": 0.6}, {"design_name": "len70_clusterB_noise0__design_19_0_rank1", "config": "clusterB", "length": 70, "rmsd": 2.11, "ipTM": 0.9424, "binder_jaccard": 0.87, "epitope_jaccard": 0.762, "hotspot_both": 0.4, "hotspot_either": 0.4}, {"design_name": "len70_distributed_noise05__design_14_0_rank0", "config": "distributed", "length": 70, "rmsd": 2.65, "ipTM": 0.7232, "binder_jaccard": 0.583, "epitope_jaccard": 0.462, "hotspot_both": 0.375, "hotspot_either": 0.5}, {"design_name": "len70_distributed_noise0__design_10_0_rank3", "config": "distributed", "length": 70, "rmsd": 1.56, "ipTM": 0.8623, "binder_jaccard": 0.72, "epitope_jaccard": 0.909, "hotspot_both": 0.375, "hotspot_either": 0.375}, {"design_name": "len70_distributed_noise0__design_17_0_rank1", "config": "distributed", "length": 70, "rmsd": 5.05, "ipTM": 0.6244, "binder_jaccard": 0.522, "epitope_jaccard": 0.611, "hotspot_both": 0.375, "hotspot_either": 0.5}, {"design_name": "len70_distributed_noise0__design_5_0_rank2", "config": "distributed", "length": 70, "rmsd": 36.29, "ipTM": 0.7575, "binder_jaccard": 0.067, "epitope_jaccard": 0.211, "hotspot_both": 0.125, "hotspot_either": 0.5}];
+
+// Chart 4: ipTM vs binder RMSD (pose agreement)
+new Chart(document.getElementById('chart-pose-rmsd'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: POSE_DATA.filter(d=>d.config===cfg).map(d=>({x:d.rmsd,y:d.ipTM})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'Binder Cα RMSD after PD-L1 alignment (Å)',font:{family:'DM Sans'}}, min:0},
+      y: {title:{display:true,text:'ipTM (Boltz)',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// Chart 5: ipTM vs binder paratope Jaccard
+new Chart(document.getElementById('chart-pose-jaccard'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: POSE_DATA.filter(d=>d.config===cfg).map(d=>({x:d.binder_jaccard,y:d.ipTM})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'Binder paratope Jaccard',font:{family:'DM Sans'}}, min:0, max:1},
+      y: {title:{display:true,text:'ipTM (Boltz)',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// Chart 6: Target epitope Jaccard vs RMSD
+new Chart(document.getElementById('chart-epitope-rmsd'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: POSE_DATA.filter(d=>d.config===cfg).map(d=>({x:d.rmsd,y:d.epitope_jaccard})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'Binder Cα RMSD after PD-L1 alignment (Å)',font:{family:'DM Sans'}}, min:0},
+      y: {title:{display:true,text:'Target epitope Jaccard',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// Chart 7: Hotspot recovery vs RMSD
+new Chart(document.getElementById('chart-hotspot-rmsd'), {
+  type: 'scatter',
+  data: {
+    datasets: Object.entries(cfgColors).map(([cfg,color]) => ({
+      label: cfg,
+      data: POSE_DATA.filter(d=>d.config===cfg).map(d=>({x:d.rmsd,y:d.hotspot_both})),
+      backgroundColor: color+'88',
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 5
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'bottom',labels:{font:{family:'DM Sans',size:11}}} },
+    scales: {
+      x: {title:{display:true,text:'Binder Cα RMSD after PD-L1 alignment (Å)',font:{family:'DM Sans'}}, min:0},
+      y: {title:{display:true,text:'Hotspot recovery (both poses)',font:{family:'DM Sans'}}, min:0, max:1}
+    }
+  }
+});
+
+// ---- HOTSPOT DISTANCE HISTOGRAMS ----
+const DISTS_THREADED = [6.06, 9.59, 3.94, 5.3, 8.98, 7.01, 4.59, 5.1, 4.86, 8.69, 3.83, 8.97, 7.42, 9.83, 4.78, 6.5, 7.19, 10.11, 4.38, 7.15, 7.22, 9.02, 4.48, 6.35, 15.88, 7.21, 8.34, 7.57, 10.3, 10.5, 6.68, 9.39, 8.3, 7.27, 7.46, 8.93, 14.83, 6.91, 7.29, 4.95, 5.28, 9.63, 8.75, 8.54, 14.09, 6.98, 7.29, 4.42, 4.53, 8.69, 9.06, 8.0, 12.93, 7.66, 7.47, 4.44, 4.79, 8.52, 10.06, 11.39, 3.11, 8.06, 10.48, 10.85, 4.83, 6.01, 9.62, 9.2, 4.47, 4.93, 7.48, 9.48, 5.89, 5.39, 16.74, 8.41, 8.35, 7.33, 9.87, 11.17, 11.03, 14.23, 7.44, 7.75, 4.44, 6.47, 9.19, 5.11, 7.55, 4.78, 4.67, 8.17, 11.15, 4.22, 10.18, 5.84, 8.51, 3.7, 6.94, 10.61, 10.81, 4.75, 5.59, 9.16, 10.48, 4.19, 7.51, 9.1, 11.3, 4.22, 8.1, 17.65, 9.12, 9.4, 7.74, 10.86, 13.35, 7.57, 9.02, 7.09, 7.69, 16.44, 7.52, 7.79, 7.53, 10.31, 14.89, 7.18, 9.3, 7.23, 9.04, 8.03, 8.36, 13.88, 7.43, 7.83, 4.42, 5.52, 8.43, 10.16, 10.18, 15.63, 7.2, 8.53, 4.34, 5.39, 9.22, 8.38, 9.22, 14.69, 7.41, 7.71, 4.11, 5.12, 9.55, 8.63, 9.07, 12.19, 9.61, 6.84, 4.14, 5.58, 8.07];
+const DISTS_BOLTZ = [7.3, 9.53, 5.68, 5.22, 9.93, 8.16, 4.8, 5.83, 9.91, 11.42, 5.44, 6.82, 9.93, 11.11, 6.19, 7.94, 9.72, 12.41, 5.16, 7.82, 5.96, 8.48, 3.87, 5.81, 14.81, 7.14, 7.95, 7.68, 8.74, 13.06, 19.13, 13.01, 18.62, 12.5, 11.75, 11.23, 16.32, 8.46, 7.61, 5.92, 5.89, 9.64, 14.64, 15.07, 21.87, 9.48, 11.97, 8.49, 10.86, 15.07, 8.34, 8.97, 14.18, 8.0, 8.33, 5.03, 5.3, 9.28, 8.04, 9.26, 5.73, 6.51, 11.35, 12.65, 5.37, 7.82, 10.65, 11.01, 6.16, 5.9, 10.68, 10.94, 7.3, 5.66, 17.88, 8.31, 9.65, 5.99, 12.02, 10.22, 9.53, 13.87, 8.07, 8.4, 5.31, 5.24, 8.39, 5.1, 8.48, 4.94, 5.48, 9.63, 8.91, 7.87, 3.97, 6.7, 9.19, 6.84, 5.04, 7.19, 7.56, 7.11, 4.42, 10.24, 9.86, 8.41, 4.45, 11.41, 11.57, 8.04, 7.53, 18.25, 8.49, 9.91, 7.5, 11.54, 14.71, 7.93, 9.45, 5.92, 8.59, 16.13, 7.44, 8.24, 7.26, 10.35, 15.47, 7.52, 9.84, 6.85, 9.44, 8.82, 9.8, 15.12, 7.5, 8.41, 6.25, 6.38, 9.31, 10.66, 11.19, 16.55, 7.58, 8.62, 5.4, 6.05, 9.85, 8.33, 10.22, 16.83, 7.79, 8.93, 5.18, 6.99, 10.64, 13.7, 12.14, 18.74, 6.83, 10.24, 9.2, 6.61, 12.08];
+
+function makeHistogram(dists, binWidth) {
+  const maxVal = Math.ceil(Math.max(...dists));
+  const bins = [];
+  const labels = [];
+  for (let b = 0; b < maxVal; b += binWidth) {
+    const count = dists.filter(d => d >= b && d < b + binWidth).length;
+    bins.push(count);
+    labels.push(b + binWidth/2);
+  }
+  return { bins, labels };
+}
+
+const histT = makeHistogram(DISTS_THREADED, 1);
+const histB = makeHistogram(DISTS_BOLTZ, 1);
+const maxBin = Math.max(...histT.bins, ...histB.bins) + 2;
+const maxX = Math.max(histT.labels.length, histB.labels.length);
+
+// Pad both to same number of bins
+while (histT.bins.length < maxX) { histT.bins.push(0); histT.labels.push(histT.labels[histT.labels.length-1]+1); }
+while (histB.bins.length < maxX) { histB.bins.push(0); histB.labels.push(histB.labels[histB.labels.length-1]+1); }
+
+// Cutoff line plugin
+const cutoffPlugin = {
+  id: 'cutoffLine',
+  afterDraw(chart) {
+    const xScale = chart.scales.x;
+    const yScale = chart.scales.y;
+    const ctx = chart.ctx;
+    // Find x pixel for 8 Å (label index where center = 7.5)
+    const cutoffIdx = 7; // bin centered at 7.5
+    const xPx = xScale.getPixelForValue(cutoffIdx);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(xPx, yScale.top);
+    ctx.lineTo(xPx, yScale.bottom);
+    ctx.strokeStyle = '#c85a3a';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.stroke();
+    ctx.restore();
+    // Label
+    ctx.fillStyle = '#c85a3a';
+    ctx.font = '11px DM Sans';
+    ctx.textAlign = 'left';
+    ctx.fillText('8 Å cutoff', xPx + 4, yScale.top + 14);
+  }
+};
+
+new Chart(document.getElementById('chart-hist-threaded'), {
+  type: 'bar',
+  plugins: [cutoffPlugin],
+  data: {
+    labels: histT.labels.map(l => l.toFixed(0)),
+    datasets: [{ data: histT.bins, backgroundColor: '#2e6da488', borderColor: '#2e6da4', borderWidth: 1 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{display:false} },
+    scales: {
+      y: {beginAtZero:true, max:maxBin, title:{display:true,text:'Count',font:{family:'DM Sans'}}},
+      x: {title:{display:true,text:'Min binder Cα → hotspot Cα distance (Å)',font:{family:'DM Sans',size:10}}, grid:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('chart-hist-boltz'), {
+  type: 'bar',
+  plugins: [cutoffPlugin],
+  data: {
+    labels: histB.labels.map(l => l.toFixed(0)),
+    datasets: [{ data: histB.bins, backgroundColor: '#b0781888', borderColor: '#b07818', borderWidth: 1 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{display:false} },
+    scales: {
+      y: {beginAtZero:true, max:maxBin, title:{display:true,text:'Count',font:{family:'DM Sans'}}},
+      x: {title:{display:true,text:'Min binder Cα → hotspot Cα distance (Å)',font:{family:'DM Sans',size:10}}, grid:{display:false}}
     }
   }
 });
@@ -449,6 +847,7 @@ function badgeCls(config) {
   return config === 'clusterA' ? 'badge-clusterA' : config === 'clusterB' ? 'badge-clusterB' : 'badge-distributed';
 }
 
+// Build pose data lookup for viewer cards
 const poseLookup = {};
 POSE_DATA.forEach(p => { poseLookup[p.design_name] = p; });
 
@@ -465,7 +864,12 @@ function poseBadge(rmsd) {
     'intermediate': 'background:#faf0da;color:#7a5310;',
     'pose-divergent': 'background:#faeae4;color:#c85a3a;'
   };
-  return `<span style="${colors[cls]}font-size:.65rem;padding:2px 6px;border-radius:4px;font-weight:500">${cls}</span>`;
+  const labels = {
+    'pose-convergent': 'pose-convergent',
+    'intermediate': 'intermediate',
+    'pose-divergent': 'pose-divergent'
+  };
+  return `<span style="${colors[cls]}font-size:.65rem;padding:2px 6px;border-radius:4px;font-weight:500">${labels[cls]}</span>`;
 }
 
 function buildCard(d, idx) {
@@ -475,8 +879,6 @@ function buildCard(d, idx) {
   card.dataset.tier = d.tier;
 
   const pose = poseLookup[d.design_name];
-  card.dataset.pose = pose ? poseClass(pose.rmsd) : '';
-
   const poseRmsd = pose ? pose.rmsd.toFixed(1) : '—';
   const paratopeJ = pose ? pose.binder_jaccard.toFixed(2) : '—';
   const pBadge = pose ? poseBadge(pose.rmsd) : '';
@@ -500,239 +902,44 @@ function buildCard(d, idx) {
   return card;
 }
 
-// ---------- Alignment helpers ----------
-// The viewer uses the threaded/designed complex as the reference coordinate frame.
-// Boltz is loaded as a mobile model and aligned onto the reference target chain.
-// Target/binder chains are inferred from Cα counts: longest chain = PD-L1 target, shortest chain = binder.
-
-function getChainCounts(model) {
-  const counts = {};
-  model.selectedAtoms({atom:'CA'}).forEach(a => {
-    counts[a.chain] = (counts[a.chain] || 0) + 1;
-  });
-  return counts;
-}
-
-function inferTargetAndBinderChains(model) {
-  const counts = getChainCounts(model);
-  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-  return {
-    target: sorted[0] ? sorted[0][0] : 'A',
-    binder: sorted.length > 1 ? sorted[sorted.length - 1][0] : 'B'
-  };
-}
-
-function getCAAtoms(model, chain) {
-  return model.selectedAtoms({chain: chain, atom: 'CA'})
-    .filter(a => Number.isFinite(a.x) && Number.isFinite(a.y) && Number.isFinite(a.z));
-}
-
-function getMatchedCA(refModel, mobModel, refChain, mobChain) {
-  const refAtoms = getCAAtoms(refModel, refChain);
-  const mobAtoms = getCAAtoms(mobModel, mobChain);
-
-  const refByResi = new Map(refAtoms.map(a => [String(a.resi), a]));
-  const mobByResi = new Map(mobAtoms.map(a => [String(a.resi), a]));
-
-  const ref = [];
-  const mob = [];
-
-  refByResi.forEach((ra, resi) => {
-    const ma = mobByResi.get(resi);
-    if (ma) {
-      ref.push([ra.x, ra.y, ra.z]);
-      mob.push([ma.x, ma.y, ma.z]);
-    }
-  });
-
-  if (ref.length < 10) {
-    ref.length = 0;
-    mob.length = 0;
-    const n = Math.min(refAtoms.length, mobAtoms.length);
-    for (let i = 0; i < n; i++) {
-      ref.push([refAtoms[i].x, refAtoms[i].y, refAtoms[i].z]);
-      mob.push([mobAtoms[i].x, mobAtoms[i].y, mobAtoms[i].z]);
-    }
-  }
-
-  return {ref, mob};
-}
-
-function mean3(points) {
-  const c = [0,0,0];
-  points.forEach(p => { c[0]+=p[0]; c[1]+=p[1]; c[2]+=p[2]; });
-  const n = points.length || 1;
-  return [c[0]/n, c[1]/n, c[2]/n];
-}
-
-function subtract3(a,b) {
-  return [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
-}
-
-function normQuat(q) {
-  const n = Math.hypot(q[0], q[1], q[2], q[3]) || 1;
-  return q.map(v => v/n);
-}
-
-function quatToRot(q) {
-  const [w,x,y,z] = q;
-  return [
-    [1-2*y*y-2*z*z, 2*x*y-2*z*w,   2*x*z+2*y*w],
-    [2*x*y+2*z*w,   1-2*x*x-2*z*z, 2*y*z-2*x*w],
-    [2*x*z-2*y*w,   2*y*z+2*x*w,   1-2*x*x-2*y*y]
-  ];
-}
-
-function matVecMul(M, v) {
-  return [
-    M[0][0]*v[0] + M[0][1]*v[1] + M[0][2]*v[2],
-    M[1][0]*v[0] + M[1][1]*v[1] + M[1][2]*v[2],
-    M[2][0]*v[0] + M[2][1]*v[1] + M[2][2]*v[2]
-  ];
-}
-
-function kabschQuaternion(ref, mob) {
-  const cRef = mean3(ref);
-  const cMob = mean3(mob);
-
-  let Sxx=0,Sxy=0,Sxz=0,Syx=0,Syy=0,Syz=0,Szx=0,Szy=0,Szz=0;
-
-  for (let i=0; i<ref.length; i++) {
-    const r = subtract3(ref[i], cRef);
-    const m = subtract3(mob[i], cMob);
-
-    Sxx += m[0]*r[0]; Sxy += m[0]*r[1]; Sxz += m[0]*r[2];
-    Syx += m[1]*r[0]; Syy += m[1]*r[1]; Syz += m[1]*r[2];
-    Szx += m[2]*r[0]; Szy += m[2]*r[1]; Szz += m[2]*r[2];
-  }
-
-  const N = [
-    [Sxx+Syy+Szz, Syz-Szy,     Szx-Sxz,     Sxy-Syx],
-    [Syz-Szy,     Sxx-Syy-Szz, Sxy+Syx,     Szx+Sxz],
-    [Szx-Sxz,     Sxy+Syx,    -Sxx+Syy-Szz, Syz+Szy],
-    [Sxy-Syx,     Szx+Sxz,     Syz+Szy,    -Sxx-Syy+Szz]
-  ];
-
-  let q = [1,0,0,0];
-  for (let iter=0; iter<60; iter++) {
-    const nq = [
-      N[0][0]*q[0]+N[0][1]*q[1]+N[0][2]*q[2]+N[0][3]*q[3],
-      N[1][0]*q[0]+N[1][1]*q[1]+N[1][2]*q[2]+N[1][3]*q[3],
-      N[2][0]*q[0]+N[2][1]*q[1]+N[2][2]*q[2]+N[2][3]*q[3],
-      N[3][0]*q[0]+N[3][1]*q[1]+N[3][2]*q[2]+N[3][3]*q[3]
-    ];
-    q = normQuat(nq);
-  }
-
-  return {R: quatToRot(q), cRef, cMob, n: ref.length};
-}
-
-function applyTransformToModel(model, transform) {
-  const {R, cRef, cMob} = transform;
-
-  model.selectedAtoms({}).forEach(a => {
-    const p = [a.x - cMob[0], a.y - cMob[1], a.z - cMob[2]];
-    const rp = matVecMul(R, p);
-    a.x = rp[0] + cRef[0];
-    a.y = rp[1] + cRef[1];
-    a.z = rp[2] + cRef[2];
-  });
-}
-
-function setVisibleModel(viewerObj, mode) {
-  const {viewer, rfModel, boltzModel, rfChains, boltzChains} = viewerObj;
-
-  rfModel.setStyle({}, {});
-  boltzModel.setStyle({}, {});
-
-  if (mode === 'rfdiffusion') {
-    rfModel.setStyle({chain:rfChains.target}, {cartoon:{color:'#22c55e',opacity:0.85}});
-    rfModel.setStyle({chain:rfChains.binder}, {cartoon:{color:'#3b82f6',opacity:0.95}});
-  } else {
-    boltzModel.setStyle({chain:boltzChains.target}, {cartoon:{color:'#22c55e',opacity:0.85}});
-    boltzModel.setStyle({chain:boltzChains.binder}, {cartoon:{color:'#3b82f6',opacity:0.95}});
-  }
-
-  viewer.render();
-}
-
 function loadStructure(idx, mode) {
   const d = DESIGNS[idx];
   const el = document.getElementById('v'+idx);
   if (!el) return;
-
-  if (viewers[idx]) {
-    setVisibleModel(viewers[idx], mode);
-    viewers[idx].mode = mode;
-    return;
-  }
-
-  el.innerHTML = '<div class="loading">Loading and aligning...</div>';
-
-  const rfUrl = REPO_BASE + d.rf_pdb;
-  const boltzUrl = REPO_BASE + d.boltz_cif;
-
-  Promise.all([
-    fetch(rfUrl).then(r => { if(!r.ok) throw new Error(`Designed pose ${r.status}`); return r.text(); }),
-    fetch(boltzUrl).then(r => { if(!r.ok) throw new Error(`Boltz ${r.status}`); return r.text(); })
-  ]).then(([rfData, boltzData]) => {
-    el.innerHTML = '';
-
-    const viewer = $3Dmol.createViewer(el, {
-      backgroundColor:'#1a1a2e',
-      antialias:true
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  const url = REPO_BASE + (mode==='boltz' ? d.boltz_cif : d.rf_pdb);
+  const fmt = mode==='boltz' ? 'cif' : 'pdb';
+  fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(data=>{
+    el.innerHTML='';
+    const v=$3Dmol.createViewer(el,{backgroundColor:'#1a1a2e',antialias:true});
+    v.addModel(data,fmt);
+    // Identify chains by CA count: longest = target (PD-L1 ~115 res), shortest = binder
+    const chainCounts = {};
+    v.getModel().selectedAtoms({atom:'CA'}).forEach(a => {
+      chainCounts[a.chain] = (chainCounts[a.chain] || 0) + 1;
     });
-
-    const rfModel = viewer.addModel(rfData, 'pdb');
-    const boltzModel = viewer.addModel(boltzData, 'cif');
-
-    const rfChains = inferTargetAndBinderChains(rfModel);
-    const boltzChains = inferTargetAndBinderChains(boltzModel);
-
-    const matched = getMatchedCA(rfModel, boltzModel, rfChains.target, boltzChains.target);
-
-    if (matched.ref.length >= 10) {
-      const transform = kabschQuaternion(matched.ref, matched.mob);
-      applyTransformToModel(boltzModel, transform);
-    } else {
-      console.warn(`Insufficient matched target Cα atoms for ${d.design_name}: ${matched.ref.length}`);
-    }
-
-    viewers[idx] = {
-      viewer,
-      rfModel,
-      boltzModel,
-      rfChains,
-      boltzChains,
-      mode
-    };
-
-    setVisibleModel(viewers[idx], mode);
-    viewer.zoomTo();
-    viewer.render();
-  }).catch(e => {
-    el.innerHTML = `<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;
-  });
+    const sorted = Object.entries(chainCounts).sort((a,b) => b[1] - a[1]);
+    const tgtChain = sorted[0] ? sorted[0][0] : 'A';
+    const bndChain = sorted.length > 1 ? sorted[sorted.length-1][0] : 'B';
+    v.setStyle({chain:tgtChain},{cartoon:{color:'#22c55e',opacity:0.85}});
+    v.setStyle({chain:bndChain},{cartoon:{color:'#3b82f6',opacity:0.95}});
+    v.zoomTo();v.render();
+    viewers[idx]={viewer:v,mode};
+  }).catch(e=>{el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;});
 }
 
 const grid = document.getElementById('grid');
 DESIGNS.forEach((d,i) => grid.appendChild(buildCard(d,i)));
 
 const obs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      const i=parseInt(e.target.id.replace('v',''));
-      if(!viewers[i]) loadStructure(i,'rfdiffusion');
-      obs.unobserve(e.target);
-    }
-  });
+  entries.forEach(e=>{if(e.isIntersecting){const i=parseInt(e.target.id.replace('v',''));if(!viewers[i])loadStructure(i,'rfdiffusion');obs.unobserve(e.target);}});
 },{rootMargin:'300px'});
 document.querySelectorAll('.vcard-viewer').forEach(el=>obs.observe(el));
 
 document.addEventListener('click',e=>{
   const btn=e.target.closest('.toggle-btn');
   if(!btn)return;
-  const idx=parseInt(btn.dataset.idx), mode=btn.dataset.mode;
+  const idx=parseInt(btn.dataset.idx),mode=btn.dataset.mode;
   btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   loadStructure(idx,mode);
@@ -745,9 +952,8 @@ document.getElementById('filters').addEventListener('click',e=>{
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.vcard').forEach(c=>{
-    if(f==='all') c.style.display='';
-    else if(['clusterA','clusterB','distributed'].includes(f)) c.style.display=c.dataset.hotspot===f?'':'none';
-    else if(['pose-convergent','intermediate','pose-divergent'].includes(f)) c.style.display=c.dataset.pose===f?'':'none';
+    if(f==='all')c.style.display='';
+    else if(['clusterA','clusterB','distributed'].includes(f))c.style.display=c.dataset.hotspot===f?'':'none';
     else c.style.display=c.dataset.tier===f?'':'none';
   });
 });
