@@ -110,9 +110,9 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 .vcard.validated{border-color:var(--accent)}
 .vcard.uncertain{border-color:var(--amber)}
 .vcard.failed{border-color:var(--coral)}
-.vcard-viewer{width:100%;height:220px;background:#1a1a2e;position:relative}
+.vcard-viewer{width:100%;height:220px;background:#fff;position:relative}
 .vcard-viewer .loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#8a8878;font-size:.75rem;font-family:var(--sans)}
-.toggle-bar{display:flex;justify-content:center;background:#1a1a2e;padding:.3rem .75rem;gap:0}
+.toggle-bar{display:flex;justify-content:center;background:#fff;padding:.3rem .75rem;gap:0}
 .toggle-btn{padding:.2rem .65rem;font-size:.68rem;font-family:var(--mono);border:1px solid #4a5568;background:transparent;color:#8a8878;cursor:pointer;transition:all .15s}
 .toggle-btn:first-child{border-radius:4px 0 0 4px}
 .toggle-btn:last-child{border-radius:0 4px 4px 0}
@@ -902,48 +902,316 @@ function buildCard(d, idx) {
   return card;
 }
 
-function loadStructure(idx, mode) {
+// Rigid-body least-squares alignment of one 3Dmol model onto another.
+//
+// mobileModel: model that will be moved, e.g. Boltz
+// referenceModel: fixed model, e.g. RFdiffusion
+// mobileSel/referenceSel: corresponding atoms used to calculate alignment
+//
+// The transformation calculated from the selected atoms is applied to
+// every atom in mobileModel.
+function alignModelToReference(
+  mobileModel,
+  referenceModel,
+  mobileSel,
+  referenceSel
+) {
+  const sortAtoms = atoms => [...atoms].sort((a, b) => {
+    const resiA = Number(a.resi ?? 0);
+    const resiB = Number(b.resi ?? 0);
+
+    if (resiA !== resiB) return resiA - resiB;
+
+    const serialA = Number(a.serial ?? a.index ?? 0);
+    const serialB = Number(b.serial ?? b.index ?? 0);
+    return serialA - serialB;
+  });
+
+  const mobileFitAtoms = sortAtoms(
+    mobileModel.selectedAtoms(mobileSel)
+  );
+
+  const referenceFitAtoms = sortAtoms(
+    referenceModel.selectedAtoms(referenceSel)
+  );
+
+  if (mobileFitAtoms.length < 3 || referenceFitAtoms.length < 3) {
+    throw new Error(
+      `Alignment requires at least 3 corresponding atoms; found ` +
+      `${mobileFitAtoms.length} mobile and ${referenceFitAtoms.length} reference atoms`
+    );
+  }
+
+  if (mobileFitAtoms.length !== referenceFitAtoms.length) {
+    throw new Error(
+      `Target Cα counts differ: Boltz=${mobileFitAtoms.length}, ` +
+      `RFdiffusion=${referenceFitAtoms.length}`
+    );
+  }
+
+  const n = mobileFitAtoms.length;
+
+  // Calculate centroids.
+  const mobileCenter = { x: 0, y: 0, z: 0 };
+  const referenceCenter = { x: 0, y: 0, z: 0 };
+
+  for (let i = 0; i < n; i++) {
+    mobileCenter.x += mobileFitAtoms[i].x;
+    mobileCenter.y += mobileFitAtoms[i].y;
+    mobileCenter.z += mobileFitAtoms[i].z;
+
+    referenceCenter.x += referenceFitAtoms[i].x;
+    referenceCenter.y += referenceFitAtoms[i].y;
+    referenceCenter.z += referenceFitAtoms[i].z;
+  }
+
+  mobileCenter.x /= n;
+  mobileCenter.y /= n;
+  mobileCenter.z /= n;
+
+  referenceCenter.x /= n;
+  referenceCenter.y /= n;
+  referenceCenter.z /= n;
+
+  // Cross-covariance matrix between centered mobile and reference points.
+  let Sxx = 0, Sxy = 0, Sxz = 0;
+  let Syx = 0, Syy = 0, Syz = 0;
+  let Szx = 0, Szy = 0, Szz = 0;
+
+  for (let i = 0; i < n; i++) {
+    const px = mobileFitAtoms[i].x - mobileCenter.x;
+    const py = mobileFitAtoms[i].y - mobileCenter.y;
+    const pz = mobileFitAtoms[i].z - mobileCenter.z;
+
+    const qx = referenceFitAtoms[i].x - referenceCenter.x;
+    const qy = referenceFitAtoms[i].y - referenceCenter.y;
+    const qz = referenceFitAtoms[i].z - referenceCenter.z;
+
+    Sxx += px * qx;
+    Sxy += px * qy;
+    Sxz += px * qz;
+
+    Syx += py * qx;
+    Syy += py * qy;
+    Syz += py * qz;
+
+    Szx += pz * qx;
+    Szy += pz * qy;
+    Szz += pz * qz;
+  }
+
+  // Horn quaternion matrix.
+  const trace = Sxx + Syy + Szz;
+
+  const N = [
+    [trace,       Syz - Szy,  Szx - Sxz,  Sxy - Syx],
+    [Syz - Szy,   Sxx-Syy-Szz, Sxy + Syx, Szx + Sxz],
+    [Szx - Sxz,   Sxy + Syx, -Sxx+Syy-Szz, Syz + Szy],
+    [Sxy - Syx,   Szx + Sxz,  Syz + Szy, -Sxx-Syy+Szz]
+  ];
+
+  // Power iteration to obtain the eigenvector associated with the
+  // largest eigenvalue. This eigenvector is the optimal quaternion.
+  let quat = [1, 0, 0, 0];
+
+  for (let iteration = 0; iteration < 100; iteration++) {
+    const next = [
+      N[0][0]*quat[0] + N[0][1]*quat[1] + N[0][2]*quat[2] + N[0][3]*quat[3],
+      N[1][0]*quat[0] + N[1][1]*quat[1] + N[1][2]*quat[2] + N[1][3]*quat[3],
+      N[2][0]*quat[0] + N[2][1]*quat[1] + N[2][2]*quat[2] + N[2][3]*quat[3],
+      N[3][0]*quat[0] + N[3][1]*quat[1] + N[3][2]*quat[2] + N[3][3]*quat[3]
+    ];
+
+    const norm = Math.hypot(next[0], next[1], next[2], next[3]);
+
+    if (!Number.isFinite(norm) || norm === 0) {
+      throw new Error('Could not calculate the alignment quaternion');
+    }
+
+    next[0] /= norm;
+    next[1] /= norm;
+    next[2] /= norm;
+    next[3] /= norm;
+
+    const change = Math.hypot(
+      next[0] - quat[0],
+      next[1] - quat[1],
+      next[2] - quat[2],
+      next[3] - quat[3]
+    );
+
+    quat = next;
+
+    if (change < 1e-12) break;
+  }
+
+  const [w, x, y, z] = quat;
+
+  // Quaternion-to-rotation-matrix conversion.
+  const R = [
+    [
+      1 - 2*(y*y + z*z),
+      2*(x*y - z*w),
+      2*(x*z + y*w)
+    ],
+    [
+      2*(x*y + z*w),
+      1 - 2*(x*x + z*z),
+      2*(y*z - x*w)
+    ],
+    [
+      2*(x*z - y*w),
+      2*(y*z + x*w),
+      1 - 2*(x*x + y*y)
+    ]
+  ];
+
+  // Apply the target-chain-derived transform to every Boltz atom.
+  const allMobileAtoms = mobileModel.selectedAtoms({});
+
+  allMobileAtoms.forEach(atom => {
+    const px = atom.x - mobileCenter.x;
+    const py = atom.y - mobileCenter.y;
+    const pz = atom.z - mobileCenter.z;
+
+    atom.x =
+      R[0][0]*px +
+      R[0][1]*py +
+      R[0][2]*pz +
+      referenceCenter.x;
+
+    atom.y =
+      R[1][0]*px +
+      R[1][1]*py +
+      R[1][2]*pz +
+      referenceCenter.y;
+
+    atom.z =
+      R[2][0]*px +
+      R[2][1]*py +
+      R[2][2]*pz +
+      referenceCenter.z;
+  });
+
+  // Calculate alignment RMSD as a diagnostic.
+  let sumSquared = 0;
+
+  for (let i = 0; i < n; i++) {
+    const dx = mobileFitAtoms[i].x - referenceFitAtoms[i].x;
+    const dy = mobileFitAtoms[i].y - referenceFitAtoms[i].y;
+    const dz = mobileFitAtoms[i].z - referenceFitAtoms[i].z;
+
+    sumSquared += dx*dx + dy*dy + dz*dz;
+  }
+
+  return Math.sqrt(sumSquared / n);
+}
+
+
+// Load BOTH structures for a design, align Boltz onto RFdiffusion, show one at a time
+function loadDesignViewer(idx) {
   const d = DESIGNS[idx];
   const el = document.getElementById('v'+idx);
   if (!el) return;
-  el.innerHTML = '<div class="loading">Loading...</div>';
-  const url = REPO_BASE + (mode==='boltz' ? d.boltz_cif : d.rf_pdb);
-  const fmt = mode==='boltz' ? 'cif' : 'pdb';
-  fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(data=>{
-    el.innerHTML='';
-    const v=$3Dmol.createViewer(el,{backgroundColor:'#1a1a2e',antialias:true});
-    v.addModel(data,fmt);
-    // Identify chains by CA count: longest = target (PD-L1 ~115 res), shortest = binder
-    const chainCounts = {};
-    v.getModel().selectedAtoms({atom:'CA'}).forEach(a => {
-      chainCounts[a.chain] = (chainCounts[a.chain] || 0) + 1;
-    });
-    const sorted = Object.entries(chainCounts).sort((a,b) => b[1] - a[1]);
-    const tgtChain = sorted[0] ? sorted[0][0] : 'A';
-    const bndChain = sorted.length > 1 ? sorted[sorted.length-1][0] : 'B';
-    v.setStyle({chain:tgtChain},{cartoon:{color:'#22c55e',opacity:0.85}});
-    v.setStyle({chain:bndChain},{cartoon:{color:'#3b82f6',opacity:0.95}});
-    v.zoomTo();v.render();
-    viewers[idx]={viewer:v,mode};
-  }).catch(e=>{el.innerHTML=`<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;});
+  el.innerHTML = '<div class="loading">Loading structures...</div>';
+ 
+  const rfUrl = REPO_BASE + d.rf_pdb;
+  const bUrl  = REPO_BASE + d.boltz_cif;
+ 
+  Promise.all([
+    fetch(rfUrl).then(r=>{if(!r.ok)throw new Error('RF:'+r.status);return r.text();}),
+    fetch(bUrl).then(r=>{if(!r.ok)throw new Error('Boltz:'+r.status);return r.text();})
+  ]).then(([rfData, bData]) => {
+    el.innerHTML = '';
+    const v = $3Dmol.createViewer(el, {backgroundColor:'#ffffff', antialias:true});
+ 
+    // Model 0: RFdiffusion (reference frame)
+    const rfModel = v.addModel(rfData, 'pdb');
+ 
+    // Model 1: Boltz-2
+    const bModel = v.addModel(bData, 'cif');
+ 
+    // Identify chains in each model (longest chain = target PD-L1)
+    function getChains(model) {
+      const cc = {};
+      model.selectedAtoms({atom:'CA'}).forEach(a => { cc[a.chain] = (cc[a.chain]||0)+1; });
+      const sorted = Object.entries(cc).sort((a,b) => b[1]-a[1]);
+      return {
+        tgt: sorted[0] ? sorted[0][0] : 'A',
+        bnd: sorted.length > 1 ? sorted[sorted.length-1][0] : 'B'
+      };
+    }
+ 
+    const rfChains = getChains(rfModel);
+    const bChains  = getChains(bModel);
+ 
+    const alignmentRmsd = alignModelToReference(
+      bModel,
+      rfModel,
+      { atom: 'CA', chain: bChains.tgt },
+      { atom: 'CA', chain: rfChains.tgt }
+    );
+
+    console.log(
+      `${d.design_name}: PD-L1 alignment RMSD = ` +
+      `${alignmentRmsd.toFixed(3)} Å`
+    );
+ 
+    // Style both models
+    rfModel.setStyle({chain:rfChains.tgt}, {cartoon:{color:'#22c55e',opacity:0.85}});
+    rfModel.setStyle({chain:rfChains.bnd}, {cartoon:{color:'#3b82f6',opacity:0.95}});
+    bModel.setStyle({chain:bChains.tgt},   {cartoon:{color:'#22c55e',opacity:0.85}});
+    bModel.setStyle({chain:bChains.bnd},   {cartoon:{color:'#3b82f6',opacity:0.95}});
+ 
+    // Initially show RFdiffusion, hide Boltz
+    bModel.hide();
+ 
+    v.zoomTo();
+    v.render();
+ 
+    // Store viewer info for toggle
+    viewers[idx] = {
+      viewer: v,
+      rfModel: rfModel,
+      bModel: bModel,
+      mode: 'rfdiffusion'
+    };
+  }).catch(e => {
+    el.innerHTML = `<div class="loading" style="color:var(--coral)">Error: ${e.message}</div>`;
+  });
+}
+ 
+// Toggle between RFdiffusion and Boltz views (instant — no re-fetch)
+function toggleStructure(idx, mode) {
+  const info = viewers[idx];
+  if (!info) return;
+  if (mode === 'rfdiffusion') {
+    info.rfModel.show();
+    info.bModel.hide();
+  } else {
+    info.rfModel.hide();
+    info.bModel.show();
+  }
+  info.mode = mode;
+  info.viewer.render();
 }
 
 const grid = document.getElementById('grid');
 DESIGNS.forEach((d,i) => grid.appendChild(buildCard(d,i)));
 
 const obs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){const i=parseInt(e.target.id.replace('v',''));if(!viewers[i])loadStructure(i,'rfdiffusion');obs.unobserve(e.target);}});
-},{rootMargin:'300px'});
+    entries.forEach(e=>{if(e.isIntersecting){const i=parseInt(e.target.id.replace('v',''));if(!viewers[i])loadDesignViewer(i);obs.unobserve(e.target);}});
+  },{rootMargin:'300px'});
 document.querySelectorAll('.vcard-viewer').forEach(el=>obs.observe(el));
 
 document.addEventListener('click',e=>{
-  const btn=e.target.closest('.toggle-btn');
-  if(!btn)return;
-  const idx=parseInt(btn.dataset.idx),mode=btn.dataset.mode;
-  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  loadStructure(idx,mode);
-});
+    const btn=e.target.closest('.toggle-btn');
+    if(!btn)return;
+    const idx=parseInt(btn.dataset.idx),mode=btn.dataset.mode;
+    btn.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    toggleStructure(idx,mode);
+  });
 
 document.getElementById('filters').addEventListener('click',e=>{
   const btn=e.target.closest('.filter-btn');
