@@ -5,7 +5,9 @@ theme:
 nav:
   - Home: index.md
   - Résumé: resume.md
-  - Projects: projects.md
+  - Projects:
+      - Selected Projects: projects.md
+      - AI-Guided Protein Design: ai-guided-protein-design.md
 markdown_extensions:
   - toc:
       permalink: true
