@@ -9,13 +9,47 @@ Across these projects, common themes include mechanistic modeling, operational s
 
 ---
 
-## De Novo Mini Binder Design Against PD-L1
+## AI-Guided Protein Design
 
-**Stack:** RFdiffusion, ProteinMPNN, ESMFold, PyMOL, BioPython, Python, Google Colab
+**Stack:** RFdiffusion, ProteinMPNN, ESMFold, Boltz-2, OpenMM, PyMOL, BioPython, Python, Google Colab
 
-**Summary:** Built an end-to-end computational protein design workflow for de novo mini binders targeting the PD-1 binding surface of PD-L1. The project uses RFdiffusion for backbone generation, ProteinMPNN for sequence design, and ESMFold-based structural validation to rank candidate binders by fold confidence and design recapitulation. Includes interactive visualization, candidate filtering, entropy-guided library design logic, and discussion of experimental validation requirements.
+A multi-volume portfolio exploring how modern generative and structure-prediction models can be assembled into realistic computational protein design campaigns. Each volume follows a different molecular format while emphasizing campaign architecture, model handoffs, candidate triage, structural validation, and decision-making under uncertainty.
 
-**Links:** [Overview of Protein Engineering](/hg-portfolio/projects/pdl1-mini-binder/Page0_overview) · [Overview of Target Selection and Screening Funnel](/hg-portfolio/projects/pdl1-mini-binder/Page0_overview_1) · [Overview of Computational Design Workflow](/hg-portfolio/projects/pdl1-mini-binder/Page0_overview_2) · [De novo mini binder design](/hg-portfolio/projects/pdl1-mini-binder/Page1_denovo_minibinder_design) · [Parameter Sensitivity](/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity) · [Interaction Fingerprinting](/hg-portfolio/projects/pdl1-mini-binder/Page3_interaction_fingerprinting/) · [Molecular Dynamics Simulation](/hg-portfolio/projects/pdl1-mini-binder/Page4_MDsimulations) · [Independent Complex Assessment with Boltz-2](/hg-portfolio/projects/pdl1-mini-binder/Page5_Boltz)
+### Campaign Architecture
+
+Before beginning a specific design campaign, these introductory pages establish the shared workflow and decision framework used throughout the series:
+
+- [Overview of Protein Engineering](/hg-portfolio/projects/pdl1-mini-binder/Page0_overview/)
+
+- [Target Selection and Screening Funnel](/hg-portfolio/projects/pdl1-mini-binder/Page0_overview_1/)
+
+- [Computational Design Workflow](/hg-portfolio/projects/pdl1-mini-binder/Page0_overview_2/)
+
+---
+
+### Volume 1: De Novo Mini-Binder Design Against PD-L1
+
+An end-to-end computational campaign for designing compact proteins against the PD-1-binding surface of PD-L1. The workflow combines RFdiffusion backbone generation, ProteinMPNN sequence design, independent structure prediction, interface analysis, molecular dynamics, and consensus-based candidate prioritization.
+
+**Pages:**
+
+- [De Novo Mini-Binder Design](/hg-portfolio/projects/pdl1-mini-binder/Page1_denovo_minibinder_design/)
+
+- [Parameter Sensitivity](/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity/)
+
+- [Interaction Fingerprinting](/hg-portfolio/projects/pdl1-mini-binder/Page3_interaction_fingerprinting/)
+
+- [Molecular Dynamics Simulation](/hg-portfolio/projects/pdl1-mini-binder/Page4_MDsimulations/)
+
+- [Independent Complex Assessment with Boltz-2](/hg-portfolio/projects/pdl1-mini-binder/Page5_Boltz/)
+
+---
+
+### Volume 2: De Novo VHH Design Against PD-L1
+
+A second design campaign extending the workflow from compact mini-proteins to single-domain antibody scaffolds. This volume will examine how scaffold constraints, complementarity-determining region geometry, sequence design, developability, and interface validation change when the designed binder is a VHH rather than a de novo mini-protein.
+
+**Status:** In development
 
 ---
 
