@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Enabled Protein Design: A Practical Campaign Guide</title>
+
+    <title>Volume 1 — De Novo Mini-Binder Design | AI-Guided Protein Design</title>
+
     <style>
         :root {
             --bg: #ffffff;
@@ -22,102 +24,625 @@
             --purple-light: #f5f3ff;
             --max-width: 860px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; font-size: 17px; }
-        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
-        .nav-bar { border-bottom: 1px solid var(--border); padding: 16px 0; font-size: 14px; color: var(--text-secondary); }
-        .nav-bar a { color: var(--accent); text-decoration: none; }
-        .nav-bar a:hover { text-decoration: underline; }
-        .hero { padding: 64px 0 48px; border-bottom: 1px solid var(--border); }
-        .hero h1 { font-size: 2.2rem; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.02em; }
-        .hero .subtitle { font-size: 1.15rem; color: var(--text-secondary); font-style: italic; margin-bottom: 24px; }
-        h2 { font-size: 1.5rem; font-weight: 700; margin: 56px 0 20px; padding-top: 32px; border-top: 1px solid var(--border); letter-spacing: -0.01em; }
-        h3 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 12px; }
-        p { margin-bottom: 16px; }
-        .callout { padding: 20px 24px; background: var(--card-bg); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; margin: 24px 0; font-size: 0.95rem; }
-        .callout.green { border-left-color: var(--green); background: var(--green-light); }
-        .callout.warning { border-left-color: var(--amber); background: var(--amber-light); }
-        .callout strong { display: block; margin-bottom: 6px; }
 
-        .hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 40px 0 0; }
-        .hero-stat { text-align: center; padding: 20px 12px; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); }
-        .hero-stat .number { font-size: 1.8rem; font-weight: 700; color: var(--accent); line-height: 1.2; }
-        .hero-stat .label { font-size: 0.8rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.3; }
-        @media(max-width:600px){ .hero-stats { grid-template-columns: repeat(2,1fr); } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        .dbtl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
-        .dbtl-card { padding: 20px; border-radius: 8px; border: 1px solid var(--border); }
-        .dbtl-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-        .dbtl-card p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0; }
-        .dbtl-card.design { background: #eff6ff; border-color: #93c5fd; }
-        .dbtl-card.design h4 { color: var(--accent); }
-        .dbtl-card.build { background: var(--green-light); border-color: #86efac; }
-        .dbtl-card.build h4 { color: var(--green); }
-        .dbtl-card.test { background: var(--amber-light); border-color: #fcd34d; }
-        .dbtl-card.test h4 { color: var(--amber); }
-        .dbtl-card.learn { background: var(--purple-light); border-color: #c4b5fd; }
-        .dbtl-card.learn h4 { color: var(--purple); }
-        @media(max-width:600px){ .dbtl-grid { grid-template-columns: 1fr; } }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 17px;
+        }
 
-        .figure { margin: 32px 0; text-align: center; }
-        .figure img { max-width: 100%; border-radius: 8px; }
-        .figure-caption { font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px; text-align: left; line-height: 1.6; }
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
-        /* Product section */
-        .product-section { margin: 56px 0 32px; padding: 32px; background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; }
-        .product-section h2 { margin: 0 0 20px; padding: 0; border: none; }
-        .product-section h3 { margin: 24px 0 8px; color: var(--accent); }
-        .product-section p { font-size: 0.95rem; }
-        .product-badge { display: inline-block; padding: 4px 14px; background: var(--accent); color: white; border-radius: 16px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+        .nav-bar {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
 
-        .product-features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-        .product-feature { padding: 12px 16px; background: white; border-radius: 8px; font-size: 0.88rem; border: 1px solid var(--border); }
-        .product-feature strong { display: block; margin-bottom: 2px; font-size: 0.82rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
-        @media(max-width:600px){ .product-features { grid-template-columns: 1fr; } }
+        .nav-bar a {
+            color: var(--accent);
+            text-decoration: none;
+        }
 
-        .cta-row { margin-top: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-        .cta-btn { display: inline-block; padding: 12px 28px; background: var(--accent); color: white; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: background 0.15s; }
-        .cta-btn:hover { background: #1d4ed8; }
-        .cta-price { font-size: 0.9rem; color: var(--text-secondary); }
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
 
-        /* Overview nav */
-        .overview-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0; }
-        .overview-nav a { display: block; padding: 20px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: var(--text); transition: border-color 0.15s, background 0.15s; }
-        .overview-nav a:hover { border-color: var(--accent); background: var(--accent-light); }
-        .overview-nav a .nav-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
-        .overview-nav a .nav-title { font-size: 1rem; font-weight: 600; margin-top: 4px; }
-        .overview-nav a .nav-desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
-        @media(max-width:600px){ .overview-nav { grid-template-columns: 1fr; } }
+        /* ============================================================
+           HERO
+           ============================================================ */
 
-        .pipeline-nav { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 32px 0; padding: 24px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); }
-        .pipeline-step { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 16px; background: white; border-radius: 8px; border: 2px solid var(--accent); min-width: 100px; font-size: 0.82rem; font-weight: 600; line-height: 1.3; text-decoration: none; color: var(--text); transition: background 0.15s; }
-        .pipeline-step:hover { background: var(--accent-light); }
-        .pipeline-step .step-num { font-size: 0.7rem; color: white; background: var(--accent); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
-        .pipeline-step.build { border-color: var(--green); }
-        .pipeline-step.build .step-num { background: var(--green); }
-        .pipeline-arrow { font-size: 1.2rem; color: var(--text-secondary); }
+        .hero {
+            padding: 64px 0 48px;
+            border-bottom: 1px solid var(--border);
+        }
 
-        .next-page { margin: 48px 0; padding: 24px; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border); text-align: center; }
-        .next-page a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 1.05rem; }
-        .next-page a:hover { text-decoration: underline; }
+        .eyebrow {
+            margin-bottom: 14px;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+        }
 
-        .page-footer { margin-top: 48px; padding: 32px 0; border-top: 1px solid var(--border); text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
-        .page-footer a { color: var(--accent); text-decoration: none; }
+        .hero h1 {
+            max-width: 820px;
+            font-size: 2.35rem;
+            font-weight: 700;
+            line-height: 1.16;
+            margin-bottom: 18px;
+            letter-spacing: -0.025em;
+        }
+
+        .hero .subtitle {
+            max-width: 790px;
+            font-size: 1.16rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.65;
+            margin-bottom: 32px;
+        }
+
+        .intro-block {
+            max-width: 800px;
+        }
+
+        .intro-block p {
+            margin-bottom: 18px;
+        }
+
+        .intro-block .opening {
+            font-size: 1.08rem;
+            line-height: 1.75;
+        }
+
+        .campaign-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 36px;
+        }
+
+        .summary-item {
+            padding: 18px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .summary-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .summary-value {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 650;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 700px) {
+            .hero {
+                padding: 44px 0 36px;
+            }
+
+            .hero h1 {
+                font-size: 1.9rem;
+            }
+
+            .campaign-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 420px) {
+            .campaign-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================================
+           GENERAL TYPOGRAPHY
+           ============================================================ */
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 56px 0 20px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 32px 0 12px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        .callout {
+            padding: 20px 24px;
+            background: var(--card-bg);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 6px 6px 0;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        .callout.green {
+            border-left-color: var(--green);
+            background: var(--green-light);
+        }
+
+        .callout.warning {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* ============================================================
+           DBTL
+           ============================================================ */
+
+        .dbtl-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .dbtl-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .dbtl-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dbtl-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        .dbtl-card.design {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .dbtl-card.design h4 {
+            color: var(--accent);
+        }
+
+        .dbtl-card.build {
+            background: var(--green-light);
+            border-color: #86efac;
+        }
+
+        .dbtl-card.build h4 {
+            color: var(--green);
+        }
+
+        .dbtl-card.test {
+            background: var(--amber-light);
+            border-color: #fcd34d;
+        }
+
+        .dbtl-card.test h4 {
+            color: var(--amber);
+        }
+
+        .dbtl-card.learn {
+            background: var(--purple-light);
+            border-color: #c4b5fd;
+        }
+
+        .dbtl-card.learn h4 {
+            color: var(--purple);
+        }
+
+        @media (max-width: 600px) {
+            .dbtl-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================================
+           FIGURES
+           ============================================================ */
+
+        .figure {
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        .figure img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .figure-caption {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           PRODUCT SECTION
+           ============================================================ */
+
+        .product-section {
+            margin: 56px 0 32px;
+            padding: 32px;
+            background: #eff6ff;
+            border: 2px solid #93c5fd;
+            border-radius: 12px;
+        }
+
+        .product-section h2 {
+            margin: 0 0 20px;
+            padding: 0;
+            border: none;
+        }
+
+        .product-section h3 {
+            margin: 24px 0 8px;
+            color: var(--accent);
+        }
+
+        .product-section p {
+            font-size: 0.95rem;
+        }
+
+        .product-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            background: var(--accent);
+            color: white;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .product-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .product-feature {
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            border: 1px solid var(--border);
+        }
+
+        .product-feature strong {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.82rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        @media (max-width: 600px) {
+            .product-features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cta-row {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .cta-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .cta-price {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================
+           OVERVIEW NAVIGATION
+           ============================================================ */
+
+        .overview-nav {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .overview-nav a {
+            display: block;
+            padding: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .overview-nav a:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .overview-nav a .nav-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .overview-nav a .nav-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .overview-nav a .nav-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .overview-nav {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================================
+           PIPELINE NAVIGATION
+           ============================================================ */
+
+        .pipeline-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 32px 0;
+            padding: 24px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+            min-width: 100px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            line-height: 1.3;
+            text-decoration: none;
+            color: var(--text);
+            transition: background 0.15s;
+        }
+
+        .pipeline-step:hover {
+            background: var(--accent-light);
+        }
+
+        .pipeline-step .step-num {
+            font-size: 0.7rem;
+            color: white;
+            background: var(--accent);
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+
+        .pipeline-step.build {
+            border-color: var(--green);
+        }
+
+        .pipeline-step.build .step-num {
+            background: var(--green);
+        }
+
+        .pipeline-arrow {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .next-page {
+            margin: 48px 0;
+            padding: 24px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .next-page a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .next-page a:hover {
+            text-decoration: underline;
+        }
+
+        .page-footer {
+            margin-top: 48px;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .page-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
 <div class="container">
+
     <div class="nav-bar">
-        <a href="https://hghodkephd.github.io/hg-portfolio/">← Portfolio</a> · AI-Enabled Protein Design: A Practical Campaign Guide — Volume 1
+        <a href="https://hghodkephd.github.io/hg-portfolio/">
+            ← Portfolio
+        </a>
+        ·
+        <a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">
+            AI-Guided Protein Design
+        </a>
+        · Volume 1
     </div>
 
-    <div class="hero">
+    <!-- ============================================================ -->
+    <!-- HERO                                                         -->
+    <!-- ============================================================ -->
+
+    <header class="hero">
+        <p class="eyebrow">AI-Guided Protein Design · Volume 1</p>
+
         <h1>A Wet-Lab Scientist's Guide to AI-Enabled Protein Design</h1>
-        <p class="subtitle">An end-to-end illustrative campaign for de novo PD-L1 mini-binder design — from target structure to ranked candidate shortlist.</p>
 
-        <p>This is a working protein-engineering campaign, documented as both a public portfolio and an accompanying code guide. It covers every stage of the computational design phase: backbone generation, sequence design, fold validation, interface fingerprinting, molecular dynamics, independent complex prediction, and scoring — with the decisions and tradeoffs at each stage made explicit.</p>
+        <p class="subtitle">
+            From a target structure to a ranked experimental shortlist:
+            an end-to-end campaign for designing de novo mini-protein
+            binders against PD-L1.
+        </p>
 
+        <div class="intro-block">
+            <p class="opening">
+                Generative protein-design tools can produce convincing
+                structures in minutes. The harder problem is deciding which
+                outputs are credible, which analyses are informative, and
+                which candidates are worth carrying into the laboratory.
+            </p>
 
+            <p>
+                This portfolio documents that decision process through a
+                complete illustrative protein-design campaign. The objective
+                is not simply to generate a binder. It is to construct a
+                defensible screening funnel that moves from a large
+                computational design space toward a small, experimentally
+                actionable set of candidates.
+            </p>
+
+            <p>
+                Volume 1 follows the design of de novo mini-protein binders
+                against PD-L1. The campaign begins with target selection and
+                design strategy, then moves through backbone generation,
+                sequence design, fold recovery, interface analysis, molecular
+                dynamics, independent complex prediction, and consensus
+                ranking.
+            </p>
+
+            <p>
+                At each stage, the emphasis is on the questions a campaign
+                lead must answer: What should be trusted? What should be
+                filtered out? When do two models provide meaningful
+                independent support? Which uncertainties can be reduced
+                computationally, and which must ultimately be resolved by
+                experiment?
+            </p>
+        </div>
+
+        <div class="campaign-summary">
+            <div class="summary-item">
+                <span class="summary-label">Target</span>
+                <span class="summary-value">PD-L1</span>
+            </div>
+
+            <div class="summary-item">
+                <span class="summary-label">Modality</span>
+                <span class="summary-value">De novo mini-protein binders</span>
+            </div>
+
+            <div class="summary-item">
+                <span class="summary-label">Campaign scope</span>
+                <span class="summary-value">Design, triage, and prioritization</span>
+            </div>
+
+            <div class="summary-item">
+                <span class="summary-label">End point</span>
+                <span class="summary-value">Ranked experimental shortlist</span>
+            </div>
+        </div>
+    </header>
 
     <!-- ============================================================ -->
     <!-- WHAT IS A PROTEIN ENGINEERING CAMPAIGN                       -->
@@ -125,52 +650,163 @@
 
     <h2>Protein engineering campaigns run on DBTL cycles</h2>
 
-    <p>Protein engineering is the deliberate modification or creation of proteins to achieve a useful function. A campaign may begin with an existing natural protein that needs to be improved, a known scaffold that can be retargeted, or — as in this volume — a desired function with no starting binder at all.</p>
+    <p>
+        Protein engineering is the deliberate modification or creation of
+        proteins to achieve a useful function. A campaign may begin with an
+        existing natural protein that needs to be improved, a known scaffold
+        that can be retargeted, or — as in this volume — a desired function
+        with no starting binder at all.
+    </p>
 
-    <p>The goal is rarely to optimize a single property. A successful molecule must usually balance activity or binding with specificity, stability, expression, solubility, and manufacturability. Protein engineering is therefore a structured search through a large design space for molecules that satisfy several competing requirements at once.</p>
+    <p>
+        The goal is rarely to optimize a single property. A successful
+        molecule must usually balance activity or binding with specificity,
+        stability, expression, solubility, and manufacturability. Protein
+        engineering is therefore a structured search through a large design
+        space for molecules that satisfy several competing requirements at
+        once.
+    </p>
 
-    <p>A campaign coordinates repeated rounds of design, construction, testing, and analysis to develop a molecule against a defined performance specification. Unlike a single experiment, a campaign has explicit budgets, timelines, decision gates, and stopping criteria. The organizing principle is the <strong>Design-Build-Test-Learn</strong> (DBTL) cycle:</p>
+    <p>
+        A campaign coordinates repeated rounds of design, construction,
+        testing, and analysis to develop a molecule against a defined
+        performance specification. Unlike a single experiment, a campaign
+        has explicit budgets, timelines, decision gates, and stopping
+        criteria. The organizing principle is the
+        <strong>Design-Build-Test-Learn</strong> cycle:
+    </p>
 
     <div class="dbtl-grid">
-        <div class="dbtl-card design"><h4>🔵 Design</h4><p>Propose candidate molecules using computational methods. <strong>This volume covers the design phase in depth.</strong></p></div>
-        <div class="dbtl-card build"><h4>🟢 Build</h4><p>Synthesize DNA, express protein, purify. Many designs fail here. The build phase is a filter, not just manufacturing.</p></div>
-        <div class="dbtl-card test"><h4>🟡 Test</h4><p>Binding assays, stability assays, functional assays. Each answers a specific question with specific controls.</p></div>
-        <div class="dbtl-card learn"><h4>🟣 Learn</h4><p>Analyze results, feed structured outcomes into the next round. The phase most campaigns do poorly.</p></div>
+        <div class="dbtl-card design">
+            <h4>🔵 Design</h4>
+            <p>
+                Propose candidate molecules using computational methods.
+                <strong>This volume covers the design phase in depth.</strong>
+            </p>
+        </div>
+
+        <div class="dbtl-card build">
+            <h4>🟢 Build</h4>
+            <p>
+                Synthesize DNA, express protein, and purify candidates.
+                Many designs fail here. The build phase is a filter, not
+                merely manufacturing.
+            </p>
+        </div>
+
+        <div class="dbtl-card test">
+            <h4>🟡 Test</h4>
+            <p>
+                Run binding, stability, and functional assays. Each assay
+                should answer a defined question using appropriate controls.
+            </p>
+        </div>
+
+        <div class="dbtl-card learn">
+            <h4>🟣 Learn</h4>
+            <p>
+                Analyze outcomes and feed structured results into the next
+                round. This is often the least developed phase of a campaign.
+            </p>
+        </div>
     </div>
 
     <div class="figure">
-        <img src="protein_design_dbtl_cycle.png" alt="The Design-Build-Test-Learn cycle for protein engineering campaigns" style="max-width:100%; border-radius:8px;">
-        <p class="figure-caption"><strong>Figure 1.</strong> The DBTL cycle. Each round passes through all four phases. The Learn phase feeds structured outcomes into the next Design round. This volume covers the Design phase; the Conclusion module connects to Build, Test, and Learn.</p>
+        <img
+            src="protein_design_dbtl_cycle.png"
+            alt="The Design-Build-Test-Learn cycle for protein engineering campaigns"
+        >
+
+        <p class="figure-caption">
+            <strong>Figure 1.</strong>
+            The DBTL cycle. Each round passes through all four phases, with
+            structured outcomes from the Learn phase informing the next Design
+            round. This volume examines the computational Design phase in
+            depth; the concluding module connects candidate prioritization to
+            Build, Test, and Learn.
+        </p>
     </div>
 
-    <p>In an academic study, a successful protein design may be treated as the endpoint. In a campaign, the result of Round 1 is the input to Round 2. Designs that fail can be as informative as those that succeed, but only when sequences, design conditions, assay results, and failure modes are captured systematically. Structured failure analysis is part of the campaign, not an afterthought.</p>
+    <p>
+        In an academic study, a successful protein design may be treated as
+        the endpoint. In a campaign, the result of Round 1 is the input to
+        Round 2. Designs that fail can be as informative as those that
+        succeed, but only when sequences, design conditions, assay results,
+        and failure modes are captured systematically. Structured failure
+        analysis is part of the campaign, not an afterthought.
+    </p>
 
     <!-- ============================================================ -->
     <!-- PRODUCT SECTION                                              -->
     <!-- ============================================================ -->
 
     <div class="product-section">
-        <span class="product-badge">Campaign Guide — Volume 1</span>
+        <span class="product-badge">Practical Campaign Guide · Volume 1</span>
+
         <h2>The working codebase behind this portfolio</h2>
 
-        <p>The campaign guide provides a complete, end-to-end codebase for computational mini-binder design: cleaned and annotated Colab notebooks, helper scripts, example inputs and outputs, troubleshooting notes, and a consistent data structure connecting each stage of the campaign.</p>
+        <p>
+            The accompanying campaign guide provides a complete, end-to-end
+            codebase for computational mini-binder design: cleaned and
+            annotated Colab notebooks, helper scripts, example inputs and
+            outputs, troubleshooting notes, and a consistent data structure
+            connecting each stage of the campaign.
+        </p>
 
         <h3>What you get</h3>
+
         <div class="product-features">
-            <div class="product-feature"><strong>Notebooks</strong> Annotated Colab notebooks covering every pipeline stage, from target preparation through scoring</div>
-            <div class="product-feature"><strong>Data structure</strong> A consistent project layout that connects upstream outputs to downstream inputs</div>
-            <div class="product-feature"><strong>Retargetable</strong> Supply your own PDB and binding surface — the same infrastructure generates, triages, simulates, and prioritizes candidates for your project</div>
-            <div class="product-feature"><strong>Troubleshooting</strong> Common failure modes and workarounds documented where they occur</div>
+            <div class="product-feature">
+                <strong>Notebooks</strong>
+                Annotated Colab notebooks covering every pipeline stage,
+                from target preparation through candidate scoring
+            </div>
+
+            <div class="product-feature">
+                <strong>Data structure</strong>
+                A consistent project layout connecting upstream outputs
+                to downstream inputs
+            </div>
+
+            <div class="product-feature">
+                <strong>Retargetable</strong>
+                Supply a new target structure and binding surface, then use
+                the same infrastructure to generate, triage, simulate, and
+                prioritize candidates
+            </div>
+
+            <div class="product-feature">
+                <strong>Troubleshooting</strong>
+                Common failure modes and practical workarounds documented
+                where they occur
+            </div>
         </div>
 
         <h3>Who this is for</h3>
-        <p>Scientists who apply existing protein-design models to generate molecules and translate their outputs into experimental decisions. The guide teaches campaign execution and scientific judgment, not neural-network architecture or model training. It is particularly useful for preparing portfolio projects, interview presentations, or transitioning into computational design roles from a wet-lab background.</p>
 
-        <p style="font-size:0.88rem; color:var(--text-secondary);">The tools in this workflow are publicly available. The guide saves you the integration work and gives you a tested, consistent pipeline from day one — so you spend your time on the science, not on debugging file paths and data handoffs.</p>
+        <p>
+            Scientists who want to apply existing protein-design models and
+            translate their outputs into experimental decisions. The guide
+            teaches campaign execution and scientific judgment rather than
+            neural-network architecture or model training. It is particularly
+            useful for researchers moving into computational design from a
+            wet-lab background.
+        </p>
+
+        <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            The individual tools used in this workflow are publicly available.
+            The guide provides the integration layer: a tested and consistent
+            route from target preparation to candidate prioritization, so that
+            time can be spent interpreting the science rather than debugging
+            file paths and model handoffs.
+        </p>
 
         <div class="cta-row">
             <a href="#" class="cta-btn">Coming soon</a>
-            <span class="cta-price">One-time purchase · Volume 1: De Novo Mini-Binder Design</span>
+
+            <span class="cta-price">
+                One-time purchase · Volume 1: De Novo Mini-Binder Design
+            </span>
         </div>
     </div>
 
@@ -178,20 +814,41 @@
     <!-- OVERVIEW PAGES                                               -->
     <!-- ============================================================ -->
 
-    <h2>Campaign architecture — overview pages</h2>
+    <h2>Campaign architecture</h2>
 
-    <p>Before diving into the pipeline, these pages cover the campaign context: how targets are selected, how screening funnels work, what tools are used and why, and what the experimental path looks like after computational design.</p>
+    <p>
+        Before entering the detailed pipeline, these overview pages establish
+        the campaign context: how the target and modality are selected, how a
+        screening funnel is constructed, which computational tools are used,
+        and how the resulting shortlist connects to experimental work.
+    </p>
 
     <div class="overview-nav">
         <a href="../Page0_overview_1/index.html">
-            <div class="nav-label">Overview</div>
-            <div class="nav-title">Target Selection &amp; Screening Funnel</div>
-            <div class="nav-desc">PD-L1 as a case study, success criteria, the cost gradient, counts vs accuracy</div>
+            <div class="nav-label">Overview 1</div>
+
+            <div class="nav-title">
+                Target Selection &amp; Screening Funnel
+            </div>
+
+            <div class="nav-desc">
+                PD-L1 as a case study, campaign success criteria, screening
+                costs, candidate counts, and the relationship between
+                throughput and analytical depth
+            </div>
         </a>
+
         <a href="../Page0_overview_2/index.html">
-            <div class="nav-label">Overview</div>
-            <div class="nav-title">Computational Design Stages</div>
-            <div class="nav-desc">RFdiffusion → ProteinMPNN → ESMFold → fingerprinting → MD → Boltz-2 → scoring</div>
+            <div class="nav-label">Overview 2</div>
+
+            <div class="nav-title">
+                Computational Design Stages
+            </div>
+
+            <div class="nav-desc">
+                RFdiffusion → ProteinMPNN → ESMFold → interface analysis →
+                molecular dynamics → Boltz-2 → consensus scoring
+            </div>
         </a>
     </div>
 
@@ -199,34 +856,109 @@
     <!-- PIPELINE PAGES                                               -->
     <!-- ============================================================ -->
 
-    <h2>The pipeline — detailed pages</h2>
+    <h2>The Volume 1 pipeline</h2>
+
+    <p>
+        The detailed pages follow the campaign from candidate generation
+        through increasingly selective layers of structural and physical
+        assessment.
+    </p>
 
     <div class="pipeline-nav">
-        <a class="pipeline-step" href="../Page1_denovo_minibinder_design/"><span class="step-num">1</span>Generate<br><small>backbone, sequence, fold</small></a>
+        <a
+            class="pipeline-step"
+            href="../Page1_denovo_minibinder_design/"
+        >
+            <span class="step-num">1</span>
+            Generate
+            <small>backbone, sequence, fold</small>
+        </a>
+
         <span class="pipeline-arrow">→</span>
-        <a class="pipeline-step" href="../Page2_parameter_sensitivity/"><span class="step-num">2</span>Parameter<br><small>sensitivity</small></a>
+
+        <a
+            class="pipeline-step"
+            href="../Page2_parameter_sensitivity/"
+        >
+            <span class="step-num">2</span>
+            Explore
+            <small>parameter sensitivity</small>
+        </a>
+
         <span class="pipeline-arrow">→</span>
-        <a class="pipeline-step" href="../Page3_interaction_fingerprinting/"><span class="step-num">3</span>Triage<br><small>fingerprinting</small></a>
+
+        <a
+            class="pipeline-step"
+            href="../Page3_interaction_fingerprinting/"
+        >
+            <span class="step-num">3</span>
+            Triage
+            <small>interface fingerprinting</small>
+        </a>
+
         <span class="pipeline-arrow">→</span>
-        <a class="pipeline-step" href="../Page4_md_simulation/"><span class="step-num">4</span>Stress-test<br><small>MD simulation</small></a>
+
+        <a
+            class="pipeline-step"
+            href="../Page4_md_simulation/"
+        >
+            <span class="step-num">4</span>
+            Stress-test
+            <small>molecular dynamics</small>
+        </a>
+
         <span class="pipeline-arrow">→</span>
-        <a class="pipeline-step" href="../Page5_boltz_validation/"><span class="step-num">5</span>Validate<br><small>Boltz-2</small></a>
+
+        <a
+            class="pipeline-step"
+            href="../Page5_boltz_validation/"
+        >
+            <span class="step-num">5</span>
+            Cross-check
+            <small>Boltz-2 assessment</small>
+        </a>
+
         <span class="pipeline-arrow">→</span>
-        <a class="pipeline-step build" href="#"><span class="step-num">C</span>Close loop<br><small>experiment + DB</small></a>
+
+        <a class="pipeline-step build" href="#">
+            <span class="step-num">C</span>
+            Close the loop
+            <small>experiment + learning</small>
+        </a>
     </div>
 
     <div class="callout">
-        <strong>The goal is not to hand you a pipeline to run blindly.</strong> It's to build the judgment that lets you design your own campaign — for a different target, a different modality, different constraints — and make defensible decisions at every stage. That judgment is what separates someone who runs tools from someone who runs campaigns.
+        <strong>The objective is not to provide a pipeline to run blindly.</strong>
+
+        The objective is to develop the judgment required to design a new
+        campaign for a different target, modality, or experimental constraint
+        and to make defensible decisions at every stage. That judgment is what
+        separates someone who runs tools from someone who runs campaigns.
     </div>
 
     <div class="next-page">
-        <a href="../Page0_overview_1/index.html">Next → Target Selection &amp; Screening Funnel</a>
+        <a href="../Page0_overview_1/index.html">
+            Start the campaign → Target Selection &amp; Screening Funnel
+        </a>
     </div>
 
     <div class="page-footer">
-        <em>The wet-lab scientist's guide to computational protein design</em><br>
-        Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a>
+        <em>AI-Guided Protein Design: A Practical Campaign Guide</em>
+        <br>
+
+        Harshad Ghodke, PhD ·
+
+        <a href="https://hghodkephd.github.io/hg-portfolio/">
+            Portfolio
+        </a>
+
+        ·
+
+        <a href="https://github.com/hghodkephd">
+            GitHub
+        </a>
     </div>
+
 </div>
 </body>
 </html>
