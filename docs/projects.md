@@ -9,7 +9,7 @@ Across these projects, common themes include mechanistic modeling, operational s
 
 ---
 
-AI-Guided Protein Design
+## AI-Guided Protein Design
 
 Stack: RFdiffusion, ProteinMPNN, ESMFold, Boltz-2, OpenMM, PyMOL, BioPython, Python, Google Colab
 
@@ -20,7 +20,7 @@ Volumes:
 * Volume 1: De Novo Mini-Binder Design Against PD-L1
 * Volume 2: De Novo VHH Design Against PD-L1
 
-[Open the AI-Guided Protein Design portfolio](ai-guided-protein-design/)
+[Open the AI-Guided Protein Design portfolio](/hg-portfolio/ai-guided-protein-design/)
 
 ---
 
