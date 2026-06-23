@@ -21,4 +21,5 @@ Across all of my work, I emphasize clarity, rigor, and pragmatic design — buil
 
 
 - [Résumé](resume.md)
-- [Projects](projects.md)
+- [Selected Projects](projects.md)
+- [AI-Guided Protein Design](ai-guided-protein-design.md)
