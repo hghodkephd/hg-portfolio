@@ -20,7 +20,7 @@ Volumes:
 * Volume 1: De Novo Mini-Binder Design Against PD-L1
 * Volume 2: De Novo VHH Design Against PD-L1
 
-[Open the AI-Guided Protein Design portfolio](/hg-portfolio/ai-guided-protein-design/)
+**Links:** [AI-Guided Protein Design portfolio](/hg-portfolio/ai-guided-protein-design/)
 
 ---
 
