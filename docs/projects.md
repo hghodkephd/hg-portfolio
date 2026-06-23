@@ -11,9 +11,9 @@ Across these projects, common themes include mechanistic modeling, operational s
 
 ## AI-Guided Protein Design
 
-Stack: RFdiffusion, ProteinMPNN, ESMFold, Boltz-2, OpenMM, PyMOL, BioPython, Python, Google Colab
+**Stack:** RFdiffusion, ProteinMPNN, ESMFold, Boltz-2, OpenMM, PyMOL, BioPython, Python, Google Colab
 
-A multi-volume portfolio of computational protein-design campaigns spanning de novo mini-binders, VHH scaffolds, structure prediction, interface analysis, molecular simulation, and candidate prioritization.
+**Summary:** A multi-volume portfolio of computational protein-design campaigns spanning de novo mini-binders, VHH scaffolds, structure prediction, interface analysis, molecular simulation, and candidate prioritization.
 
 Volumes:
 
