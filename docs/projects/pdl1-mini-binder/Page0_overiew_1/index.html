@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Selection &amp; Screening Funnel — PD-L1 Mini Binder Design</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #1a1a2e;
+            --text-secondary: #555;
+            --accent: #2563eb;
+            --accent-light: #dbeafe;
+            --border: #e5e7eb;
+            --card-bg: #f8fafc;
+            --green: #059669;
+            --green-light: #f0fdf4;
+            --amber: #d97706;
+            --amber-light: #fffbeb;
+            --red: #dc2626;
+            --purple: #7c3aed;
+            --purple-light: #f5f3ff;
+            --max-width: 860px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; font-size: 17px; }
+        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+        .nav-bar { border-bottom: 1px solid var(--border); padding: 16px 0; font-size: 14px; color: var(--text-secondary); }
+        .nav-bar a { color: var(--accent); text-decoration: none; }
+        .nav-bar a:hover { text-decoration: underline; }
+        .hero { padding: 48px 0 32px; border-bottom: 1px solid var(--border); }
+        .hero h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 12px; letter-spacing: -0.02em; }
+        .hero .subtitle { font-size: 1.05rem; color: var(--text-secondary); font-style: italic; margin-bottom: 0; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin: 56px 0 20px; padding-top: 32px; border-top: 1px solid var(--border); letter-spacing: -0.01em; }
+        h3 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 12px; }
+        p { margin-bottom: 16px; }
+        .callout { padding: 20px 24px; background: var(--card-bg); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; margin: 24px 0; font-size: 0.95rem; }
+        .callout.green { border-left-color: var(--green); background: var(--green-light); }
+        .callout.warning { border-left-color: var(--amber); background: var(--amber-light); }
+        .callout strong { display: block; margin-bottom: 6px; }
+        .table-wrap { overflow-x: auto; margin: 24px 0; }
+        .table-wrap table { min-width: 680px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th { background: var(--card-bg); font-weight: 600; text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--border); }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+
+        .scale-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+        .scale-card { padding: 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
+        .scale-card.active { border-color: var(--accent); background: #eff6ff; }
+        .scale-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; }
+        .scale-card p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0; }
+        @media(max-width:600px){ .scale-cards { grid-template-columns: 1fr; } }
+
+        .figure { margin: 32px 0; text-align: center; }
+        .figure svg { max-width: 100%; height: auto; }
+        .figure-caption { font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px; text-align: left; line-height: 1.6; }
+
+        .funnel {
+            width: 100%;
+            max-width: 700px;
+            margin: 32px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .funnel-stage {
+            width: var(--stage-width);
+            min-height: 58px;
+            padding: 10px 34px;
+            background: var(--stage-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.86rem;
+            font-weight: 700;
+            line-height: 1.35;
+            clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+        }
+        .funnel-stage small {
+            font-size: 0.76rem;
+            font-weight: 500;
+            opacity: 0.92;
+        }
+        @media (max-width: 768px) {
+            .funnel { max-width: 100%; }
+            .funnel-stage { min-width: 180px; min-height: 64px; padding: 10px 24px; font-size: 0.78rem; }
+            .funnel-stage small { font-size: 0.7rem; }
+        }
+
+        details.explainer { margin: 20px 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        details.explainer summary { padding: 14px 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; }
+        details.explainer summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; color: var(--accent); }
+        details.explainer[open] summary::before { transform: rotate(90deg); }
+        details.explainer .content { padding: 0 20px 16px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+
+        .page-nav { display: flex; justify-content: space-between; margin: 48px 0 0; padding: 24px 0; border-top: 1px solid var(--border); gap: 16px; }
+        .page-nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+        .page-nav a:hover { text-decoration: underline; }
+        .page-nav .next { margin-left: auto; }
+
+        .page-footer { margin-top: 24px; padding: 32px 0; border-top: 1px solid var(--border); text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
+        .page-footer a { color: var(--accent); text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="nav-bar">
+        <a href="index.html">← Campaign Overview</a> · Volume 1: De Novo Mini-Binder Design
+    </div>
+
+    <div class="hero">
+        <h1>Target Selection &amp; Screening Funnel</h1>
+        <p class="subtitle">How campaigns define what to pursue, what success looks like, and how the cost gradient shapes every threshold decision.</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TARGET SELECTION                                             -->
+    <!-- ============================================================ -->
+
+    <h2>How targets get chosen</h2>
+
+    <p>In an academic setting, target selection is a research decision — you choose a protein because it's scientifically interesting or because your lab has relevant expertise. In industry, the target is usually handed to you. A disease biology team, a target validation group, or strategic leadership has determined that a specific molecule is the one to go after. Your job is not to choose the target. Your job is to design a molecule that modulates it in the specified way. In some organizations, even the modality is constrained — the company platform may be built around nanobodies, or the product strategy may require a bispecific format.</p>
+
+    <p>What you often <em>do</em> choose is the approach: which fold, which binding mode, which design tools, which screening strategy. That's where the campaign architecture begins.</p>
+
+    <p>For this volume, we use <strong>PD-L1</strong> as an illustrative target to demonstrate the end-to-end design workflow. The choice is deliberate: PD-L1 is well-characterized structurally, biologically important, and challenging enough to be instructive. The campaign architecture — the DBTL cycle, the funnel, the decision gates — is general. The specifics (hotspot residues, binding geometry, assay format) are target-dependent.</p>
+
+    <h3>The target: PD-L1</h3>
+    <p><strong>PD-L1</strong> is an immune-checkpoint ligand expressed by multiple cell types and frequently upregulated by tumors. Its interaction with PD-1 on activated T cells suppresses immune signaling. Blocking the PD-1–PD-L1 interaction is therefore an established immunotherapy strategy. The interface is captured in multiple co-complex structures, including PDB 4ZQK at 2.45 Å resolution, and presents a comparatively broad, shallow surface containing both polar and hydrophobic contacts.</p>
+
+    <h3>The modality decision</h3>
+    <p>"Inhibit PD-L1" is the brief. But how? A small protein binder? A nanobody? A peptide? Each modality carries different design constraints, expression systems, and development paths.</p>
+
+    <p>For this volume: a <strong>de novo mini-protein binder</strong> (25–100 residues) targeting the PD-1 binding face. Mini-proteins can be designed on accessible hardware, expressed in bacterial systems, and represent the modality where generative AI tools are most mature. Volume 2 covers VHH/nanobody design against the same target for direct modality comparison.</p>
+
+    <!-- ============================================================ -->
+    <!-- SUCCESS CRITERIA                                             -->
+    <!-- ============================================================ -->
+
+    <h2>Success criteria</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Criterion</th><th>Target</th><th>Assay</th></tr></thead>
+            <tbody>
+                <tr><td>Binding</td><td>Detectable target-dependent binding</td><td>BLI or SPR</td></tr>
+                <tr><td>Affinity</td><td>K<sub>D</sub> &lt; 100 nM in Round 1; &lt; 10 nM after optimization</td><td>SPR kinetics or equilibrium BLI</td></tr>
+                <tr><td>Functional blocking</td><td>Inhibits the PD-1–PD-L1 interaction</td><td>Competition BLI or blocking ELISA</td></tr>
+                <tr><td>Specificity</td><td>Minimal binding to defined counter-screen proteins</td><td>BLI, SPR, or plate-based counter-screen</td></tr>
+                <tr><td>Oligomeric state</td><td>Predominantly monomeric</td><td>SEC</td></tr>
+                <tr><td>Thermal stability</td><td>T<sub>m</sub> &gt; 50°C</td><td>DSF</td></tr>
+                <tr><td>Soluble yield</td><td>&gt; 1 mg/L recovered from <em>E. coli</em></td><td>A<sub>280</sub> or BCA after purification</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout green">
+        <strong>This volume's scope:</strong> The computational design phase produces a ranked shortlist predicted to meet these criteria. Experimental validation is not in the scope of this work, but would follow naturally in an institutional setting. The first round's primary output is a testable hypothesis set, not a finished product.
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREENING FUNNEL                                             -->
+    <!-- ============================================================ -->
+
+    <h2>Build the screening funnel</h2>
+
+    <p>Every campaign is shaped by one structural reality: each stage downstream is more expensive, slower, and lower throughput than the stage before it. This cost gradient underpins the screening funnel. You start wide — many candidates, cheap evaluation, lower quality data — and narrow progressively, investing more per candidate as confidence increases.</p>
+
+    <h3>The campaign-level funnel</h3>
+    <p>Before looking inside the computational design block, it helps to see where it sits in the full screening hierarchy. Computational design may produce a relatively small set of scaffolds, poses, sequence families, or preferred mutations. These outputs can then be expanded combinatorially into a much larger experimental library for display, droplet-based selection, or other ultra-high-throughput screening formats.</p>
+
+    <div class="funnel">
+        <div class="funnel-stage" style="--stage-width:100%; --stage-color:#2563eb;">
+            <span>Computational design<br><small>Scaffolds, sequence families, and mutation sets</small></span>
+        </div>
+        <div class="funnel-stage" style="--stage-width:86%; --stage-color:#3b82f6;">
+            <span>Combinatorial library + ultra-high-throughput screening<br>
+            <small>Display, droplets · 10⁶–10⁸</small></span>
+        </div>
+        <div class="funnel-stage" style="--stage-width:72%; --stage-color:#60a5fa;">
+            <span>High-throughput screening<br><small>Plate-based · 10³–10⁵</small></span>
+        </div>
+        <div class="funnel-stage" style="--stage-width:58%; --stage-color:#059669;">
+            <span>Mid-throughput screening<br><small>Biophysical · 10²</small></span>
+        </div>
+        <div class="funnel-stage" style="--stage-width:44%; --stage-color:#d97706;">
+            <span>Hit identification<br><small>10¹</small></span>
+        </div>
+        <div class="funnel-stage" style="--stage-width:30%; --stage-color:#dc2626;">
+            <span>Lead validation</span>
+        </div>
+    </div>
+
+    <p class="figure-caption" style="max-width:700px; margin:0 auto 24px;"><strong>Figure 1.</strong> A generic campaign-level screening funnel. Computational design identifies promising scaffolds, interfaces, sequence families, or mutable positions. These design hypotheses may then be expanded combinatorially into a much larger experimental library. Subsequent stages progressively reduce candidate numbers while increasing the cost and information obtained per candidate.</p>
+
+    <!-- ============================================================ -->
+    <!-- COUNTS VS ACCURACY                                           -->
+    <!-- ============================================================ -->
+
+    <h3>Counts versus accuracy</h3>
+    <p>The fundamental tension at every stage: at the top, filters are fast and cheap but the data are noisy and approximate. At the bottom, assays measure the actual property of interest but each costs real money and time. Set filters too strict and you kill creative designs that might have worked. Set them too loose and you waste expensive downstream capacity on candidates that were never going to work. There is no universally correct threshold — the right stringency depends on budget, downstream throughput, and tolerance for false negatives versus false positives.</p>
+
+    <div class="figure">
+        <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, sans-serif">
+            <rect x="80" y="40" width="540" height="260" fill="none" stroke="#e5e7eb" stroke-width="1" rx="4"/>
+            <line x1="80" y1="300" x2="620" y2="300" stroke="#555" stroke-width="2"/>
+            <line x1="80" y1="40" x2="80" y2="300" stroke="#555" stroke-width="2"/>
+            <text x="350" y="335" text-anchor="middle" font-size="13" font-weight="600" fill="#555">Funnel stage (top → bottom)</text>
+            <text x="30" y="170" text-anchor="middle" font-size="13" font-weight="600" fill="#555" transform="rotate(-90,30,170)">Count / Cost per candidate</text>
+            <polyline points="120,55 220,75 320,110 420,185 520,250 580,280" fill="none" stroke="#2563eb" stroke-width="3"/>
+            <circle cx="120" cy="55" r="5" fill="#2563eb"/><circle cx="220" cy="75" r="5" fill="#2563eb"/><circle cx="320" cy="110" r="5" fill="#2563eb"/>
+            <circle cx="420" cy="185" r="5" fill="#2563eb"/><circle cx="520" cy="250" r="5" fill="#2563eb"/><circle cx="580" cy="280" r="5" fill="#2563eb"/>
+            <polyline points="120,280 220,260 320,225 420,145 520,75 580,55" fill="none" stroke="#d97706" stroke-width="3"/>
+            <circle cx="120" cy="280" r="5" fill="#d97706"/><circle cx="220" cy="260" r="5" fill="#d97706"/><circle cx="320" cy="225" r="5" fill="#d97706"/>
+            <circle cx="420" cy="145" r="5" fill="#d97706"/><circle cx="520" cy="75" r="5" fill="#d97706"/><circle cx="580" cy="55" r="5" fill="#d97706"/>
+            <text x="120" y="315" text-anchor="middle" font-size="9" fill="#555">Comp. design</text>
+            <text x="220" y="315" text-anchor="middle" font-size="9" fill="#555">uHTS</text>
+            <text x="320" y="315" text-anchor="middle" font-size="9" fill="#555">HTS</text>
+            <text x="420" y="315" text-anchor="middle" font-size="9" fill="#555">Mid-throughput</text>
+            <text x="520" y="315" text-anchor="middle" font-size="9" fill="#555">Hit ID</text>
+            <text x="580" y="315" text-anchor="middle" font-size="9" fill="#555">Lead val.</text>
+            <line x1="420" y1="48" x2="450" y2="48" stroke="#2563eb" stroke-width="3"/>
+            <text x="455" y="52" font-size="12" fill="#2563eb">Candidate count</text>
+            <line x1="420" y1="64" x2="450" y2="64" stroke="#d97706" stroke-width="3"/>
+            <text x="455" y="68" font-size="12" fill="#d97706">Cost per candidate</text>
+        </svg>
+        <p class="figure-caption"><strong>Figure 2.</strong> Counts versus accuracy across the full screening hierarchy. Every threshold decision navigates this tradeoff.</p>
+    </div>
+
+    <h3>Two scales</h3>
+    <div class="scale-cards">
+        <div class="scale-card active">
+            <h4>📓 Teaching scale (this volume)</h4>
+            <p>Runs on Colab with free/low-cost GPUs. Hundreds of designs through fold validation, 31 carried through the full computational pipeline. Sufficient to learn the workflow, understand the decisions, and build a portfolio.</p>
+        </div>
+        <div class="scale-card">
+            <h4>🏭 Illustrative production scale</h4>
+            <p>A larger campaign might generate 10,000 or more backbones, carry thousands through inexpensive computational filters, run more expensive analyses on a smaller subset, and synthesize tens to hundreds of candidates. The funnel logic remains the same even when the scale changes.</p>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- REAL-WORLD BUILD TEST LEARN                                  -->
+    <!-- ============================================================ -->
+
+    <h2>What happens after computational design</h2>
+
+    <p>The generative and predictive models in this pipeline primarily evaluate structural plausibility: backbone geometry, sequence–backbone compatibility, fold recovery, interface organization, and complex-prediction confidence. These outputs do not directly establish soluble expression, aggregation resistance, thermal stability, or the other properties that determine whether a designed protein can be produced and used reliably.</p>
+
+    <h3>Expression and purification</h3>
+    <p>A well-designed HTS workflow can move from DNA design to assay-ready protein in 3–4 weeks for a 96-well plate of constructs. Each step has failure modes — from codon optimization decisions through expression host choice to purification strategy. The goal is a robust, parallelized process that can reveal which designs are tractable proteins before investing in expensive binding assays.</p>
+
+    <h3>Developability</h3>
+    <p>Developability is the collection of biophysical properties that determine whether a protein can be manufactured, formulated, and used in practice. Aggregation propensity, chemical liabilities (oxidation-prone methionines, deamidation-prone asparagines, unpaired cysteines), surface hydrophobicity, charge distribution — all of these affect whether a protein that "works" in a binding assay can actually advance. The campaign should detect developability problems early — at the expression screening stage, not after weeks of detailed characterization on a protein that turns out to aggregate at room temperature.</p>
+
+    <details class="explainer">
+        <summary>What does attrition actually look like?</summary>
+        <div class="content">
+            A typical first round search attempts to cast a wide net. A campaign populated with de novo designs or putative homologs may yield as few as 1–2% of candidates making it through to an assay that reports detectable activity. Some designs won't express at detectable levels, others may express but are insoluble. Some are soluble but aggregate. Before you have asked whether they bind, you've already lost a significant fraction. Even minor success is a cause for celebration here: generally speaking, it is easier to make a weak binder strong, but harder to find a construct that interacts with the target in the first instance. The exact numbers depend on expression system, protein family, and design approach — but the direction is consistent.
+        </div>
+    </details>
+
+    <h3>Decision gates</h3>
+    <p>The ranked shortlist enters Build → Test → Learn:</p>
+
+    <p><strong>Build:</strong> Synthesize DNA (gene fragments, codon-optimized), clone into expression vectors, transform, express in <em>E. coli</em>, purify. Each step has failure modes.</p>
+
+    <p><strong>Test:</strong> Decision gates cascade. Expression → solubility → monomeric purification → detectable binding → dose-response → competition → stability. Don't waste expensive assay time on constructs that failed expression.</p>
+
+    <p><strong>Learn:</strong> Link experimental outcomes to computational features in a structured database. Which design conditions produced binders? Which structural metrics correlated with expression? This is how Round 2 gets smarter — and it requires the database to exist <em>before</em> the experiments run.</p>
+
+    <div class="callout warning">
+        <strong>The feedback loop is the actual product of a modern design campaign.</strong> Not the individual predictions, not the individual assay results, but the structured connection between computational features and experimental outcomes that makes each round better informed than the last.
+    </div>
+
+    <div class="page-nav">
+        <a href="index.html">← Campaign Overview</a>
+        <a href="Page0c_computational_stages.html" class="next">Computational Design Stages →</a>
+    </div>
+
+    <div class="page-footer">
+        <em>The wet-lab scientist's guide to computational protein design</em><br>
+        Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a>
+    </div>
+</div>
+</body>
+</html>
