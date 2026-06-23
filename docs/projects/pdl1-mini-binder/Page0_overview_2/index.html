@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Computational Design Stages — PD-L1 Mini Binder Design</title>
+
+    <title>
+        Foundation 3 — Computational Design Stages &amp; Tradeoffs |
+        AI-Guided Protein Design
+    </title>
+
     <style>
         :root {
             --bg: #ffffff;
@@ -22,36 +27,221 @@
             --purple-light: #f5f3ff;
             --max-width: 860px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; font-size: 17px; }
-        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
-        .nav-bar { border-bottom: 1px solid var(--border); padding: 16px 0; font-size: 14px; color: var(--text-secondary); }
-        .nav-bar a { color: var(--accent); text-decoration: none; }
-        .nav-bar a:hover { text-decoration: underline; }
-        .hero { padding: 48px 0 32px; border-bottom: 1px solid var(--border); }
-        .hero h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 12px; letter-spacing: -0.02em; }
-        .hero .subtitle { font-size: 1.05rem; color: var(--text-secondary); font-style: italic; margin-bottom: 0; }
-        h2 { font-size: 1.5rem; font-weight: 700; margin: 56px 0 20px; padding-top: 32px; border-top: 1px solid var(--border); letter-spacing: -0.01em; }
-        h3 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 12px; }
-        p { margin-bottom: 16px; }
-        .callout { padding: 20px 24px; background: var(--card-bg); border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; margin: 24px 0; font-size: 0.95rem; }
-        .callout.green { border-left-color: var(--green); background: var(--green-light); }
-        .callout.warning { border-left-color: var(--amber); background: var(--amber-light); }
-        .callout strong { display: block; margin-bottom: 6px; }
 
-        .tradeoff { margin: 24px 0; padding: 20px 24px; border: 1px solid var(--border); border-radius: 8px; background: var(--card-bg); }
-        .tradeoff-header { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 8px; }
-        .tradeoff p { font-size: 0.93rem; margin-bottom: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        details.explainer { margin: 20px 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-        details.explainer summary { padding: 14px 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; }
-        details.explainer summary::before { content: '▶'; font-size: 0.7rem; transition: transform 0.2s; color: var(--accent); }
-        details.explainer[open] summary::before { transform: rotate(90deg); }
-        details.explainer .content { padding: 0 20px 16px; font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 17px;
+        }
 
-        .figure { margin: 32px 0; text-align: center; }
-        .figure img { max-width: 100%; border-radius: 8px; }
-        .figure-caption { font-size: 0.85rem; color: var(--text-secondary); margin-top: 12px; text-align: left; line-height: 1.6; }
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .nav-bar {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .nav-bar a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+
+        /* ============================================================
+           HERO
+           ============================================================ */
+
+        .hero {
+            padding: 48px 0 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .eyebrow {
+            margin-bottom: 12px;
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero .subtitle {
+            max-width: 760px;
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 0;
+        }
+
+        /* ============================================================
+           GENERAL TYPOGRAPHY
+           ============================================================ */
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 56px 0 20px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 32px 0 12px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        .callout {
+            padding: 20px 24px;
+            background: var(--card-bg);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 6px 6px 0;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        .callout.green {
+            border-left-color: var(--green);
+            background: var(--green-light);
+        }
+
+        .callout.warning {
+            border-left-color: var(--amber);
+            background: var(--amber-light);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* ============================================================
+           TRADEOFFS
+           ============================================================ */
+
+        .tradeoff {
+            margin: 24px 0;
+            padding: 20px 24px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+        }
+
+        .tradeoff-header {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .tradeoff p {
+            font-size: 0.93rem;
+            margin-bottom: 0;
+        }
+
+        /* ============================================================
+           EXPLAINERS
+           ============================================================ */
+
+        details.explainer {
+            margin: 20px 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        details.explainer summary {
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        details.explainer summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.explainer summary::before {
+            content: "▶";
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+            color: var(--accent);
+        }
+
+        details.explainer[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        details.explainer .content {
+            padding: 0 20px 16px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ============================================================
+           FIGURES
+           ============================================================ */
+
+        .figure {
+            margin: 32px 0;
+            text-align: center;
+        }
+
+        .figure img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .figure-caption {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           WORKFLOW
+           ============================================================ */
 
         .design-workflow {
             width: 100%;
@@ -62,246 +252,1273 @@
             border-radius: 12px;
             overflow-x: auto;
         }
+
         .design-workflow svg {
             display: block;
             width: 100%;
             min-width: 820px;
             height: auto;
         }
-        .workflow-node { fill: #ffffff; stroke: var(--accent); stroke-width: 2.5; }
-        .workflow-node.parallel { fill: #f5f3ff; stroke: var(--purple); }
-        .workflow-number { fill: var(--accent); }
-        .workflow-number.parallel { fill: var(--purple); }
-        .workflow-number-text { fill: #ffffff; font-size: 12px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
-        .workflow-label { fill: var(--text); font-size: 13px; font-weight: 700; text-anchor: middle; }
-        .workflow-connector { fill: none; stroke: var(--text-secondary); stroke-width: 2.5; }
-        .workflow-connector.parallel { stroke: var(--purple); }
-        .workflow-branch-label { fill: var(--purple); font-size: 11px; font-weight: 600; text-anchor: middle; }
-        @media (max-width: 768px) { .design-workflow { padding: 12px; } .design-workflow svg { min-width: 820px; } }
 
-        /* Stopping criteria grid */
-        .stop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
-        .stop-card { padding: 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
-        .stop-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
-        .stop-card p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0; }
-        .stop-card:nth-child(1) { background: #eff6ff; border-color: #93c5fd; }
-        .stop-card:nth-child(1) h4 { color: var(--accent); }
-        .stop-card:nth-child(2) { background: var(--green-light); border-color: #86efac; }
-        .stop-card:nth-child(2) h4 { color: var(--green); }
-        .stop-card:nth-child(3) { background: var(--amber-light); border-color: #fcd34d; }
-        .stop-card:nth-child(3) h4 { color: var(--amber); }
-        .stop-card:nth-child(4) { background: var(--purple-light); border-color: #c4b5fd; }
-        .stop-card:nth-child(4) h4 { color: var(--purple); }
-        @media(max-width:600px){ .stop-grid { grid-template-columns: 1fr; } }
+        .workflow-node {
+            fill: #ffffff;
+            stroke: var(--accent);
+            stroke-width: 2.5;
+        }
 
-        /* Product echo */
-        .product-echo { margin: 48px 0 32px; padding: 24px 28px; background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; text-align: center; }
-        .product-echo p { font-size: 0.95rem; margin-bottom: 12px; }
-        .product-echo p:last-child { margin-bottom: 0; }
-        .product-echo a { display: inline-block; padding: 10px 24px; background: var(--accent); color: white; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: background 0.15s; }
-        .product-echo a:hover { background: #1d4ed8; }
+        .workflow-node.parallel {
+            fill: #f5f3ff;
+            stroke: var(--purple);
+        }
 
-        .page-nav { display: flex; justify-content: space-between; margin: 48px 0 0; padding: 24px 0; border-top: 1px solid var(--border); gap: 16px; }
-        .page-nav a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-        .page-nav a:hover { text-decoration: underline; }
-        .page-nav .next { margin-left: auto; }
+        .workflow-number {
+            fill: var(--accent);
+        }
 
-        .page-footer { margin-top: 24px; padding: 32px 0; border-top: 1px solid var(--border); text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
-        .page-footer a { color: var(--accent); text-decoration: none; }
+        .workflow-number.parallel {
+            fill: var(--purple);
+        }
+
+        .workflow-number-text {
+            fill: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .workflow-label {
+            fill: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+            text-anchor: middle;
+        }
+
+        .workflow-connector {
+            fill: none;
+            stroke: var(--text-secondary);
+            stroke-width: 2.5;
+        }
+
+        .workflow-connector.parallel {
+            stroke: var(--purple);
+        }
+
+        .workflow-branch-label {
+            fill: var(--purple);
+            font-size: 11px;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+
+        @media (max-width: 768px) {
+            .design-workflow {
+                padding: 12px;
+            }
+
+            .design-workflow svg {
+                min-width: 820px;
+            }
+        }
+
+        /* ============================================================
+           STOPPING CRITERIA
+           ============================================================ */
+
+        .stop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .stop-card {
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+        }
+
+        .stop-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stop-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+
+        .stop-card:nth-child(1) {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .stop-card:nth-child(1) h4 {
+            color: var(--accent);
+        }
+
+        .stop-card:nth-child(2) {
+            background: var(--green-light);
+            border-color: #86efac;
+        }
+
+        .stop-card:nth-child(2) h4 {
+            color: var(--green);
+        }
+
+        .stop-card:nth-child(3) {
+            background: var(--amber-light);
+            border-color: #fcd34d;
+        }
+
+        .stop-card:nth-child(3) h4 {
+            color: var(--amber);
+        }
+
+        .stop-card:nth-child(4) {
+            background: var(--purple-light);
+            border-color: #c4b5fd;
+        }
+
+        .stop-card:nth-child(4) h4 {
+            color: var(--purple);
+        }
+
+        @media (max-width: 600px) {
+            .stop-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================================
+           VOLUME TRANSITION
+           ============================================================ */
+
+        .volume-transition {
+            margin: 48px 0 32px;
+            padding: 28px;
+            background: #eff6ff;
+            border: 2px solid #93c5fd;
+            border-radius: 12px;
+        }
+
+        .volume-transition h2 {
+            margin: 0 0 14px;
+            padding: 0;
+            border: none;
+        }
+
+        .volume-transition p {
+            font-size: 0.95rem;
+        }
+
+        .volume-transition p:last-child {
+            margin-bottom: 0;
+        }
+
+        .volume-transition a {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 10px 24px;
+            background: var(--accent);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .volume-transition a:hover {
+            background: #1d4ed8;
+        }
+
+        /* ============================================================
+           PAGE NAVIGATION
+           ============================================================ */
+
+        .page-nav {
+            display: flex;
+            justify-content: space-between;
+            margin: 48px 0 0;
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            gap: 16px;
+        }
+
+        .page-nav a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .page-nav a:hover {
+            text-decoration: underline;
+        }
+
+        .page-nav .next {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        @media (max-width: 600px) {
+            .page-nav {
+                flex-direction: column;
+            }
+
+            .page-nav .next {
+                margin-left: 0;
+                text-align: left;
+            }
+        }
+
+        .page-footer {
+            margin-top: 24px;
+            padding: 32px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .page-footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
 <div class="container">
+
     <div class="nav-bar">
-        <a href="../Page0_overview/">← Campaign Overview</a> · AI-Guided Protein Design
+        <a href="https://hghodkephd.github.io/hg-portfolio/">
+            ← Portfolio
+        </a>
+        ·
+        <a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">
+            AI-Guided Protein Design
+        </a>
+        · Campaign Foundations · Foundation 3
     </div>
 
-    <div class="hero">
-        <h1>Computational Design — Stages and Tradeoffs</h1>
-        <p class="subtitle">What each tool does, why it's in the pipeline, and the judgment calls at every stage.</p>
-    </div>
+    <!-- ============================================================ -->
+    <!-- HERO                                                         -->
+    <!-- ============================================================ -->
 
-    <p>The previous page showed where computational design sits in the campaign-level funnel. Now we disaggregate it. The design phase has its own internal logic, its own decision gates, and at each stage there are tradeoffs that require judgment. Ultimately, the goal is to populate the design set with high-quality candidates that have a reasonable chance of success.</p>
+    <header class="hero">
+        <p class="eyebrow">Campaign Foundations · Foundation 3</p>
+
+        <h1>Computational Design Stages &amp; Tradeoffs</h1>
+
+        <p class="subtitle">
+            How computational protein-design campaigns move from a prepared
+            target to a diverse, interpretable, and experimentally actionable
+            candidate portfolio.
+        </p>
+    </header>
+
+    <!-- ============================================================ -->
+    <!-- INTRODUCTION                                                 -->
+    <!-- ============================================================ -->
+
+    <h2>Computational design is a sequence of decisions</h2>
+
+    <p>
+        The previous foundation page placed computational design within the
+        larger campaign funnel. This page looks inside that design phase. The
+        goal is not simply to pass structures through a chain of models. It is
+        to use distinct sources of evidence to generate, challenge, compare,
+        and prioritize molecular hypotheses.
+    </p>
+
+    <p>
+        The exact tools depend on the target, modality, available
+        infrastructure, and maturity of the field. A mini-protein campaign may
+        generate new backbones and then design sequences onto them. An antibody
+        or VHH campaign may preserve an existing framework while redesigning
+        loops or selected residues. An enzyme campaign may begin from a known
+        scaffold and focus on active-site geometry, substrate positioning, or
+        transition-state stabilization.
+    </p>
+
+    <p>
+        Despite these differences, the underlying stages are broadly
+        transferable: prepare the molecular system, generate or modify
+        candidates, design compatible sequences, test structural recovery,
+        evaluate the intended interaction, apply more expensive physical or
+        ensemble-based analyses selectively, seek independent evidence, and
+        construct a diverse shortlist.
+    </p>
+
+    <div class="callout">
+        <strong>The models are not interchangeable.</strong>
+
+        Each model sees a different representation of the problem and carries
+        different assumptions and failure modes. A model handoff is therefore
+        not just a file-format transition. It is a change in what information
+        is available, what is being optimized, and what kinds of errors may
+        pass silently into the next stage.
+    </div>
 
     <!-- ============================================================ -->
     <!-- WORKFLOW DIAGRAM                                             -->
     <!-- ============================================================ -->
 
+    <h2>Worked implementation: the Volume 1 mini-binder workflow</h2>
+
+    <p>
+        The diagram below shows how these general stages are implemented in
+        Volume 1. RFdiffusion generates target-conditioned mini-protein
+        backbones, ProteinMPNN proposes compatible sequences, and ESMFold tests
+        whether those sequences recover the intended fold. A second,
+        sequence-only branch uses Boltz-2 to reconstruct the binder–target
+        complex without receiving the original designed pose. Interface
+        analysis, molecular dynamics, and consensus scoring then narrow the
+        candidate set.
+    </p>
+
+    <p>
+        This is one implementation of the broader campaign architecture, not a
+        universal protein-design pipeline. Other modalities may substitute
+        different generation, sequence-design, structure-prediction,
+        docking, energetic, or simulation methods while preserving the same
+        decision logic.
+    </p>
+
     <div class="design-workflow">
-        <svg viewBox="0 0 1080 340" role="img" aria-labelledby="wf-title wf-desc" xmlns="http://www.w3.org/2000/svg">
-            <title id="wf-title">Computational protein design workflow</title>
-            <desc id="wf-desc">Target preparation proceeds through RFdiffusion and ProteinMPNN. The workflow then splits into an ESMFold fold-recovery path and a sequence-only Boltz-2 complex-prediction path. Boltz-2 results join the interface-triage stage before selected candidates proceed to molecular dynamics and final prioritization.</desc>
+        <svg
+            viewBox="0 0 1080 340"
+            role="img"
+            aria-labelledby="wf-title wf-desc"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <title id="wf-title">
+                Volume 1 computational mini-protein design workflow
+            </title>
+
+            <desc id="wf-desc">
+                Target preparation proceeds through RFdiffusion and
+                ProteinMPNN. The workflow then splits into an ESMFold
+                fold-recovery path and a sequence-only Boltz-2
+                complex-prediction path. Boltz-2 results join the
+                interface-triage stage before selected candidates proceed to
+                molecular dynamics and final prioritization.
+            </desc>
+
             <defs>
-                <marker id="workflow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#555"/></marker>
-                <marker id="workflow-arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/></marker>
+                <marker
+                    id="workflow-arrow"
+                    viewBox="0 0 10 10"
+                    refX="8"
+                    refY="5"
+                    markerWidth="7"
+                    markerHeight="7"
+                    orient="auto"
+                >
+                    <path d="M0,0 L10,5 L0,10 Z" fill="#555"/>
+                </marker>
+
+                <marker
+                    id="workflow-arrow-purple"
+                    viewBox="0 0 10 10"
+                    refX="8"
+                    refY="5"
+                    markerWidth="7"
+                    markerHeight="7"
+                    orient="auto"
+                >
+                    <path d="M0,0 L10,5 L0,10 Z" fill="#7c3aed"/>
+                </marker>
             </defs>
+
             <!-- Connectors -->
-            <line class="workflow-connector" x1="140" y1="90" x2="170" y2="90" marker-end="url(#workflow-arrow)"/>
-            <line class="workflow-connector" x1="290" y1="90" x2="320" y2="90" marker-end="url(#workflow-arrow)"/>
-            <line class="workflow-connector" x1="440" y1="90" x2="470" y2="90" marker-end="url(#workflow-arrow)"/>
-            <line class="workflow-connector" x1="590" y1="90" x2="620" y2="90" marker-end="url(#workflow-arrow)"/>
-            <line class="workflow-connector" x1="740" y1="90" x2="770" y2="90" marker-end="url(#workflow-arrow)"/>
-            <line class="workflow-connector" x1="890" y1="90" x2="920" y2="90" marker-end="url(#workflow-arrow)"/>
-            <!-- Branch down from ProteinMPNN -->
-            <path class="workflow-connector parallel" d="M380 140 V290 H485" marker-end="url(#workflow-arrow-purple)"/>
+            <line
+                class="workflow-connector"
+                x1="140"
+                y1="90"
+                x2="170"
+                y2="90"
+                marker-end="url(#workflow-arrow)"
+            />
+
+            <line
+                class="workflow-connector"
+                x1="290"
+                y1="90"
+                x2="320"
+                y2="90"
+                marker-end="url(#workflow-arrow)"
+            />
+
+            <line
+                class="workflow-connector"
+                x1="440"
+                y1="90"
+                x2="470"
+                y2="90"
+                marker-end="url(#workflow-arrow)"
+            />
+
+            <line
+                class="workflow-connector"
+                x1="590"
+                y1="90"
+                x2="620"
+                y2="90"
+                marker-end="url(#workflow-arrow)"
+            />
+
+            <line
+                class="workflow-connector"
+                x1="740"
+                y1="90"
+                x2="770"
+                y2="90"
+                marker-end="url(#workflow-arrow)"
+            />
+
+            <line
+                class="workflow-connector"
+                x1="890"
+                y1="90"
+                x2="920"
+                y2="90"
+                marker-end="url(#workflow-arrow)"
+            />
+
+            <!-- Sequence-only branch -->
+            <path
+                class="workflow-connector parallel"
+                d="M380 140 V290 H485"
+                marker-end="url(#workflow-arrow-purple)"
+            />
+
             <!-- Boltz-2 joins interface triage -->
-            <path class="workflow-connector parallel" d="M635 290 H680 V140" marker-end="url(#workflow-arrow-purple)"/>
-            <text class="workflow-branch-label" x="300" y="242">sequence-only branch</text>
+            <path
+                class="workflow-connector parallel"
+                d="M635 290 H680 V140"
+                marker-end="url(#workflow-arrow-purple)"
+            />
+
+            <text class="workflow-branch-label" x="300" y="242">
+                sequence-only branch
+            </text>
+
             <!-- 1: Target preparation -->
-            <g><rect class="workflow-node" x="20" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="80" cy="64" r="15"/><text class="workflow-number-text" x="80" y="64">1</text><text class="workflow-label" x="80" y="101"><tspan x="80">Target</tspan><tspan x="80" dy="18">preparation</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="20"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="80"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="80"
+                    y="64"
+                >
+                    1
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="80"
+                    y="101"
+                >
+                    <tspan x="80">Target</tspan>
+                    <tspan x="80" dy="18">preparation</tspan>
+                </text>
+            </g>
+
             <!-- 2: RFdiffusion -->
-            <g><rect class="workflow-node" x="170" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="230" cy="64" r="15"/><text class="workflow-number-text" x="230" y="64">2</text><text class="workflow-label" x="230" y="101"><tspan x="230">RFdiffusion</tspan><tspan x="230" dy="18">backbone</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="170"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="230"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="230"
+                    y="64"
+                >
+                    2
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="230"
+                    y="101"
+                >
+                    <tspan x="230">RFdiffusion</tspan>
+                    <tspan x="230" dy="18">backbone</tspan>
+                </text>
+            </g>
+
             <!-- 3: ProteinMPNN -->
-            <g><rect class="workflow-node" x="320" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="380" cy="64" r="15"/><text class="workflow-number-text" x="380" y="64">3</text><text class="workflow-label" x="380" y="101"><tspan x="380">ProteinMPNN</tspan><tspan x="380" dy="18">sequence</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="320"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="380"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="380"
+                    y="64"
+                >
+                    3
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="380"
+                    y="101"
+                >
+                    <tspan x="380">ProteinMPNN</tspan>
+                    <tspan x="380" dy="18">sequence</tspan>
+                </text>
+            </g>
+
             <!-- 4A: ESMFold -->
-            <g><rect class="workflow-node" x="470" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="530" cy="64" r="15"/><text class="workflow-number-text" x="530" y="64">4A</text><text class="workflow-label" x="530" y="101"><tspan x="530">ESMFold</tspan><tspan x="530" dy="18">fold check</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="470"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="530"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="530"
+                    y="64"
+                >
+                    4A
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="530"
+                    y="101"
+                >
+                    <tspan x="530">ESMFold</tspan>
+                    <tspan x="530" dy="18">fold check</tspan>
+                </text>
+            </g>
+
             <!-- 5: Interface triage -->
-            <g><rect class="workflow-node" x="620" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="680" cy="64" r="15"/><text class="workflow-number-text" x="680" y="64">5</text><text class="workflow-label" x="680" y="101"><tspan x="680">Interface</tspan><tspan x="680" dy="18">triage</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="620"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="680"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="680"
+                    y="64"
+                >
+                    5
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="680"
+                    y="101"
+                >
+                    <tspan x="680">Interface</tspan>
+                    <tspan x="680" dy="18">triage</tspan>
+                </text>
+            </g>
+
             <!-- 6: MD -->
-            <g><rect class="workflow-node" x="770" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="830" cy="64" r="15"/><text class="workflow-number-text" x="830" y="64">6</text><text class="workflow-label" x="830" y="101"><tspan x="830">MD</tspan><tspan x="830" dy="18">stress-test</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="770"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="830"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="830"
+                    y="64"
+                >
+                    6
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="830"
+                    y="101"
+                >
+                    <tspan x="830">MD</tspan>
+                    <tspan x="830" dy="18">stress-test</tspan>
+                </text>
+            </g>
+
             <!-- 7: Score and prioritize -->
-            <g><rect class="workflow-node" x="920" y="40" width="120" height="100" rx="9"/><circle class="workflow-number" cx="980" cy="64" r="15"/><text class="workflow-number-text" x="980" y="64">7</text><text class="workflow-label" x="980" y="101"><tspan x="980">Score and</tspan><tspan x="980" dy="18">prioritize</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node"
+                    x="920"
+                    y="40"
+                    width="120"
+                    height="100"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number"
+                    cx="980"
+                    cy="64"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="980"
+                    y="64"
+                >
+                    7
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="980"
+                    y="101"
+                >
+                    <tspan x="980">Score and</tspan>
+                    <tspan x="980" dy="18">prioritize</tspan>
+                </text>
+            </g>
+
             <!-- 4B: Boltz-2 -->
-            <g><rect class="workflow-node parallel" x="485" y="245" width="150" height="90" rx="9"/><circle class="workflow-number parallel" cx="560" cy="269" r="15"/><text class="workflow-number-text" x="560" y="269">4B</text><text class="workflow-label" x="560" y="301"><tspan x="560">Boltz-2</tspan><tspan x="560" dy="18">complex prediction</tspan></text></g>
+            <g>
+                <rect
+                    class="workflow-node parallel"
+                    x="485"
+                    y="245"
+                    width="150"
+                    height="90"
+                    rx="9"
+                />
+
+                <circle
+                    class="workflow-number parallel"
+                    cx="560"
+                    cy="269"
+                    r="15"
+                />
+
+                <text
+                    class="workflow-number-text"
+                    x="560"
+                    y="269"
+                >
+                    4B
+                </text>
+
+                <text
+                    class="workflow-label"
+                    x="560"
+                    y="301"
+                >
+                    <tspan x="560">Boltz-2</tspan>
+                    <tspan x="560" dy="18">complex prediction</tspan>
+                </text>
+            </g>
         </svg>
     </div>
+
+    <p class="figure-caption">
+        <strong>Figure 1.</strong>
+        The computational workflow used in Volume 1. The upper path tests
+        whether designed sequences recover the intended mini-protein fold. The
+        lower path asks whether a sequence-only complex-prediction model
+        recovers the intended binder–target geometry. Evidence from both paths
+        contributes to interface triage and candidate prioritization.
+    </p>
 
     <!-- ============================================================ -->
     <!-- INDIVIDUAL STAGES                                            -->
     <!-- ============================================================ -->
 
-    <h3>Target preparation</h3>
-    <p>Prepare the target structure that will anchor the design campaign. Select the appropriate PDB entry and biological assembly, extract the relevant chain or chains, resolve alternate conformations, and assess missing residues, unresolved loops, cofactors, and other non-protein components. Because experimental structures capture particular conformational states, the choice of starting structure can influence which binding surfaces and geometries are accessible to the design models.</p>
+    <h2>Stages in a computational design campaign</h2>
+
+    <h3>1. Molecular-system preparation</h3>
+
+    <p>
+        Every campaign requires a defined molecular starting point. For a
+        structure-based binder campaign, this often means selecting an
+        appropriate experimental or predicted target structure, identifying
+        the relevant biological assembly and conformational state, extracting
+        the required chains, and assessing unresolved regions, alternate
+        conformations, cofactors, ligands, glycans, and other components that
+        may affect the intended interaction.
+    </p>
+
+    <p>
+        Other modalities require analogous preparation decisions. An enzyme
+        campaign may need a substrate- or transition-state model. An antibody
+        campaign may require a framework structure and an epitope definition.
+        A multispecific design may require several target geometries and an
+        explicit model of spatial constraints.
+    </p>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — preparation depth</div>
-        <p>Over-investing in target preparation can delay the campaign before any designs are generated. Under-investing can introduce structural artifacts that propagate through every downstream stage. The goal is not to produce a perfect representation of the target, but to make defensible choices, document them, and revisit them if downstream results reveal a systematic problem.</p>
-    </div>
-
-    <h3>Backbone generation (RFdiffusion)</h3>
-    <p>RFdiffusion generates novel binder backbones positioned against the target surface. The model can be conditioned on target hotspot residues, binder length, and other geometric constraints, allowing the campaign to sample different regions of the design landscape. At this stage, the output is a set of candidate backbone geometries rather than complete protein sequences.</p>
-
-    <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — exploration vs exploitation</div>
-        <p>Imagine a fishing boat on open water. The sea floor varies in depth, and the fish are concentrated in only a few regions. Do you fish one location intensively, or sample several locations more broadly?</p>
-        <div class="figure" style="margin:16px 0 8px;">
-            <img src="exploration_vs_exploitation.png" alt="Fishing analogy comparing exploitation, where several hooks sample one region deeply, with exploration, where hooks sample different regions of the underwater landscape." loading="lazy">
-            <p class="figure-caption"><strong>Exploitation versus exploration.</strong> Exploitation samples one region of design space intensively, while exploration distributes sampling across several distinct regions.</p>
+        <div class="tradeoff-header">
+            Tradeoff — preparation depth
         </div>
-        <p style="margin-top:12px;">The same choice appears in generative design. A campaign might generate 1,000 backbones under one condition or 100 backbones under each of ten conditions. Early in a campaign, the productive regions of design space are unknown, so broad exploration is usually more informative. Each condition must still be sampled deeply enough to distinguish a genuine trend from stochastic variation.</p>
+
+        <p>
+            Over-investing in system preparation can delay the campaign before
+            any candidates are generated. Under-investing can embed structural
+            artifacts or incorrect biological assumptions that propagate
+            through every downstream stage. The objective is not a perfect
+            representation of molecular reality, but a defensible starting
+            model with assumptions that are documented and revisited when
+            necessary.
+        </p>
     </div>
 
-    <h3>Sequence design (ProteinMPNN)</h3>
-    <p>RFdiffusion produces backbone coordinates, but those coordinates do not yet define an amino-acid sequence. ProteinMPNN addresses this inverse-folding problem by proposing sequences that are compatible with the generated backbone and are therefore more likely to adopt the intended structure.</p>
+    <h3>2. Candidate generation</h3>
 
-    <p>Multiple sequences can be generated for each backbone, adding sequence-level diversity without changing the overall geometry. ProteinMPNN primarily optimizes sequence–structure compatibility; it does not directly establish that a sequence will bind the target with high affinity.</p>
+    <p>
+        The generation stage proposes new molecular hypotheses. Depending on
+        the modality, this may involve creating entirely new backbones,
+        sampling loop conformations, docking known scaffolds, mutating an
+        existing sequence, redesigning an active site, or combining known
+        functional elements into a new architecture.
+    </p>
 
-    <p>This stage also introduces an important model handoff. A backbone that appears plausible to RFdiffusion may not support a sequence that independently recovers the intended fold. The resulting sequences must therefore be evaluated by a separate structure-prediction model.</p>
+    <p>
+        In Volume 1, RFdiffusion generates novel mini-protein backbones
+        positioned against the target surface. The model is conditioned on
+        selected target residues, binder length, and geometric constraints.
+        At this stage, the outputs are candidate backbone geometries rather
+        than complete protein sequences.
+    </p>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — sequence depth</div>
-        <p>Generating more sequences per backbone increases the chance of finding a sequence that recovers the intended structure, but it also increases downstream prediction and analysis costs. The appropriate depth depends on whether the campaign is still exploring backbone space or refining a smaller set of promising geometries.</p>
+        <div class="tradeoff-header">
+            Tradeoff — exploration versus exploitation
+        </div>
+
+        <p>
+            Imagine a fishing boat on open water. Fish are concentrated in
+            only a few regions, but those regions are not known in advance. Do
+            you fish one location intensively, or distribute your hooks across
+            several locations to map the landscape?
+        </p>
+
+        <div class="figure" style="margin: 16px 0 8px;">
+            <img
+                src="exploration_vs_exploitation.png"
+                alt="Fishing analogy comparing exploitation, where several hooks sample one region deeply, with exploration, where hooks sample different regions of the underwater landscape."
+                loading="lazy"
+            >
+
+            <p class="figure-caption">
+                <strong>Exploitation versus exploration.</strong>
+                Exploitation samples one region of design space intensively,
+                while exploration distributes sampling across several
+                distinct regions.
+            </p>
+        </div>
+
+        <p style="margin-top: 12px;">
+            The same decision appears in generative design. A campaign might
+            generate 1,000 candidates under one condition or 100 candidates
+            under each of ten conditions. Early in a campaign, broad
+            exploration is usually more informative because the productive
+            regions are not yet known. Each condition must still be sampled
+            deeply enough to distinguish a reproducible trend from stochastic
+            variation.
+        </p>
     </div>
 
-    <h3>Fold validation (ESMFold)</h3>
-    <p>ESMFold predicts a structure from the designed sequence alone, without receiving the RFdiffusion backbone as input. The predicted structure is aligned to the intended design and evaluated using backbone RMSD, with per-residue confidence metrics such as pLDDT used as supporting evidence. This tests whether the sequence appears to encode the intended fold rather than merely fitting the backbone during sequence design.</p>
+    <h3>3. Sequence design</h3>
+
+    <p>
+        Candidate geometry and amino-acid sequence are related but distinct
+        design problems. When a model generates a backbone without assigning a
+        complete sequence, an inverse-folding or sequence-design model is used
+        to propose amino acids compatible with that structure.
+    </p>
+
+    <p>
+        In Volume 1, ProteinMPNN proposes sequences for the RFdiffusion
+        backbones. Multiple sequences can be generated for each backbone,
+        increasing sequence-level diversity without changing the intended
+        geometry. The model primarily evaluates sequence–structure
+        compatibility; it does not establish binding affinity, expression, or
+        developability.
+    </p>
+
+    <p>
+        This stage creates an important model handoff. The backbone generator
+        and sequence-design model solve different problems and do not
+        necessarily share the same assumptions or failure modes. A geometry
+        that appears plausible to the generative model may not support a
+        sequence that robustly encodes that structure.
+    </p>
+
+    <div class="tradeoff">
+        <div class="tradeoff-header">
+            Tradeoff — sequence depth
+        </div>
+
+        <p>
+            Generating more sequences per structural hypothesis increases the
+            chance of finding a sequence that recovers the intended fold, but
+            it also increases downstream prediction and analysis costs. The
+            appropriate depth depends on whether the campaign is still
+            exploring structural space or refining a smaller number of
+            promising geometries.
+        </p>
+    </div>
+
+    <h3>4. Structural recovery and plausibility</h3>
+
+    <p>
+        A designed sequence should be evaluated independently of the model that
+        created it. Structure prediction can test whether the sequence appears
+        to recover the intended fold, whether confidence is distributed
+        consistently across the structure, and whether alternative
+        conformations or disordered regions emerge.
+    </p>
+
+    <p>
+        In Volume 1, ESMFold predicts the mini-protein structure from sequence
+        alone, without receiving the RFdiffusion backbone. The prediction is
+        aligned to the intended design and evaluated using backbone RMSD, with
+        per-residue confidence metrics such as pLDDT providing supporting
+        evidence.
+    </p>
 
     <details class="explainer">
-        <summary>What fold validation does and does not establish</summary>
+        <summary>
+            What structural recovery does and does not establish
+        </summary>
+
         <div class="content">
-            ESMFold predicts the structure a sequence is likely to adopt in isolation. Agreement with the designed backbone provides evidence of fold recovery. It does not establish binding affinity, expression, solubility, or experimental stability. Strong disagreement is nevertheless a useful negative signal because it suggests that the sequence does not robustly encode the intended structure.
+            Agreement between a sequence-only prediction and the intended
+            design provides evidence that the sequence encodes the proposed
+            fold. It does not establish soluble expression, experimental
+            stability, binding affinity, specificity, or biological function.
+
+            <br><br>
+
+            Structural disagreement is still useful. It suggests that the
+            proposed sequence does not robustly encode the intended state, or
+            that the models disagree about which state is most plausible.
         </div>
     </details>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — filter stringency</div>
-        <p>A strict RMSD threshold retains only designs with close structural agreement but may discard borderline candidates that could behave differently in the target-bound state. A looser threshold preserves more candidates but admits more structural uncertainty. Thresholds should reflect the purpose and capacity of the campaign rather than being treated as universal cutoffs.</p>
+        <div class="tradeoff-header">
+            Tradeoff — filter stringency
+        </div>
+
+        <p>
+            A strict structural-agreement threshold retains only designs with
+            close model concordance but may eliminate borderline candidates
+            that behave differently in the target-bound state. A looser
+            threshold preserves diversity but admits greater uncertainty.
+            Thresholds should reflect campaign purpose and downstream capacity
+            rather than being treated as universal constants.
+        </p>
     </div>
 
-    <h3>Interface triage (fingerprinting)</h3>
-    <p>Interface fingerprinting characterizes how each designed binder engages the target. The analysis can include residue–residue contacts, buried surface area, hotspot coverage, interaction types, shape complementarity, and comparison with known ligand or receptor contacts where an appropriate reference complex exists.</p>
+    <h3>5. Interaction and interface assessment</h3>
 
-    <p>These measurements help identify geometrically plausible and mechanistically distinct interfaces, but they remain static structural proxies. Their relationship to binding affinity is noisy, so they are most useful when interpreted together rather than optimized individually.</p>
+    <p>
+        For binders, enzymes, receptors, and other functional proteins, a
+        plausible isolated fold is not enough. The campaign must evaluate
+        whether the candidate engages the intended molecular partner in a
+        useful geometry.
+    </p>
+
+    <p>
+        Relevant analyses may include residue–residue contacts, buried surface
+        area, hydrogen bonds, salt bridges, hydrophobic packing, hotspot
+        coverage, shape complementarity, catalytic geometry, substrate
+        positioning, or overlap with a known ligand or receptor interface.
+    </p>
+
+    <p>
+        In Volume 1, interface fingerprinting characterizes how each designed
+        mini-protein engages PD-L1 and whether it recovers the intended target
+        surface. These measurements are informative structural proxies, but
+        their relationship to affinity and function remains noisy. They are
+        most useful when interpreted together rather than optimized
+        individually.
+    </p>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — portfolio diversity</div>
-        <p>The shortlist should be a <strong>portfolio</strong>, not simply the top rows of a score-sorted table. Preserving diversity across poses, interface geometries, hotspot usage, and sequences reduces the risk that every selected candidate shares the same hidden failure mode.</p>
+        <div class="tradeoff-header">
+            Tradeoff — portfolio diversity
+        </div>
+
+        <p>
+            The shortlist should be a <strong>portfolio</strong>, not simply
+            the top rows of a score-sorted table. Preserving diversity across
+            poses, interface geometries, sequence families, hotspot usage, and
+            mechanistic hypotheses reduces the risk that every selected
+            candidate shares the same hidden failure mode.
+        </p>
     </div>
 
-    <h3>Molecular dynamics simulation</h3>
-    <p>Molecular dynamics simulations test how designed complexes behave under an explicit physical model over time. After system preparation, solvation, energy minimization, and equilibration, the trajectories can be analyzed for binder and target RMSD, radius of gyration, interface contacts, hydrogen-bond persistence, hotspot occupancy, and changes in the relative orientation of the binding partners.</p>
+    <h3>6. Physical and ensemble-based stress testing</h3>
 
-    <p>MD is particularly useful for identifying obvious structural or interfacial instability that is not apparent in a single static model. It does not provide a direct measurement of binding affinity, and the conclusions are limited by the simulation length, force field, starting structure, and sampling achieved. In this workflow, MD functions primarily as a stress test and comparative filter.</p>
+    <p>
+        Static predictions represent individual structural hypotheses. More
+        expensive physical or ensemble-based methods can test whether those
+        hypotheses remain plausible when the system is allowed to relax,
+        fluctuate, or sample nearby conformations.
+    </p>
+
+    <p>
+        Molecular dynamics is one such method. After system preparation,
+        solvation, energy minimization, and equilibration, trajectories can be
+        analyzed for structural drift, compaction, interface-contact
+        persistence, hydrogen-bond occupancy, hotspot retention, and changes
+        in the relative orientation of interaction partners.
+    </p>
+
+    <p>
+        MD is useful for exposing obvious structural or interfacial
+        instability that is not apparent in a single static model. It does not
+        directly measure binding affinity, and its conclusions depend on the
+        force field, starting structure, simulation protocol, trajectory
+        length, and sampling achieved. In Volume 1, MD functions as a
+        comparative stress test rather than a definitive validation method.
+    </p>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — depth vs breadth</div>
-        <p>Longer simulations provide more opportunity to observe conformational changes but restrict the number of candidates that can be evaluated. Shorter simulations support broader screening but may miss slower failure modes. Simulation depth should increase as the candidate pool narrows.</p>
+        <div class="tradeoff-header">
+            Tradeoff — depth versus breadth
+        </div>
+
+        <p>
+            Longer or more numerous simulations provide greater opportunity to
+            observe instability and alternative states, but they restrict the
+            number of candidates that can be evaluated. Shorter simulations
+            support broader triage but may miss slower failure modes.
+            Computational depth should generally increase as the candidate
+            pool narrows.
+        </p>
     </div>
 
-    <h3>Independent complex prediction (Boltz-2)</h3>
-    <p>Boltz-2 predicts the binder–target complex from sequence, without receiving the RFdiffusion-designed backbone or starting pose. It therefore provides a partially independent test of whether the intended binding geometry is recoverable from the designed sequences rather than being imposed only by the original generative model.</p>
+    <h3>7. Independent or orthogonal model assessment</h3>
 
-    <p>The predicted complex can be compared with the RFdiffusion design using global pose agreement, interface RMSD, hotspot recovery, contact overlap, and model-confidence metrics such as ipTM. Agreement between the two modeling paths strengthens the structural hypothesis; disagreement identifies designs whose interface geometry is more model-dependent or uncertain.</p>
+    <p>
+        Confidence is strengthened when a molecular hypothesis survives
+        assessment by a method that does not simply inherit the assumptions or
+        coordinates of the original design model. The second method need not
+        be completely independent to be useful, but the information supplied
+        to it and the task it performs should differ meaningfully.
+    </p>
+
+    <p>
+        In Volume 1, Boltz-2 predicts the binder–target complex from sequence
+        without receiving the RFdiffusion-designed backbone or starting pose.
+        The resulting complex can be compared with the original design using
+        global pose agreement, interface RMSD, hotspot recovery, contact
+        overlap, and model-confidence metrics such as ipTM.
+    </p>
+
+    <p>
+        Agreement between the two modeling paths strengthens the proposed
+        structural mechanism. Disagreement identifies candidates whose binding
+        geometry is model-dependent, weakly encoded by sequence, or otherwise
+        uncertain.
+    </p>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — agreement vs diversity</div>
-        <p>Requiring close agreement between independent models produces a more conservative shortlist, but it may also eliminate unconventional designs that one model represents poorly. Model agreement is therefore evidence to weigh, not an automatic pass–fail rule.</p>
+        <div class="tradeoff-header">
+            Tradeoff — agreement versus novelty
+        </div>
+
+        <p>
+            Requiring close agreement between models produces a conservative
+            shortlist, but it may also remove unconventional candidates that
+            one model represents poorly. Model agreement is evidence to weigh,
+            not an automatic pass–fail rule.
+        </p>
     </div>
 
-    <h3>Scoring and prioritization</h3>
-    <p>The final stage integrates evidence from backbone generation, sequence design, fold recovery, interface fingerprinting, molecular dynamics, and independent complex prediction. Because no single computational metric reliably captures all aspects of design quality, candidates are prioritized using a consensus scorecard rather than one dominant score.</p>
+    <h3>8. Consensus scoring and candidate prioritization</h3>
 
-    <p>The scorecard should preserve the underlying measurements so that the reasons for each ranking remain visible. Weighting choices are campaign-specific judgment calls: they should reflect the intended use of the binder, known target biology, downstream assay capacity, and the types of uncertainty the campaign is most willing to tolerate.</p>
+    <p>
+        The final computational stage integrates evidence collected across the
+        campaign. Because no single metric captures all aspects of candidate
+        quality, prioritization should use a transparent scorecard rather than
+        allowing one confidence score, energy estimate, or structural metric
+        to dominate by default.
+    </p>
+
+    <p>
+        The scorecard should retain the underlying measurements so that the
+        reason for each decision remains visible. Weighting choices are
+        campaign-specific. They should reflect the intended function,
+        modality, known biology, downstream assay capacity, and the types of
+        uncertainty the team is most willing to tolerate.
+    </p>
+
+    <p>
+        Final selection should also preserve diversity. A useful experimental
+        shortlist may include high-confidence consensus candidates, distinct
+        interface geometries, sequence-diverse representatives, and a small
+        number of higher-risk hypotheses with unusually strong upside.
+    </p>
 
     <div class="tradeoff">
-        <div class="tradeoff-header">Tradeoff — ranking vs interpretability</div>
-        <p>A single composite score makes candidates easy to rank but can conceal contradictory evidence and arbitrary weighting decisions. A more interpretable scorecard preserves the component metrics and uses the final ranking as a decision aid rather than a claim of absolute design quality.</p>
+        <div class="tradeoff-header">
+            Tradeoff — ranking versus interpretability
+        </div>
+
+        <p>
+            A single composite score makes candidates easy to sort but can
+            conceal contradictory evidence and arbitrary weighting decisions.
+            A more interpretable scorecard preserves component metrics and uses
+            the final ranking as a decision aid rather than a claim of absolute
+            molecular quality.
+        </p>
     </div>
 
     <!-- ============================================================ -->
     <!-- STOPPING CRITERIA                                            -->
     <!-- ============================================================ -->
 
-    <h2>When is a campaign done?</h2>
+    <h2>When should a campaign stop or change direction?</h2>
 
-    <p>This is harder than it looks. The worst outcome is a campaign that runs indefinitely without clear stopping criteria — always "just one more round" without a defined target or a framework for deciding when enough is enough.</p>
+    <p>
+        Campaigns need explicit stopping and pivot criteria. Without them, the
+        team can continue generating candidates or repeating analyses without
+        learning whether the underlying strategy is productive. A stopping
+        decision is not always a declaration of success or failure. It may
+        indicate that sufficient evidence has been collected to advance,
+        redirect, or terminate a particular design hypothesis.
+    </p>
 
     <div class="stop-grid">
-        <div class="stop-card"><h4>✓ Specification met</h4><p>A binder meets the target product profile. The campaign advances to the next development stage.</p></div>
-        <div class="stop-card"><h4>⊘ Design space exhausted</h4><p>Planned conditions explored, nothing meets spec. Not failure — a negative result that triggers strategic decisions: pivot modality, relax the spec, or stop.</p></div>
-        <div class="stop-card"><h4>⏱ Resources depleted</h4><p>Time or budget is gone. Advance the best candidates, document what you'd do with more resources, structure the data for others.</p></div>
-        <div class="stop-card"><h4>⚠ Systematic problem</h4><p>Round 1 reveals a consistent bias — all designs contact the wrong face, all high-scorers aggregate. Redesign the approach, not another round of the same strategy.</p></div>
+        <div class="stop-card">
+            <h4>✓ Advancement criteria met</h4>
+
+            <p>
+                One or more candidates meet the predefined computational or
+                experimental criteria required to advance to the next stage.
+            </p>
+        </div>
+
+        <div class="stop-card">
+            <h4>⊘ Planned space explored</h4>
+
+            <p>
+                The major conditions or hypotheses have been tested without
+                producing suitable candidates. The team can change modality,
+                revise the specification, redefine the target surface, or stop.
+            </p>
+        </div>
+
+        <div class="stop-card">
+            <h4>⏱ Resource boundary reached</h4>
+
+            <p>
+                The available time, compute, material, or budget has been
+                consumed. The best-supported candidates advance, while the
+                remaining uncertainties and next steps are documented.
+            </p>
+        </div>
+
+        <div class="stop-card">
+            <h4>⚠ Systematic failure detected</h4>
+
+            <p>
+                Candidates repeatedly exhibit the same failure mode, such as
+                convergence on the wrong surface, poor structural recovery, or
+                a developability liability. The strategy should be redesigned
+                rather than repeated unchanged.
+            </p>
+        </div>
     </div>
 
     <!-- ============================================================ -->
     <!-- CONTINUOUS IMPROVEMENT                                       -->
     <!-- ============================================================ -->
 
-    <h2>Continuous improvement of the pipeline itself</h2>
+    <h2>The pipeline is also an experimental object</h2>
 
-    <p>Each round of a campaign doesn't just improve the designs — it should improve the infrastructure. Structured metrics from each round tell you how well your screening pipeline is working, not just how well your molecules are performing. Are your assays precise enough to rank candidates reliably? Where are the bottlenecks in cycle time?</p>
+    <p>
+        Each campaign round should improve more than the molecules. It should
+        improve the design and screening infrastructure itself. Structured
+        outcomes reveal where computational filters are informative, where
+        they are redundant, which stages consume disproportionate resources,
+        and which measurements actually predict experimental success.
+    </p>
 
-    <p>The same principle applies to computational design. Each round should refine not just which conditions to explore, but how the pipeline processes candidates: better filtering thresholds calibrated against experimental outcomes, faster simulation protocols, more informative scoring functions, tighter integration between computational features and experimental databases. The pipeline is a product that gets better with use — if you're measuring the right things.</p>
+    <p>
+        Once experimental data become available, thresholds and scorecard
+        weights can be calibrated against observed expression, stability,
+        binding, specificity, and function. A filter that appeared convincing
+        in theory may prove uninformative. A metric initially treated as
+        secondary may emerge as a useful early predictor. These relationships
+        can only be learned when model inputs, parameters, intermediate
+        outputs, and experimental outcomes remain linked.
+    </p>
 
-    <!-- ============================================================ -->
-    <!-- PRODUCT ECHO                                                 -->
-    <!-- ============================================================ -->
+    <p>
+        The long-term product of the campaign is therefore not merely a set of
+        candidates. It is a reusable decision system: a structured record of
+        what was attempted, what survived each gate, what failed
+        experimentally, and how that evidence should change the next round.
+    </p>
 
-    <div class="product-echo">
-        <p><strong>Ready to run this pipeline on your own target?</strong></p>
-        <p>The campaign guide provides the complete working codebase — annotated notebooks, helper scripts, example data, and a consistent project structure. Supply your own PDB and binding surface, and use the same infrastructure to generate, triage, simulate, and prioritize binder candidates.</p>
-        <a href="index.html#">Coming soon — Campaign Guide</a>
+    <div class="callout warning">
+        <strong>
+            A computational pipeline should become more selective because it
+            learns, not merely because it accumulates more filters.
+        </strong>
+
+        Additional models and metrics add value only when they contribute
+        distinct information, expose a known uncertainty, or improve the
+        allocation of experimental resources.
     </div>
 
+    <!-- ============================================================ -->
+    <!-- TRANSITION TO VOLUME 1                                       -->
+    <!-- ============================================================ -->
+
+    <div class="volume-transition">
+        <h2>Next: apply the framework in Volume 1</h2>
+
+        <p>
+            The three foundation pages established the campaign-level
+            principles: Design-Build-Test-Learn, target and modality
+            selection, screening-funnel architecture, model handoffs,
+            tradeoffs, candidate portfolios, and stopping criteria.
+        </p>
+
+        <p>
+            Volume 1 now applies those principles to a complete de novo
+            mini-protein binder campaign against PD-L1. The first detailed page
+            begins with target preparation, hotspot selection, RFdiffusion
+            backbone generation, ProteinMPNN sequence design, and sequence-only
+            fold recovery.
+        </p>
+
+        <a href="../Page1_denovo_minibinder_design/">
+            Begin Volume 1 → De Novo Mini-Binder Design
+        </a>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- PAGE NAVIGATION                                              -->
+    <!-- ============================================================ -->
+
     <div class="page-nav">
-        <a href="../Page0_overview_1">← Target &amp; Funnel</a>
-        <a href="../Page1_denovo_minibinder_design/" class="next">Part 1: De Novo Mini Binder Design →</a>
+        <a href="../Page0_overview_1/">
+            ← Foundation 2: Target, Modality &amp; Screening Funnels
+        </a>
+
+        <a
+            href="../Page1_denovo_minibinder_design/"
+            class="next"
+        >
+            Volume 1, Part 1: Generate Candidates →
+        </a>
     </div>
 
     <div class="page-footer">
-        <em>The wet-lab scientist's guide to computational protein design</em><br>
-        Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a>
+        <em>
+            AI-Guided Protein Design: Campaign Principles and Applied Case
+            Studies
+        </em>
+        <br>
+
+        Harshad Ghodke, PhD ·
+
+        <a href="https://hghodkephd.github.io/hg-portfolio/">
+            Portfolio
+        </a>
+
+        ·
+
+        <a href="https://github.com/hghodkephd">
+            GitHub
+        </a>
     </div>
+
 </div>
 </body>
 </html>
