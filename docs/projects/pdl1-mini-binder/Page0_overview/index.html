@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Volume 1 — De Novo Mini-Binder Design | AI-Guided Protein Design</title>
+    <title>Campaign Foundations | AI-Guided Protein Design</title>
 
     <style>
         :root {
@@ -403,7 +403,7 @@
         }
 
         /* ============================================================
-           OVERVIEW NAVIGATION
+           FOUNDATION NAVIGATION
            ============================================================ */
 
         .overview-nav {
@@ -567,7 +567,7 @@
         <a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">
             AI-Guided Protein Design
         </a>
-        · Volume 1
+        · Campaign Foundations
     </div>
 
     <!-- ============================================================ -->
@@ -575,71 +575,81 @@
     <!-- ============================================================ -->
 
     <header class="hero">
-        <p class="eyebrow">AI-Guided Protein Design · Volume 1</p>
+        <p class="eyebrow">AI-Guided Protein Design · Campaign Foundations</p>
 
         <h1>A Wet-Lab Scientist's Guide to AI-Enabled Protein Design</h1>
 
         <p class="subtitle">
-            From a target structure to a ranked experimental shortlist:
-            an end-to-end campaign for designing de novo mini-protein
-            binders against PD-L1.
+            How modern protein-design campaigns move from biological objectives
+            and generative models to experimentally actionable candidate
+            shortlists.
         </p>
 
         <div class="intro-block">
             <p class="opening">
                 Generative protein-design tools can produce convincing
-                structures in minutes. The harder problem is deciding which
-                outputs are credible, which analyses are informative, and
-                which candidates are worth carrying into the laboratory.
+                structures in minutes. The harder problem is deciding what to
+                design, which outputs are credible, how candidates should be
+                compared, and which molecules are worth carrying into the
+                laboratory.
             </p>
 
             <p>
-                This portfolio documents that decision process through a
-                complete illustrative protein-design campaign. The objective
-                is not simply to generate a binder. It is to construct a
-                defensible screening funnel that moves from a large
-                computational design space toward a small, experimentally
-                actionable set of candidates.
+                This guide approaches AI-enabled protein design as a campaign
+                rather than a sequence of software tools. It focuses on the
+                decisions that connect biological intent to molecular design:
+                defining the product profile, selecting a target and modality,
+                constructing a screening funnel, managing model handoffs, and
+                deciding when computational evidence is strong enough to
+                justify experimental work.
             </p>
 
             <p>
-                Volume 1 follows the design of de novo mini-protein binders
-                against PD-L1. The campaign begins with target selection and
-                design strategy, then moves through backbone generation,
-                sequence design, fold recovery, interface analysis, molecular
-                dynamics, independent complex prediction, and consensus
-                ranking.
+                The first three pages establish principles that apply broadly
+                across protein-engineering programs. They describe how
+                campaigns are organized, how computational and experimental
+                stages fit within a Design-Build-Test-Learn cycle, and how
+                increasingly expensive analyses should be allocated across a
+                narrowing candidate pool.
             </p>
 
             <p>
-                At each stage, the emphasis is on the questions a campaign
-                lead must answer: What should be trusted? What should be
-                filtered out? When do two models provide meaningful
-                independent support? Which uncertainties can be reduced
-                computationally, and which must ultimately be resolved by
-                experiment?
+                The later volumes apply this framework to specific design
+                problems. Volume 1 follows a de novo mini-protein binder
+                campaign against PD-L1. Volume 2 extends the same campaign
+                logic to scaffold-constrained VHH design. The molecular systems
+                differ, but the underlying questions remain the same: What
+                should be generated? What should be filtered out? Which
+                evidence is genuinely independent? And what should be tested
+                next?
             </p>
         </div>
 
         <div class="campaign-summary">
             <div class="summary-item">
-                <span class="summary-label">Target</span>
-                <span class="summary-value">PD-L1</span>
+                <span class="summary-label">Framework</span>
+                <span class="summary-value">Design-Build-Test-Learn</span>
             </div>
 
             <div class="summary-item">
-                <span class="summary-label">Modality</span>
-                <span class="summary-value">De novo mini-protein binders</span>
+                <span class="summary-label">Primary focus</span>
+                <span class="summary-value">
+                    Campaign design and decision-making
+                </span>
             </div>
 
             <div class="summary-item">
-                <span class="summary-label">Campaign scope</span>
-                <span class="summary-value">Design, triage, and prioritization</span>
+                <span class="summary-label">Applied examples</span>
+                <span class="summary-value">
+                    Mini-binders, VHHs, and future modalities
+                </span>
             </div>
 
             <div class="summary-item">
                 <span class="summary-label">End point</span>
-                <span class="summary-value">Ranked experimental shortlist</span>
+                <span class="summary-value">
+                    Defensible experimental shortlists
+                </span>
             </div>
         </div>
     </header>
@@ -654,25 +664,24 @@
         Protein engineering is the deliberate modification or creation of
         proteins to achieve a useful function. A campaign may begin with an
         existing natural protein that needs to be improved, a known scaffold
-        that can be retargeted, or — as in this volume — a desired function
-        with no starting binder at all.
+        that can be retargeted, or a desired function with no starting
+        molecule at all.
     </p>
 
     <p>
-        The goal is rarely to optimize a single property. A successful
-        molecule must usually balance activity or binding with specificity,
-        stability, expression, solubility, and manufacturability. Protein
-        engineering is therefore a structured search through a large design
-        space for molecules that satisfy several competing requirements at
-        once.
+        The goal is rarely to optimize a single property. A successful molecule
+        must usually balance activity or binding with specificity, stability,
+        expression, solubility, and manufacturability. Protein engineering is
+        therefore a structured search through a large design space for
+        molecules that satisfy several competing requirements at once.
     </p>
 
     <p>
         A campaign coordinates repeated rounds of design, construction,
         testing, and analysis to develop a molecule against a defined
-        performance specification. Unlike a single experiment, a campaign
-        has explicit budgets, timelines, decision gates, and stopping
-        criteria. The organizing principle is the
+        performance specification. Unlike a single experiment, a campaign has
+        explicit budgets, timelines, decision gates, and stopping criteria.
+        The organizing principle is the
         <strong>Design-Build-Test-Learn</strong> cycle:
     </p>
 
@@ -681,16 +690,19 @@
             <h4>🔵 Design</h4>
             <p>
                 Propose candidate molecules using computational methods.
-                <strong>This volume covers the design phase in depth.</strong>
+                <strong>
+                    This portfolio examines the computational Design phase in
+                    depth.
+                </strong>
             </p>
         </div>
 
         <div class="dbtl-card build">
             <h4>🟢 Build</h4>
             <p>
-                Synthesize DNA, express protein, and purify candidates.
-                Many designs fail here. The build phase is a filter, not
-                merely manufacturing.
+                Synthesize DNA, express protein, and purify candidates. Many
+                designs fail here. The build phase is a filter, not merely
+                manufacturing.
             </p>
         </div>
 
@@ -721,9 +733,10 @@
             <strong>Figure 1.</strong>
             The DBTL cycle. Each round passes through all four phases, with
             structured outcomes from the Learn phase informing the next Design
-            round. This volume examines the computational Design phase in
-            depth; the concluding module connects candidate prioritization to
-            Build, Test, and Learn.
+            round. The campaign-foundation pages explain how computational
+            design fits within this broader experimental cycle; the later
+            volumes apply those principles to specific molecular-design
+            problems.
         </p>
     </div>
 
@@ -737,131 +750,62 @@
     </p>
 
     <!-- ============================================================ -->
-    <!-- PRODUCT SECTION                                              -->
+    <!-- CAMPAIGN FOUNDATIONS                                         -->
     <!-- ============================================================ -->
 
-    <div class="product-section">
-        <span class="product-badge">Practical Campaign Guide · Volume 1</span>
-
-        <h2>The working codebase behind this portfolio</h2>
-
-        <p>
-            The accompanying campaign guide provides a complete, end-to-end
-            codebase for computational mini-binder design: cleaned and
-            annotated Colab notebooks, helper scripts, example inputs and
-            outputs, troubleshooting notes, and a consistent data structure
-            connecting each stage of the campaign.
-        </p>
-
-        <h3>What you get</h3>
-
-        <div class="product-features">
-            <div class="product-feature">
-                <strong>Notebooks</strong>
-                Annotated Colab notebooks covering every pipeline stage,
-                from target preparation through candidate scoring
-            </div>
-
-            <div class="product-feature">
-                <strong>Data structure</strong>
-                A consistent project layout connecting upstream outputs
-                to downstream inputs
-            </div>
-
-            <div class="product-feature">
-                <strong>Retargetable</strong>
-                Supply a new target structure and binding surface, then use
-                the same infrastructure to generate, triage, simulate, and
-                prioritize candidates
-            </div>
-
-            <div class="product-feature">
-                <strong>Troubleshooting</strong>
-                Common failure modes and practical workarounds documented
-                where they occur
-            </div>
-        </div>
-
-        <h3>Who this is for</h3>
-
-        <p>
-            Scientists who want to apply existing protein-design models and
-            translate their outputs into experimental decisions. The guide
-            teaches campaign execution and scientific judgment rather than
-            neural-network architecture or model training. It is particularly
-            useful for researchers moving into computational design from a
-            wet-lab background.
-        </p>
-
-        <p style="font-size: 0.88rem; color: var(--text-secondary);">
-            The individual tools used in this workflow are publicly available.
-            The guide provides the integration layer: a tested and consistent
-            route from target preparation to candidate prioritization, so that
-            time can be spent interpreting the science rather than debugging
-            file paths and model handoffs.
-        </p>
-
-        <div class="cta-row">
-            <a href="#" class="cta-btn">Coming soon</a>
-
-            <span class="cta-price">
-                One-time purchase · Volume 1: De Novo Mini-Binder Design
-            </span>
-        </div>
-    </div>
-
-    <!-- ============================================================ -->
-    <!-- OVERVIEW PAGES                                               -->
-    <!-- ============================================================ -->
-
-    <h2>Campaign architecture</h2>
+    <h2>Campaign foundations</h2>
 
     <p>
-        Before entering the detailed pipeline, these overview pages establish
-        the campaign context: how the target and modality are selected, how a
-        screening funnel is constructed, which computational tools are used,
-        and how the resulting shortlist connects to experimental work.
+        These three foundation pages establish the concepts used throughout
+        the portfolio. They cover how protein-engineering campaigns are
+        structured, how targets and modalities are selected, how candidate
+        funnels allocate computational and experimental effort, and how model
+        outputs should be integrated without treating any single prediction as
+        definitive.
     </p>
 
     <div class="overview-nav">
         <a href="../Page0_overview_1/index.html">
-            <div class="nav-label">Overview 1</div>
+            <div class="nav-label">Foundation 2</div>
 
             <div class="nav-title">
                 Target Selection &amp; Screening Funnel
             </div>
 
             <div class="nav-desc">
-                PD-L1 as a case study, campaign success criteria, screening
-                costs, candidate counts, and the relationship between
+                Product profiles, modality choice, success criteria, cost
+                gradients, candidate counts, and the balance between
                 throughput and analytical depth
             </div>
         </a>
 
         <a href="../Page0_overview_2/index.html">
-            <div class="nav-label">Overview 2</div>
+            <div class="nav-label">Foundation 3</div>
 
             <div class="nav-title">
                 Computational Design Stages
             </div>
 
             <div class="nav-desc">
-                RFdiffusion → ProteinMPNN → ESMFold → interface analysis →
-                molecular dynamics → Boltz-2 → consensus scoring
+                Backbone generation, sequence design, fold assessment,
+                interface triage, molecular simulation, independent prediction,
+                and model-to-model handoffs
             </div>
         </a>
     </div>
 
     <!-- ============================================================ -->
-    <!-- PIPELINE PAGES                                               -->
+    <!-- VOLUME 1 CASE STUDY                                          -->
     <!-- ============================================================ -->
 
-    <h2>The Volume 1 pipeline</h2>
+    <h2>Case study: Volume 1 — De Novo Mini-Binder Design</h2>
 
     <p>
-        The detailed pages follow the campaign from candidate generation
-        through increasingly selective layers of structural and physical
-        assessment.
+        With the campaign framework established, Volume 1 applies it to the
+        design of de novo mini-protein binders against PD-L1. The detailed
+        pages follow the campaign from candidate generation through
+        progressively more selective layers of structural, interface, and
+        physical assessment.
     </p>
 
     <div class="pipeline-nav">
@@ -928,7 +872,9 @@
     </div>
 
     <div class="callout">
-        <strong>The objective is not to provide a pipeline to run blindly.</strong>
+        <strong>
+            The objective is not to provide a pipeline to run blindly.
+        </strong>
 
         The objective is to develop the judgment required to design a new
         campaign for a different target, modality, or experimental constraint
@@ -936,14 +882,94 @@
         separates someone who runs tools from someone who runs campaigns.
     </div>
 
+    <!-- ============================================================ -->
+    <!-- PRODUCT SECTION                                              -->
+    <!-- ============================================================ -->
+
+    <div class="product-section">
+        <span class="product-badge">
+            Practical Campaign Guide · Volume 1
+        </span>
+
+        <h2>The working codebase behind the first case study</h2>
+
+        <p>
+            The campaign principles introduced above are applied in Volume 1
+            to de novo mini-protein binder design against PD-L1. The
+            accompanying guide provides the working codebase for that case
+            study: cleaned and annotated Colab notebooks, helper scripts,
+            example inputs and outputs, troubleshooting notes, and a
+            consistent data structure connecting each computational stage.
+        </p>
+
+        <h3>What you get</h3>
+
+        <div class="product-features">
+            <div class="product-feature">
+                <strong>Notebooks</strong>
+                Annotated Colab notebooks covering every pipeline stage, from
+                target preparation through candidate scoring
+            </div>
+
+            <div class="product-feature">
+                <strong>Data structure</strong>
+                A consistent project layout connecting upstream outputs to
+                downstream inputs
+            </div>
+
+            <div class="product-feature">
+                <strong>Retargetable</strong>
+                Supply a new target structure and binding surface, then use the
+                same infrastructure to generate, triage, simulate, and
+                prioritize candidates
+            </div>
+
+            <div class="product-feature">
+                <strong>Troubleshooting</strong>
+                Common failure modes and practical workarounds documented
+                where they occur
+            </div>
+        </div>
+
+        <h3>Who this is for</h3>
+
+        <p>
+            Scientists who want to apply existing protein-design models and
+            translate their outputs into experimental decisions. The guide
+            teaches campaign execution and scientific judgment rather than
+            neural-network architecture or model training. It is particularly
+            useful for researchers moving into computational design from a
+            wet-lab background.
+        </p>
+
+        <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            The individual tools used in this workflow are publicly available.
+            The guide provides the integration layer: a tested and consistent
+            route from target preparation to candidate prioritization, so that
+            time can be spent interpreting the science rather than debugging
+            file paths and model handoffs.
+        </p>
+
+        <div class="cta-row">
+            <a href="#" class="cta-btn">Coming soon</a>
+
+            <span class="cta-price">
+                One-time purchase · Volume 1: De Novo Mini-Binder Design
+            </span>
+        </div>
+    </div>
+
     <div class="next-page">
         <a href="../Page0_overview_1/index.html">
-            Start the campaign → Target Selection &amp; Screening Funnel
+            Continue → Target Selection &amp; Screening Funnels
         </a>
     </div>
 
     <div class="page-footer">
-        <em>AI-Guided Protein Design: A Practical Campaign Guide</em>
+        <em>
+            AI-Guided Protein Design: Campaign Principles and Applied Case
+            Studies
+        </em>
         <br>
 
         Harshad Ghodke, PhD ·
