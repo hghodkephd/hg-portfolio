@@ -398,13 +398,13 @@ th{color:var(--tx2);border-bottom:2px solid var(--bg3)}
 
 <div class="page-footer">
   <p><em>The wet-lab scientist's guide to computational protein design</em></p>
-  <p style="margin-top:.25rem"><a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter-sensitivity/">← Setup & Parameter Sensitivity</a> · <a href="#">Energy Minimization & MD Simulation →</a></p>
+  <p style="margin-top:.25rem"><a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page2_parameter_sensitivity/">← Setup & Parameter Sensitivity</a> · <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page4_MDsimulations/">   Energy Minimization & MD Simulation → </a></p>
   <p style="margin-top:.5rem"><a href="https://github.com/hghodkephd/pdl1-mini-binder-design">GitHub Repository</a></p>
 </div>
 </div>
 
 <script>
-const GITHUB_BASE = "https://raw.githubusercontent.com/hghodkephd/pdl1-mini-binder-design/main/portfolio_pages/Page3_interaction_fingerprinting/portfolio_page3-viewer_structures/passed_31/";
+const STRUCTURE_BASE = "../structures/designed/passed_31/";
 const DESIGNS = [
   {
     "rank": 1,
@@ -1573,7 +1573,18 @@ function loadDesign(design){
   const loading=document.getElementById('viewer-loading'); loading.classList.remove('hidden');
   document.getElementById('loading-text').textContent='Loading '+design.pdb_file+'…';
   viewer.clear(); surfaceVisible=false; document.getElementById('btn-surface').classList.remove('active');
-  fetch(GITHUB_BASE+design.pdb_file).then(r=>{if(!r.ok) throw new Error(r.status+' '+r.statusText); return r.text();})
+  const pdbUrl = new URL(
+    STRUCTURE_BASE + design.pdb_file,
+    window.location.href
+  ).href;
+  
+  fetch(pdbUrl)
+    .then(r => {
+      if (!r.ok) {
+        throw new Error(`${r.status} ${r.statusText} — ${pdbUrl}`);
+      }
+      return r.text();
+    })
     .then(pdb=>{viewer.addModel(pdb,'pdb'); applyStyles(); viewer.zoomTo({chain:'B'}); viewer.render(); loading.classList.add('hidden');})
     .catch(err=>{console.error(err); document.getElementById('loading-text').textContent='Error loading structure: '+err.message;});
   updateInfoPanel(design); highlightCard(design.rank);
