@@ -553,14 +553,14 @@ new Chart(document.getElementById('chart-mimicry'),{
     // PD-L1 is cartoon-only. It is held in its own model, so no binder
     // surface can be generated over it.
     if (targetToggle.checked) {
-      targetModel.setStyle(
-        {},
+      viewer.addSurface(
+        $3Dmol.SurfaceType.VDW,
         {
-          cartoon: {
-            color: '#808080',
-            opacity: 1.0
-          }
-        }
+          color: '#888888',
+          opacity: 0.85
+        },
+        {model: targetModel},
+        {model: targetModel}
       );
     }
 
