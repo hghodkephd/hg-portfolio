@@ -419,6 +419,9 @@ new Chart(document.getElementById('chart-mimicry'),{
   let currentIndex = 0;
   let currentDesign = null;
   let savedView = null;
+  let targetModel = null;
+  let binderModel = null;
+  let representationVersion = 0;
 
   function configLabel(value) {
     if (value === 'clusterA') return 'Cluster A';
@@ -430,6 +433,22 @@ new Chart(document.getElementById('chart-mimicry'),{
   function structureUrl(design) {
     const filename = design.structure_path.split('/').pop();
     return STRUCTURE_BASE + filename;
+  }
+
+  function extractChainPdb(pdbText, chainId) {
+    const records = pdbText.split(/\r?\n/).filter(line => {
+      if (line.startsWith('ATOM  ') || line.startsWith('HETATM')) {
+        return line.length > 21 && line[21] === chainId;
+      }
+      return line.startsWith('TER') || line.startsWith('END');
+    });
+
+    if (!records.some(line => line.startsWith('ATOM  ') || line.startsWith('HETATM'))) {
+      throw new Error(`No coordinate records found for chain ${chainId}`);
+    }
+
+    if (!records.some(line => line.startsWith('END'))) records.push('END');
+    return records.join('\n') + '\n';
   }
 
   function showError(message) {
@@ -518,43 +537,59 @@ new Chart(document.getElementById('chart-mimicry'),{
       String(design.counts.overlap_residues);
   }
 
-  function applyRepresentation(design, preserveView = true) {
-    if (!viewer || !design) return;
+  async function applyRepresentation(design, preserveView = true) {
+    if (!viewer || !design || !targetModel || !binderModel) return;
 
+    const thisVersion = ++representationVersion;
     const viewBefore = preserveView ? viewer.getView() : null;
-    viewer.removeAllSurfaces();
-    viewer.setStyle({}, {});
 
+    // Remove every previously generated surface before rebuilding.
+    viewer.removeAllSurfaces();
+
+    // Clear atom styles independently on the two chain-specific models.
+    targetModel.setStyle({}, {});
+    binderModel.setStyle({}, {});
+
+    // PD-L1 is cartoon-only. It is held in its own model, so no binder
+    // surface can be generated over it.
     if (targetToggle.checked) {
-      viewer.setStyle(
-        {chain: design.target_chain},
+      targetModel.setStyle(
+        {},
         {
           cartoon: {
-            color: '#8A8A8A',
+            color: '#777777',
             opacity: 1.0
           }
         }
       );
     }
 
-    viewer.setStyle(
-      {chain: design.binder_chain},
-      {cartoon: {color: '#B8B8B8', opacity: 0.35}}
+    // A faint binder cartoon helps retain fold context beneath the surface.
+    binderModel.setStyle(
+      {},
+      {
+        cartoon: {
+          color: '#B8B8B8',
+          opacity: 0.30
+        }
+      }
     );
 
-    // Restrict both surface coloring and surface generation to the
-    // binder chain. In 3Dmol.js, the fourth argument controls which
-    // atoms contribute to the generated surface; omitting it can
-    // generate a white surface over the complete complex.
-    viewer.addSurface(
+    // Generate the molecular surface from the binder-only model.
+    const surfacePromise = viewer.addSurface(
       $3Dmol.SurfaceType.VDW,
       {
         opacity: 1.0,
         colorfunc: residueColorFunction(design)
       },
-      {chain: design.binder_chain},
-      {chain: design.binder_chain}
+      {model: binderModel},
+      {model: binderModel}
     );
+
+    // Surface generation is asynchronous. Ignore a stale completion if the
+    // user changed design or toggles while the surface was being calculated.
+    await Promise.resolve(surfacePromise);
+    if (thisVersion !== representationVersion) return;
 
     if (viewBefore) viewer.setView(viewBefore);
     viewer.render();
@@ -593,15 +628,23 @@ new Chart(document.getElementById('chart-mimicry'),{
       }
       const pdbText = await response.text();
 
-      viewer.removeAllModels();
       viewer.removeAllSurfaces();
-      viewer.addModel(pdbText, 'pdb');
-      applyRepresentation(currentDesign, false);
+      viewer.removeAllModels();
+
+      // Load PD-L1 and binder as separate models. This is deliberate:
+      // it prevents the binder surface calculation from ever including
+      // target atoms, regardless of 3Dmol surface-selection behavior.
+      const targetPdb = extractChainPdb(pdbText, currentDesign.target_chain);
+      const binderPdb = extractChainPdb(pdbText, currentDesign.binder_chain);
+
+      targetModel = viewer.addModel(targetPdb, 'pdb');
+      binderModel = viewer.addModel(binderPdb, 'pdb');
+
+      await applyRepresentation(currentDesign, false);
 
       if (savedView) {
         viewer.setView(savedView);
       } else {
-        // Fit the complete target–binder complex on first load.
         viewer.zoomTo();
         viewer.zoom(0.90);
       }
@@ -674,7 +717,12 @@ new Chart(document.getElementById('chart-mimicry'),{
   });
 
   [persistentToggle, constrainedToggle, targetToggle].forEach(control => {
-    control.addEventListener('change', () => applyRepresentation(currentDesign, true));
+    control.addEventListener('change', () => {
+      applyRepresentation(currentDesign, true).catch(error => {
+        console.error(error);
+        showError(`Could not update molecular representation. ${error.message}`);
+      });
+    });
   });
 
   initializePatchViewer();
