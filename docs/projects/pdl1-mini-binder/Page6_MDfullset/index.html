@@ -449,11 +449,23 @@ new Chart(document.getElementById('chart-mimicry'),{
   }
 
   function availableConfigs(length) {
-    return [...new Set(
+    const configs = [...new Set(
       manifest.designs
         .filter(d => Number(d.binder_length) === Number(length))
         .map(d => d.hotspot_config)
     )];
+
+    const order = {clusterA: 0, clusterB: 1, distributed: 2};
+    return configs.sort((a, b) => (order[a] ?? 99) - (order[b] ?? 99));
+  }
+
+  function configOptionLabel(config, length) {
+    const count = manifest.designs.filter(d =>
+      Number(d.binder_length) === Number(length) &&
+      d.hotspot_config === config
+    ).length;
+
+    return `${configLabel(config)} (${count})`;
   }
 
   function updateFilters(resetIndex = true) {
@@ -461,7 +473,7 @@ new Chart(document.getElementById('chart-mimicry'),{
     const configs = availableConfigs(length);
     const previousConfig = configSelect.value;
 
-    setOptions(configSelect, configs, configLabel);
+    setOptions(configSelect, configs, value => configOptionLabel(value, length));
     if (configs.includes(previousConfig)) configSelect.value = previousConfig;
 
     filteredDesigns = manifest.designs.filter(d =>
@@ -516,11 +528,20 @@ new Chart(document.getElementById('chart-mimicry'),{
     if (targetToggle.checked) {
       viewer.setStyle(
         {chain: design.target_chain},
-        {cartoon: {color: COLORS.target, opacity: 0.28}}
+        {
+          cartoon: {
+            color: COLORS.target,
+            opacity: 0.75
+          }
+        }
       );
+
       viewer.addSurface(
         $3Dmol.SurfaceType.VDW,
-        {color: COLORS.target, opacity: 0.10},
+        {
+          color: COLORS.target,
+          opacity: 0.22
+        },
         {chain: design.target_chain}
       );
     }
@@ -570,7 +591,7 @@ new Chart(document.getElementById('chart-mimicry'),{
         savedView = viewer.getView();
       }
 
-      const response = await fetch(structureUrl(currentDesign));
+      const response = await fetch(`${structureUrl(currentDesign)}?v=${Date.now()}`, {cache: 'no-store'});
       if (!response.ok) {
         throw new Error(`Structure request failed (${response.status}): ${structureUrl(currentDesign)}`);
       }
@@ -584,8 +605,9 @@ new Chart(document.getElementById('chart-mimicry'),{
       if (savedView) {
         viewer.setView(savedView);
       } else {
-        viewer.zoomTo({chain: currentDesign.binder_chain});
-        viewer.zoom(0.88);
+        // Fit the complete target–binder complex on first load.
+        viewer.zoomTo();
+        viewer.zoom(0.90);
       }
 
       viewer.render();
@@ -601,7 +623,7 @@ new Chart(document.getElementById('chart-mimicry'),{
 
   async function initializePatchViewer() {
     try {
-      const response = await fetch(MANIFEST_URL);
+      const response = await fetch(`${MANIFEST_URL}?v=${Date.now()}`, {cache: 'no-store'});
       if (!response.ok) {
         throw new Error(`Manifest request failed (${response.status})`);
       }
@@ -614,7 +636,7 @@ new Chart(document.getElementById('chart-mimicry'),{
       lengthSelect.value = String(preferredLength);
 
       const configs = availableConfigs(preferredLength);
-      setOptions(configSelect, configs, configLabel);
+      setOptions(configSelect, configs, value => configOptionLabel(value, preferredLength));
       configSelect.value = configs.includes('clusterA') ? 'clusterA' : configs[0];
 
       filteredDesigns = manifest.designs.filter(d =>
