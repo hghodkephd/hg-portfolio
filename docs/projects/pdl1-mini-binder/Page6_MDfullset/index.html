@@ -562,7 +562,13 @@ new Chart(document.getElementById('chart-mimicry'),{
         );
       }
 
-      if (viewer.getModelCount() > 0) savedView = viewer.getView();
+      // 3Dmol.js does not expose viewer.getModelCount().
+      // Preserve the camera only after a model has already been loaded.
+      if (currentDesign && savedView !== null) {
+        savedView = viewer.getView();
+      } else if (viewer.getModelList && viewer.getModelList().length > 0) {
+        savedView = viewer.getView();
+      }
 
       const response = await fetch(structureUrl(currentDesign));
       if (!response.ok) {
