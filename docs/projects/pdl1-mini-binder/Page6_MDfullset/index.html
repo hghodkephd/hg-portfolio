@@ -318,7 +318,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
   <div class="patch-error" id="patch-error"></div>
 </div>
 
-<p class="fig-caption">The binder is shown as a molecular surface, with white indicating positions that meet neither criterion. Cornflower blue marks residues with ≥90% occupancy against at least one configured PD-L1 hotspot during the equilibrated MD window. Red marks binder positions with ProteinMPNN entropy below 0.5 bits, and purple marks residues satisfying both criteria. PD-L1 is shown as a grayscale cartoon. All complexes are aligned through PD-L1, and the camera is preserved while cycling through designs.</p>
+<p class="fig-caption">The binder is shown as a molecular surface, with white indicating positions that meet neither criterion. Cornflower blue marks residues with ≥90% occupancy against at least one configured PD-L1 hotspot during the equilibrated MD window. Red marks binder positions with ProteinMPNN entropy below 0.5 bits, and purple marks residues satisfying both criteria. PD-L1 is shown in neutral gray for orientation. All complexes are aligned through PD-L1, and the camera is preserved while cycling through designs.</p>
 
 <div class="callout callout-insight">
   <div class="callout-title">Campaign use</div>
@@ -557,10 +557,23 @@ new Chart(document.getElementById('chart-mimicry'),{
         {},
         {
           cartoon: {
-            color: '#777777',
+            color: '#6F6F6F',
             opacity: 1.0
           }
         }
+      );
+
+      // Keep the target visually simple and distinct from the binder:
+      // a neutral gray surface prevents it from disappearing against
+      // the white viewer background.
+      viewer.addSurface(
+        $3Dmol.SurfaceType.VDW,
+        {
+          color: '#B0B0B0',
+          opacity: 0.55
+        },
+        {model: targetModel},
+        {model: targetModel}
       );
     }
 
