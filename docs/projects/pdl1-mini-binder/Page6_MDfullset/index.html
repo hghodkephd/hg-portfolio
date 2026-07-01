@@ -557,23 +557,10 @@ new Chart(document.getElementById('chart-mimicry'),{
         {},
         {
           cartoon: {
-            color: '#6F6F6F',
+            color: '#808080',
             opacity: 1.0
           }
         }
-      );
-
-      // Keep the target visually simple and distinct from the binder:
-      // a neutral gray surface prevents it from disappearing against
-      // the white viewer background.
-      viewer.addSurface(
-        $3Dmol.SurfaceType.VDW,
-        {
-          color: '#B0B0B0',
-          opacity: 0.55
-        },
-        {model: targetModel},
-        {model: targetModel}
       );
     }
 
