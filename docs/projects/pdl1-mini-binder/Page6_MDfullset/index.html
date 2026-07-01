@@ -133,7 +133,7 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <div class="stats-row">
   <div class="stat-card"><div class="num">28</div><div class="label">Simulations completed</div></div>
-  <div class="stat-card"><div class="num">38.5%</div><div class="label">Mean contact survival</div></div>
+  <div class="stat-card"><div class="num">38.5%</div><div class="label">Mean original-contact retention</div></div>
   <div class="stat-card"><div class="num">653</div><div class="label">Persistent contacts</div></div>
   <div class="stat-card"><div class="num">70.3%</div><div class="label">PD-1 epitope overlap</div></div>
 </div>
@@ -152,17 +152,17 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
   </tbody>
 </table>
 
-<h2>Contact survival: interfaces reorganize and expand</h2>
+<h2>Original-contact retention: interfaces reorganize and consolidate</h2>
 
 <p>For each design, we matched the pre-MD contact set from Part 3 against persistent post-MD residue pairs. On average, 38.5% of the starting contacts survived unchanged. The designs gained an average of 21.2 new persistent contacts while losing 3.2 originals. Using the same residue-pair definition, the persistent post-MD contact networks are therefore larger than the starting-structure contact sets, indicating local interface reorganization and consolidation rather than widespread disengagement.</p>
 
 <div class="chart-grid">
   <div class="chart-card">
-    <h3>Contact survival by design (ranked)</h3>
+    <h3>Original-contact retention by design (ranked)</h3>
     <canvas id="chart-survival" height="280"></canvas>
   </div>
   <div class="chart-card">
-    <h3>Survival by hotspot configuration</h3>
+    <h3>Retention by hotspot configuration</h3>
     <canvas id="chart-survival-config" height="280"></canvas>
   </div>
 </div>
@@ -188,13 +188,13 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <p>Cluster A hotspots show strong retention: hotspot 120 achieves 70% survival and hotspot 122 reaches 67%. Cluster B shows a different pattern: no corresponding pre-MD hotspot contacts survived, but 66.7% of hotspot–design pairs formed new persistent contacts during MD. These designs therefore re-established engagement with the specified Cluster B surface through local interface reorganization.</p>
 
 <div class="callout callout-insight">
-  <div class="callout-title">Two distinct engagement modes</div>
-  <p>This result has practical implications for design triage. Cluster A binders engage through contacts that are already present in the static threaded structure and survive physics — a retain-and-consolidate mode. Cluster B binders show a reorganize-and-engage mode: they find persistent hotspot contacts only after MD relaxation. A scoring pipeline that relied exclusively on static fingerprints would have correctly identified Cluster A engagement but missed Cluster B's physics-dependent binding mode entirely. This is a concrete example of why MD adds a qualitatively different validation layer.</p>
+  <div class="callout-title">Two patterns of interface relaxation</div>
+  <p>This result has practical implications for design triage. Cluster A binders follow a retain-and-consolidate pattern: hotspot contacts already present in the static threaded structure remain persistent during MD. Cluster B binders follow a reorganize-and-engage pattern: persistent hotspot contacts emerge only after local relaxation. A scoring pipeline based exclusively on static fingerprints would capture Cluster A engagement but miss the MD-dependent contact reorganization observed for Cluster B. This is a concrete example of the additional information supplied by trajectory analysis.</p>
 </div>
 
 <h2>PD-1 epitope overlap: 70% of contacts target native PD-L1 residues</h2>
 
-<p>PD-L1's natural binding partner PD-1 contacts 18 PD-L1 residues. We asked whether the designed binders contact those same target positions. RFdiffusion was not instructed to reproduce the native PD-1 contact pattern, so any overlap emerges from the generated interfaces rather than an explicit mimicry objective.</p>
+<p>PD-L1's natural binding partner PD-1 contacts 18 PD-L1 residues. We asked whether the designed binders contact those same target positions. For each designed contact to a PD-L1 residue in the native interface, the contacting binder residue was compared with the PD-1 residue that contacts the same PD-L1 position. RFdiffusion was not instructed to reproduce the native PD-1 contact pattern, so any overlap emerges from the generated interfaces rather than an explicit mimicry objective.</p>
 
 <div class="comparison-row">
   <div class="comparison-col">
@@ -218,8 +218,8 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 <p>The epitope-overlap fraction decreases modestly from 77.0% to 70.3%, so the persistent post-MD contact network remains concentrated on the PD-1-facing region of PD-L1. Within that larger post-MD contact set, the fraction classified as an exact residue-identity match rises from 4.3% to 15.6%. This means that interface reorganization brings more pre-existing binder residues into contact patterns that resemble the native PD-1 interface; the amino-acid identities themselves do not change during MD.</p>
 
 <div class="callout callout-insight">
-  <div class="callout-title">Emergent mimicry under physics</div>
-  <p>The tripling of exact-identity matches (4.3% → 15.6%) without any change to the binder sequences is notable. During MD, binder residues shift spatially into arrangements that happen to recapitulate native PD-1 contact chemistry more closely than the starting static poses did. This is convergence toward native-like solutions under physics, without any explicit mimicry objective in the design process. It suggests that the PD-L1 surface imposes geometric and chemical constraints on what persistent engagement looks like, and independent designs under a force field tend to find similar local solutions.</p>
+  <div class="callout-title">Enrichment of native-like contact chemistry after relaxation</div>
+  <p>The increase in exact residue-identity matches from 4.3% to 15.6%, without any change to the binder sequences, indicates that local MD relaxation brings more pre-existing binder residues into contact patterns resembling the native PD-1 interface. The result does not imply that the trajectories independently searched binding space; rather, it shows that native-like local packing and complementarity are compatible with the persistent portions of these designed interfaces.</p>
 </div>
 
 <div class="chart-grid">
@@ -229,15 +229,15 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
   </div>
 </div>
 
-<h2>Interaction-type stability and amino acid convergence</h2>
+<h2>Persistent contact chemistry and amino acid convergence</h2>
 
-<p>Of the 59 contacts that survived from pre-MD through the equilibrated trajectory, 100% maintained their interaction type classification. Zero contacts transitioned between polar and hydrophobic modes. Where ProteinMPNN placed a polar contact, physics agreed it should remain polar; where it placed a hydrophobic contact, the same. This complete type stability suggests that ProteinMPNN's interaction-type assignments at these positions are physically grounded rather than artifacts of the static scoring function.</p>
+<p>All 59 residue pairs retained from the starting structures preserved the same chemistry-class annotation because the identities of the participating residues were unchanged. The informative result is therefore not whether a surviving pair changed category, but which chemically complementary residue pairs persisted through the equilibrated trajectory.</p>
 
-<p>Examining which binder amino acids persistently contact each PD-L1 hotspot reveals recurring chemical solutions across independent designs. At hotspot residue 120 (Gly), 11 of the persistent contacts involve alanine — consistent small-residue packing against the smallest target position. At hotspot residue 125 (Arg), 10 persistent contacts involve glutamate, a charge-complementarity pattern that ProteinMPNN independently converged on across different backbones. Hotspot residue 56 (Tyr) draws hydrophobic contacts (Ala, Val, Leu), while residue 113 (Arg) attracts a mix of charge-complement (Glu) and aromatic (Phe) interactions. These are not single-design observations — they are cross-design convergent solutions that emerge from the intersection of sequence design and physics-based filtering.</p>
+<p>Examining which binder amino acids persistently contact each PD-L1 hotspot reveals recurring chemical solutions across independent designs. At hotspot residue 120 (Gly), 11 persistent contacts involve alanine, consistent with small-residue packing against the smallest target position. At hotspot residue 125 (Arg), 10 persistent contacts involve glutamate, a recurring charge-complementarity pattern across different backbones. Hotspot residue 56 (Tyr) draws hydrophobic contacts from Ala, Val, and Leu, while residue 113 (Arg) attracts a mix of glutamate and phenylalanine contacts. These cross-design patterns emerge from the intersection of ProteinMPNN sequence placement and MD persistence filtering.</p>
 
 <div class="callout callout-insight">
   <div class="callout-title">Wet-lab perspective</div>
-  <p>In directed evolution, when independent selection lineages converge on the same amino acid at a functional position, that position is called a consensus hit. The same logic applies here: when multiple independent backbones, each redesigned by ProteinMPNN and filtered by MD, place the same residue type against the same target hotspot, that contact is a computational consensus hit. These positions are the strongest candidates for fixed residues in a next-round combinatorial library.</p>
+  <p>In directed evolution, repeated recovery of the same amino acid at a functional position can identify a consensus hit. Here, recurring binder residue types against the same PD-L1 hotspot provide an analogous computational consensus signal. These positions are strong candidates for prioritization when defining fixed and diversified sites in a next-round combinatorial library.</p>
 </div>
 
 <h2>Beyond binary contacts: interaction intensity over time</h2>
@@ -348,29 +348,29 @@ code{font-family:var(--mono);font-size:.82em;background:var(--bg2);padding:.15em
 
 <h2>Entropy × persistence: a four-quadrant classification</h2>
 
-<p>Overlaying ProteinMPNN sequence entropy with MD contact persistence produces four quadrants that classify every binder–target contact pair by its design confidence and physical stability. Interpreting these quadrants requires recognizing that the two signals report on different things. Low entropy identifies positions where ProteinMPNN strongly preferred a narrow amino acid set for that backbone geometry — this is predominantly a structural constraint (core packing, helix capping, turn geometry) rather than a direct readout of binding importance. High persistence identifies contacts that survive under an explicit force field, which localizes to the functional binding interface. The intersection of these two signals therefore identifies positions that are constrained by both fold stability and interface function.</p>
+<p>Overlaying ProteinMPNN sequence entropy with MD contact persistence produces four quadrants that classify binder–target contact pairs by sequence constraint and trajectory persistence. The two signals report on different features. Low entropy identifies binder positions where ProteinMPNN strongly preferred a narrow amino-acid set in the context of the supplied complex backbone; that constraint may arise from fold geometry, interface packing, or both. High persistence identifies residue pairs that remain in contact through the equilibrated MD window. Their intersection highlights contact pairs involving sequence-constrained binder positions that also maintain persistent target engagement.</p>
 
 <div class="stats-row">
-  <div class="stat-card"><div class="num">222</div><div class="label">Convergent + persistent</div></div>
-  <div class="stat-card"><div class="num">431</div><div class="label">Tolerant + persistent</div></div>
-  <div class="stat-card"><div class="num">288</div><div class="label">Convergent + lost</div></div>
-  <div class="stat-card"><div class="num">563</div><div class="label">Tolerant + lost</div></div>
+  <div class="stat-card"><div class="num">222</div><div class="label">Constrained + persistent pairs</div></div>
+  <div class="stat-card"><div class="num">431</div><div class="label">Tolerant + persistent pairs</div></div>
+  <div class="stat-card"><div class="num">288</div><div class="label">Constrained + lost pairs</div></div>
+  <div class="stat-card"><div class="num">563</div><div class="label">Tolerant + lost pairs</div></div>
 </div>
 
-<p><strong>Convergent + persistent</strong> contacts (222) sit at positions where structural constraint and interface function overlap. These residues are likely important for both fold integrity and target engagement, which makes them the hardest to diversify — mutating them risks destabilizing the binder fold, disrupting the contact, or both. In a next-round library, these are fixed positions. <strong>Tolerant + persistent</strong> contacts (431) survived physics but sit at sequence-tolerant positions, meaning the backbone geometry accommodates multiple amino acids. These are the best candidates for controlled diversification: the contact is real, and the fold can tolerate substitution. <strong>Convergent + lost</strong> contacts (288) are positions where ProteinMPNN was confident about the residue identity but the contact did not persist through MD. Many of these are likely structurally important positions that happened to contact the target in the static structure but whose primary role is maintaining the binder fold, not engaging the interface. <strong>Tolerant + lost</strong> contacts (563) are the expected background — neither structurally constrained nor physically persistent at the interface.</p>
+<p><strong>Constrained + persistent</strong> pairs (222) involve low-entropy binder positions whose target contacts persisted during MD. These are high-priority candidates for fixed positions, but the pair-level counts must first be collapsed to unique binder residues before constructing a library. <strong>Tolerant + persistent</strong> pairs (431) involve sequence-tolerant binder positions that maintain target contacts and are the strongest candidates for controlled diversification. <strong>Constrained + lost</strong> pairs (288) involve low-entropy positions whose starting contacts did not persist; those residues may still be important for fold geometry or other local packing interactions. <strong>Tolerant + lost</strong> pairs (563) provide the lowest-priority signal for preserving the original contact identity.</p>
 
 <div class="callout callout-insight">
   <div class="callout-title">Why this matters for the DBTL cycle</div>
-  <p>The four-quadrant classification converts two independent computational signals — structural constraint from sequence design and functional persistence from physics — into actionable categories for the next design round. The key practical insight is that convergent + persistent positions are doubly constrained: they cannot be freely mutated without risking both fold stability and interface engagement. Tolerant + persistent positions are where a combinatorial library has room to explore. This distinction — between what is locked by structure and what is locked by function — is exactly the information a library designer needs.</p>
+  <p>The four-quadrant classification combines sequence constraint from ProteinMPNN with contact persistence from MD to support the next design round. After collapsing contact-pair results to unique binder positions, constrained + persistent sites are candidates to hold fixed, while tolerant + persistent sites define the clearest space for controlled diversification. The framework separates residues that are repeatedly selected by the sequence model from residues whose target engagement persists during local relaxation.</p>
 </div>
 
 <h2>What this means for the campaign</h2>
 
 <p>Across the 28 consensus candidates, most binders remained structurally intact and target-associated during the 1 ns simulations. Approximately 38.5% of starting contact pairs persisted, while additional persistent contacts formed as the interfaces relaxed. The resulting contact networks remained concentrated on the PD-1-facing region of PD-L1 and continued to engage the RFdiffusion-specified hotspot residues.</p>
 
-<p>Several findings from this analysis were not immediately obvious from the summary statistics. First, Cluster A and Cluster B binders engage PD-L1 through qualitatively different mechanisms — static retention versus physics-dependent reorganization — which means a scoring pipeline that relied only on pre-MD fingerprints would systematically undervalue Cluster B designs. Second, the tripling of exact-identity PD-1 mimicry contacts under MD, without any mimicry objective, suggests that the PD-L1 surface constrains what persistent engagement looks like regardless of how the binder was designed. Third, recurring amino acid convergence at specific hotspot positions across independent backbones identifies computational consensus hits — the strongest candidates for fixed positions in a next-round library. And fourth, the entropy × persistence quadrant framework provides an actionable classification for every contact in the campaign, distinguishing high-confidence constraints from false positives and diversification candidates.</p>
+<p>The analysis supports four practical campaign decisions. Retain designs with stable folds, continued target association, and strong persistent hotspot-contact networks. Prioritize sequence-constrained binder positions that also maintain persistent target contacts when defining fixed sites. Use sequence-tolerant positions with persistent contacts as the primary space for controlled diversification. Deprioritize designs with weak persistent networks or extensive contact reorganization that is not supported by the other campaign metrics.</p>
 
-<p>Together, these provide a practical triage layer for the campaign. The next stage — affinity scoring and experimental prioritization — can focus on candidates whose interfaces are supported by sequence design, independent structure prediction, and persistence under an explicit force field.</p>
+<p>Together, these results provide a practical triage layer for the campaign. The next stage — affinity scoring and experimental prioritization — can focus on candidates whose interfaces are supported by sequence design, independent structure prediction, and persistent engagement during local MD relaxation.</p>
 
 <h3>Caveats</h3>
 
