@@ -542,12 +542,17 @@ new Chart(document.getElementById('chart-mimicry'),{
       {cartoon: {color: '#B8B8B8', opacity: 0.35}}
     );
 
+    // Restrict both surface coloring and surface generation to the
+    // binder chain. In 3Dmol.js, the fourth argument controls which
+    // atoms contribute to the generated surface; omitting it can
+    // generate a white surface over the complete complex.
     viewer.addSurface(
       $3Dmol.SurfaceType.VDW,
       {
         opacity: 1.0,
         colorfunc: residueColorFunction(design)
       },
+      {chain: design.binder_chain},
       {chain: design.binder_chain}
     );
 
