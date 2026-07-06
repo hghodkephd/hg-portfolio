@@ -72,7 +72,7 @@ footer a{color:var(--tx3)}
 </head>
 <body>
 <div class="page">
-<a href="https://github.com/hghodkephd/hg-portfolio/blob/main/docs/ai-guided-protein-design.md" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to project hub</a>
+<a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to project hub</a>
 <h1>Affinity and complex stability scoring</h1>
 <p class="subtitle">Which candidates form the most credible modeled complexes — and do the scoring methods agree?</p>
 <div class="tag-row">
@@ -80,9 +80,13 @@ footer a{color:var(--tx3)}
 </div>
 <div class="callout">These scores are not experimental affinities. They are comparative triage features — different lenses on modeled complex quality. The output is a prioritized shortlist of hypotheses, not validated binders.</div>
 
+<h2>From persistent contacts to affinity-like scoring</h2>
+<p>Part 6 asked whether each designed interface remained engaged during molecular dynamics. That analysis showed which contacts survived local relaxation, but persistence alone does not estimate how favorable one modeled interface is relative to another. A complex can remain associated over a short trajectory while still presenting a comparatively small or weakly packed interface.</p>
+<p>This stage introduces affinity-like scoring as an additional ranking layer. PRODIGY estimates binding free energy from structural features of a protein–protein interface, primarily the pattern of interfacial contacts together with properties of the surrounding surface. It therefore converts a static complex structure into a comparative predicted ΔG and K<sub>d</sub>. For these de novo designs, the useful question is not whether the absolute value is correct, but whether the score helps distinguish stronger modeled interfaces and whether it agrees with the other evidence already collected.</p>
+
 <h2>The scoring problem</h2>
 <p>Twenty-eight designs survived the full computational pipeline: RFdiffusion backbone generation, ProteinMPNN sequence design, ESMFold fold validation, structural filtering, Boltz-2 complex prediction, interface fingerprinting, and 1 ns molecular dynamics simulations. Each design now has metrics from multiple analyses. The question is whether those metrics tell a consistent story — and what happens when they do not.</p>
-<p>Five evidence types were assembled for each design. Boltz-2 complex confidence asks whether an independent predictor recovers a plausible complex from sequence alone. Static interface geometry describes the physical extent of the minimized interface. PRODIGY provides an empirical affinity-like score. MD-derived metrics test whether the modeled complex remains structurally coherent during short simulation. Post-MD contact persistence measures which designed interactions remain populated over the trajectory.</p>
+<p>Five evidence types were assembled for each design. Boltz-2 complex confidence asks whether an independent predictor recovers a plausible complex from sequence alone. Static interface geometry describes the physical extent of the minimized interface. PRODIGY adds an empirical affinity-like score. MD-derived metrics test whether the modeled complex remains structurally coherent during short simulation. Post-MD contact persistence measures which designed interactions remain populated over the trajectory.</p>
 <div class="metrics-grid">
 <div class="metric-card accent"><div class="metric-value">28</div><div class="metric-label">Designs scored</div></div>
 <div class="metric-card"><div class="metric-value">5</div><div class="metric-label">Evidence types</div></div>
@@ -104,7 +108,7 @@ footer a{color:var(--tx3)}
 <div class="callout insight">The non-correlations are as informative as the correlations. Sequence confidence, fold recovery, complex plausibility, interface extent, affinity-like scoring, and dynamic coherence expose different failure modes. No single metric captures the whole screening problem.</div>
 
 <h2>Static contacts predict dynamic persistence</h2>
-<p>The strongest workflow-level finding is the relationship between static residue-level contacts and post-MD persistence. This is not unexpected at all - Designs that begin with richer contact networks in the minimized structure tend to retain more persistent contacts during molecular dynamics. The Spearman correlation (ρ = +0.679, p = 0.0001) makes static fingerprinting a useful low-cost triage feature before committing to more expensive simulation.</p>
+<p>The strongest workflow-level finding is the relationship between static residue-level contacts and post-MD persistence. Designs that begin with richer contact networks in the minimized structure tend to retain more persistent contacts during molecular dynamics. The Spearman correlation (ρ = +0.679, p = 0.0001) makes static fingerprinting a useful low-cost triage feature before committing to more expensive simulation.</p>
 <p>This does not make static geometry a substitute for MD. It means the static screen contains information that survives the transition to dynamics.</p>
 
 <h2>PRODIGY largely tracks interface size</h2>
@@ -142,7 +146,7 @@ footer a{color:var(--tx3)}
 <div class="figure-wrap"><div class="figure-title">Retrospective pipeline matrix — all 55 designs, rank-normalized</div><img src="11_pipeline_heatmap.png" alt="Rank-normalized retrospective heatmap for all 55 PD-L1 mini-binder designs across seven pipeline stages"></div>
 
 <h3>Pipeline composite: substantial agreement at the top</h3>
-<p>The full-pipeline composite averages all available stage-level metrics. It does not produce an unrelated set of winners. The same two designs occupy the top two positions, although their order is reversed, and four of the top five appear in both rankings. Differences emerge where upstream model confidence and downstream interface or MD evidence weight candidates differently.</p>
+<p>The full-pipeline composite averages all available stage-level metrics. It does not produce an unrelated set of winners. The same two designs occupy the top two positions, although their order is reversed, and three of the top five appear in both rankings. Differences emerge where upstream model confidence and downstream interface or MD evidence weight candidates differently.</p>
 <div class="table-scroll"><table class="design-table">
 <thead><tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>Boltz tier</th><th>Composite</th></tr></thead>
 <tbody>
@@ -161,7 +165,7 @@ footer a{color:var(--tx3)}
 <h2>What this means</h2>
 <div class="callout key">Structural screening narrows the field, but the surviving designs remain supported by different combinations of evidence. The two scorecards converge on several leaders while preserving diversity across hotspot strategy, interface architecture, model confidence, affinity-like scoring, and dynamic behavior. That is a more useful basis for experimental prioritization than declaring a single computational winner.</div>
 
-<footer>Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://github.com/hghodkephd/hg-portfolio/blob/main/docs/ai-guided-protein-design.md">PD-L1 mini-binder design campaign</a></footer>
+<footer>Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">PD-L1 mini-binder design campaign</a></footer>
 </div>
 </body>
 </html>
