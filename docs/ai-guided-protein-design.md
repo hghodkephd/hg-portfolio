@@ -36,6 +36,8 @@ The workflow combines RFdiffusion backbone generation, ProteinMPNN sequence desi
   
 6. [Molecular Dynamics Simulation for all Designs](/hg-portfolio/projects/pdl1-mini-binder/Page6_MDfullset/)
 
+7. [Affinity Scoring](/hg-portfolio/projects/pdl1-mini-binder/Page7_AffinityScoring/)
+
 ---
 
 ## Volume 2: De Novo VHH Design Against PD-L1
