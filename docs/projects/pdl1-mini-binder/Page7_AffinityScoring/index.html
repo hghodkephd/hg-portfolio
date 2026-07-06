@@ -1,177 +1,175 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Part 7: Design-Quality Candidate Prioritization — PD-L1 Mini-Binder Design</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --navy:#102a43;--navy2:#243b53;--blue:#2f6f9f;--blue2:#1f5b85;
-  --teal:#2a7f7f;--teal-dark:#1f6262;--orange:#d9772b;--gold:#c9972c;
-  --ink:#24323f;--muted:#5c6b78;--quiet:#7e8b96;
-  --paper:#fff;--page:#f5f7f8;--soft:#eef3f6;--line:#d9e1e6;
-  --good:#e7f4ef;--good-line:#2f856a;--warm:#fff4e8;--warm-line:#d9772b;
-  --info:#eaf3f8;--info-line:#2f6f9f;--danger:#fbeceb;--danger-line:#b94e48;
-  --sans:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
-  --radius:8px;--shadow:0 8px 28px rgba(16,42,67,.08)
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--purple:#6b4c9a;--purple-light:#ede6f5;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--page);color:var(--ink);line-height:1.68;-webkit-font-smoothing:antialiased}
-a{color:var(--blue2);text-decoration:none}a:hover{text-decoration:underline}
-.series-bar{background:var(--navy);color:#fff;border-bottom:4px solid var(--orange)}
-.series-inner{max-width:1160px;margin:auto;padding:.82rem 1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
-.series-title{font-size:.82rem;font-weight:600;letter-spacing:.02em;color:#eaf2f7}
-.series-link{font-size:.8rem;color:#d5e3ec;white-space:nowrap}.series-link:hover{color:#fff}
-.hero{background:linear-gradient(135deg,#f7fafc 0%,#eaf2f6 100%);border-bottom:1px solid var(--line)}
-.hero-inner{max-width:1160px;margin:auto;padding:3.5rem 1.5rem 3rem}
-.eyebrow{font-size:.76rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--orange);margin-bottom:.7rem}
-h1{font-size:clamp(2.15rem,4vw,3.35rem);line-height:1.08;letter-spacing:-.035em;color:var(--navy);max-width:880px}
-.subtitle{max-width:820px;margin:.85rem 0 1.3rem;font-size:1.12rem;line-height:1.55;color:var(--muted)}
-.tag-row{display:flex;flex-wrap:wrap;gap:.45rem}
-.tag{display:inline-flex;align-items:center;padding:.28rem .65rem;border:1px solid #c9d7df;background:#fff;border-radius:999px;font-size:.72rem;font-weight:600;color:var(--navy2)}
-.tag.primary{background:var(--navy);border-color:var(--navy);color:#fff}
-.page{max-width:1040px;margin:0 auto;padding:2.5rem 1.5rem 4.5rem;background:var(--paper);box-shadow:0 0 0 1px rgba(16,42,67,.035)}
-.previously{border-left:4px solid var(--blue);background:var(--info);padding:1rem 1.15rem;margin:0 0 2rem;border-radius:0 var(--radius) var(--radius) 0;color:var(--navy2);font-size:.92rem}
-.previously strong{color:var(--navy)}
-h2{font-size:1.55rem;line-height:1.3;color:var(--navy);margin:3.1rem 0 1rem;padding-bottom:.55rem;border-bottom:2px solid #dfe7ec}
-h2::before{content:"";display:inline-block;width:4px;height:1.05em;background:var(--orange);margin-right:.65rem;vertical-align:-.12em;border-radius:2px}
-h3{font-size:1.04rem;color:var(--navy2);margin:1.8rem 0 .65rem}
-p{font-size:.96rem;color:var(--muted);margin-bottom:1rem}
-.callout{padding:1rem 1.15rem;margin:1.6rem 0;border-left:4px solid var(--info-line);background:var(--info);border-radius:0 var(--radius) var(--radius) 0;color:var(--navy2);font-size:.91rem}
-.callout.insight{background:var(--warm);border-left-color:var(--warm-line)}
-.callout.key{background:var(--good);border-left-color:var(--good-line);font-weight:500}
-.metrics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.85rem;margin:1.6rem 0}
-.metric-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--blue);border-radius:var(--radius);padding:1rem;text-align:center;box-shadow:0 3px 12px rgba(16,42,67,.05)}
-.metric-card.accent{border-top-color:var(--orange);background:#fffaf5}
-.metric-value{font-family:var(--mono);font-size:1.65rem;font-weight:600;color:var(--navy)}
-.metric-label{font-size:.68rem;line-height:1.35;text-transform:uppercase;letter-spacing:.07em;color:var(--quiet);margin-top:.3rem;font-weight:700}
-.corr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin:1.5rem 0}
-.corr-card{background:#fff;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:0 2px 10px rgba(16,42,67,.04)}
-.corr-card.strong{border-left-color:var(--good-line)}.corr-card.weak{border-left-color:var(--gold)}.corr-card.none{border-left-color:#aeb9c1}
-.corr-pair{font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:.28rem}.corr-value{font-family:var(--mono);font-size:.82rem;font-weight:600}.corr-interp{font-size:.78rem;color:var(--quiet);margin-top:.35rem}
-.table-scroll{overflow-x:auto;margin:1.2rem 0 1.6rem;border:1px solid var(--line);border-radius:var(--radius)}
-.design-table{width:100%;border-collapse:collapse;background:#fff;font-size:.78rem}
-.design-table th{background:var(--navy);color:#fff;text-align:left;padding:.72rem .7rem;font-size:.65rem;text-transform:uppercase;letter-spacing:.055em;white-space:nowrap}
-.design-table td{padding:.72rem .7rem;border-bottom:1px solid #e6ecef;color:#52616d;font-family:var(--mono);font-size:.71rem;vertical-align:top}
-.design-table tr:last-child td{border-bottom:0}.design-table tbody tr:nth-child(even){background:#f8fafb}.design-table tbody tr:hover{background:#edf4f7}.design-table .rank-1{background:#e7f4ef!important}.design-table .rank-1 td{color:var(--teal-dark);font-weight:600}
-.profile-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1.5rem 0}
-.profile-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:var(--radius);padding:1.1rem;box-shadow:0 3px 14px rgba(16,42,67,.055)}
-.profile-rank{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--orange)}
-.profile-name{font-family:var(--mono);font-size:.72rem;color:var(--navy);line-height:1.5;margin:.45rem 0 .75rem;overflow-wrap:anywhere}.profile-card p{font-size:.83rem;margin:0}
-.figure-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1rem;margin:1.5rem 0;box-shadow:var(--shadow)}
-.figure-wrap img{display:block;width:100%;height:auto}.figure-title{font-size:.78rem;font-weight:700;color:var(--navy2);margin-bottom:.8rem}
-.next-card{margin-top:3rem;padding:1.5rem 1.6rem;background:linear-gradient(135deg,var(--navy),#174a66);border-radius:10px;color:#fff;box-shadow:var(--shadow)}
-.next-card h2{color:#fff;border:0;padding:0;margin:0 0 .7rem}.next-card h2::before{background:var(--orange)}.next-card p{color:#dce8ef;margin-bottom:.7rem}.next-card a{color:#fff;font-weight:700}.next-card a:hover{color:#ffd9b8}
-footer{margin-top:3.5rem;padding-top:1.4rem;border-top:1px solid var(--line);font-size:.76rem;color:var(--quiet);text-align:center}footer a{color:var(--quiet)}
-@media(max-width:820px){.metrics-grid{grid-template-columns:repeat(2,1fr)}.profile-grid{grid-template-columns:1fr}.corr-grid{grid-template-columns:1fr}.series-inner{align-items:flex-start;flex-direction:column;gap:.3rem}}
-@media(max-width:520px){.hero-inner{padding:2.4rem 1rem 2rem}.page{padding:1.7rem 1rem 3rem}.metrics-grid{grid-template-columns:1fr 1fr}h2{font-size:1.3rem}.design-table td{font-size:.66rem}}
-
-.scorecard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.5rem 0}
-.scorecard-box{background:#fff;border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:var(--radius);padding:1.15rem;box-shadow:0 3px 14px rgba(16,42,67,.055)}
-.scorecard-box.downstream{border-top-color:var(--orange)}
-.scorecard-kicker{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--quiet);margin-bottom:.35rem}
-.scorecard-box h3{margin:.1rem 0 .65rem;color:var(--navy)}
-.scorecard-box p{font-size:.86rem;margin-bottom:.75rem}
-.scorecard-box ul{margin:.4rem 0 0 1.1rem;color:var(--muted);font-size:.82rem}
-.scorecard-box li{margin:.2rem 0}
-.scorecard-note{font-size:.82rem;color:var(--quiet);font-style:italic;margin-top:.8rem}
-@media(max-width:820px){.scorecard-grid{grid-template-columns:1fr}}
-
-.design-table .fellout-row td{color:#8a96a0;background:#f7f8f9}
-.design-table .topdown-row td{background:#fffaf0}
-.rank-table-note{font-size:.82rem;color:var(--quiet);margin-top:-.6rem;margin-bottom:1.2rem}
-
-.chart-container{position:relative;width:100%;margin:1.5rem 0}
-.chart-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
-.chart-wrap canvas{width:100%!important}
-.chart-title{font-size:.82rem;font-weight:800;color:var(--navy2);margin-bottom:.25rem}
-.chart-caption{font-size:.82rem;color:var(--quiet);margin:.4rem 0 0}
-.plot-legend{display:flex;flex-wrap:wrap;gap:.7rem;margin:.65rem 0 0;font-size:.78rem;color:var(--muted)}
-.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.3rem;vertical-align:middle}
-
-/* Compact scorecard plot */
-#scorecardRankChart{max-height:320px}
-@media(max-width:820px){#scorecardRankChart{max-height:280px}.chart-wrap{padding:.85rem}}
-@media(max-width:520px){#scorecardRankChart{max-height:250px}.plot-legend{gap:.45rem;font-size:.72rem}.chart-caption{font-size:.76rem}}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none;border-bottom:1px dashed rgba(29,107,82,.45)}
+a:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.series-banner{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;padding:.75rem 1rem;background:var(--accent-light);border-radius:var(--radius);border-left:3px solid var(--accent);flex-wrap:wrap}
+.series-banner .tag{font-family:var(--mono);font-size:.7rem;font-weight:500;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.series-banner a{font-size:.85rem;color:var(--accent2);font-weight:500;text-decoration:none;border-bottom:1px dashed var(--accent)}
+.series-banner .sep{color:var(--accent);opacity:.4}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem;line-height:1.18}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+ul{margin:.35rem 0 0 1.15rem;color:var(--tx2);font-size:.86rem}li{margin:.25rem 0}
+.subtitle{font-size:1.05rem;color:var(--tx3);font-family:var(--serif);font-style:italic;margin-bottom:1.1rem;max-width:760px}
+.tag-row{display:flex;flex-wrap:wrap;gap:.45rem;margin:0 0 2rem}
+.chip{display:inline-flex;align-items:center;padding:.25rem .55rem;border:1px solid var(--bg3);background:#fff;border-radius:999px;font-family:var(--mono);font-size:.68rem;color:var(--tx2)}
+.chip.primary{background:var(--accent-light);border-color:rgba(29,107,82,.25);color:var(--accent2)}
+.recap{background:var(--bg2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0 2rem;border-left:3px solid var(--accent)}
+.recap p{margin:0;font-size:.88rem}.recap strong{color:var(--tx)}
+.callout{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin:1.5rem 0;border-left:3px solid var(--blue)}
+.callout p{margin:0;font-size:.86rem}.callout-title{font-weight:600;font-size:.85rem;margin-bottom:.45rem;display:flex;align-items:center;gap:.4rem;color:var(--tx)}
+.callout-insight{border-left-color:var(--accent);background:var(--accent-light)}
+.callout-caution{border-left-color:var(--coral);background:var(--coral-light)}
+.callout-key{border-left-color:var(--accent);background:#fff}.callout-key p{font-weight:500;color:var(--tx2)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.5rem 0 2rem}
+.stat-card{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius);padding:1rem;text-align:center}
+.stat-card .num{font-family:var(--mono);font-size:1.6rem;font-weight:500;color:var(--accent2);line-height:1.2}.stat-card.coral .num{color:var(--coral)}
+.stat-card .label{font-size:.75rem;color:var(--tx3);margin-top:.25rem;text-transform:uppercase;letter-spacing:.06em}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+.figure-card,.chart-card,.scorecard-box,.profile-card,.corr-card{background:#fff;border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1.25rem;margin:1.5rem 0}
+.figure-card h3,.chart-card h3{margin:0 0 .75rem;font-size:.9rem}.figure-card img{display:block;width:100%;height:auto;border:1px solid var(--bg3);border-radius:4px;background:#fff}
+.fig-caption,.chart-caption{font-size:.8rem;color:var(--tx3);margin-top:.75rem;font-style:italic;line-height:1.5}
+.scorecard-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0}.scorecard-box{margin:0;border-top:3px solid var(--blue)}.scorecard-box.downstream{border-top-color:var(--coral)}
+.scorecard-kicker{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3);margin-bottom:.35rem}.scorecard-box h3{margin:.1rem 0 .55rem}.scorecard-note{font-size:.8rem;color:var(--tx3);font-style:italic;margin-top:.75rem}
+@media(max-width:700px){.scorecard-grid{grid-template-columns:1fr}}
+.corr-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}.corr-card{margin:0;border-left:3px solid var(--bg3)}.corr-card.strong{border-left-color:var(--accent)}.corr-card.weak{border-left-color:var(--amber)}.corr-card.none{border-left-color:var(--tx3)}
+.corr-pair{font-size:.82rem;font-weight:600;color:var(--tx);margin-bottom:.25rem}.corr-value{font-family:var(--mono);font-size:.8rem}.corr-interp{font-size:.78rem;color:var(--tx3);margin-top:.35rem;line-height:1.55}
+@media(max-width:700px){.corr-grid{grid-template-columns:1fr}}
+.table-scroll{overflow-x:auto;margin:1.2rem 0 1.5rem;border:1px solid var(--bg3);border-radius:var(--radius-lg);background:#fff}.design-table{width:100%;border-collapse:collapse;font-size:.78rem}.design-table th{background:var(--bg2);padding:.5rem .75rem;text-align:left;font-weight:600;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);border-bottom:2px solid var(--bg3);white-space:nowrap}.design-table td{padding:.55rem .75rem;border-bottom:1px solid var(--bg3);font-family:var(--mono);font-size:.7rem;color:var(--tx2);vertical-align:top}.design-table tr:hover{background:var(--bg2)}.design-table tr:last-child td{border-bottom:0}.design-table .rank-1{background:var(--accent-light)}.design-table .rank-1 td{color:var(--accent2);font-weight:500}
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}.profile-card{margin:0;border-top:3px solid var(--accent)}.profile-rank{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--coral)}.profile-name{font-family:var(--mono);font-size:.72rem;color:var(--tx);line-height:1.5;margin:.4rem 0 .7rem;overflow-wrap:anywhere}.profile-card p{font-size:.83rem;margin:0}
+@media(max-width:760px){.profile-grid{grid-template-columns:1fr}}
+.chart-card canvas{width:100%!important;height:320px!important;max-height:320px}.plot-legend{display:flex;flex-wrap:wrap;gap:1rem;margin:.7rem 0 0;font-size:.78rem;color:var(--tx2)}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.35rem;vertical-align:middle;border:1px solid rgba(0,0,0,.12)}
+@media(max-width:520px){.chart-card canvas{height:250px!important}.plot-legend{gap:.55rem;font-size:.72rem}.design-table td{font-size:.66rem}}
+.next-section{background:var(--accent-light);border:1px solid rgba(29,107,82,.18);border-left:3px solid var(--accent);border-radius:var(--radius-lg);padding:1.4rem 1.5rem;margin:3rem 0 0}.next-section h2{margin:0 0 .75rem;border:0;padding:0}.next-section p{margin-bottom:.7rem}.page-footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);text-align:center;color:var(--tx3);font-size:.8rem}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script></head>
-<body><header class="series-bar"><div class="series-inner"><a class="series-title" href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">A wet-lab scientist learns computational protein design</a><a class="series-link" href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page6_MDfullset/">← Part 6: What Survives Physics</a></div></header><section class="hero"><div class="hero-inner"><div class="eyebrow">Part 7 · Candidate prioritization</div><h1>Design-quality candidate prioritization</h1><p class="subtitle">Using affinity-like scoring, complex confidence, interface geometry, and short MD to rank modeled PD-L1 mini-binder candidates.</p><div class="tag-row"><span class="tag primary">PRODIGY</span><span class="tag primary">OpenMM</span><span class="tag primary">MDTraj</span><span class="tag">Boltz-2</span><span class="tag">BioPython</span><span class="tag">Shrake-Rupley BSA</span><span class="tag">Contact persistence</span></div></div></section>
-<div class="page"><div class="previously"><strong>Previously, in Part 6:</strong> Molecular dynamics and post-MD fingerprinting showed which designed contacts persisted after local relaxation across all 28 consensus candidates. This page adds affinity-like scoring and combines the accumulated evidence into a campaign-level prioritization framework.</div>
-<div class="callout">These scores are not experimental affinities. They are comparative triage features — different lenses on modeled complex quality. The output is a prioritized shortlist of hypotheses, not validated binders.</div>
+</head>
+<body>
+<div class="page">
+
+<div class="series-banner">
+  <span class="tag">Candidate prioritization</span>
+  <span class="sep">|</span>
+  <span style="font-size:.85rem;color:var(--tx2)">A wet-lab scientist learns computational protein design</span>
+  <span class="sep">|</span>
+  <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/Page6_MDfullset/">← Part 6: What Survives Physics</a>
+</div>
+
+<h1>Part 7: Design-quality candidate prioritization</h1>
+<p class="subtitle">Using affinity-like scoring, complex confidence, interface geometry, and short MD to rank modeled PD-L1 mini-binder candidates.</p>
+<div class="tag-row">
+  <span class="chip primary">PRODIGY</span><span class="chip primary">OpenMM</span><span class="chip primary">MDTraj</span>
+  <span class="chip">Boltz-2</span><span class="chip">BioPython</span><span class="chip">Shrake-Rupley BSA</span><span class="chip">Contact persistence</span>
+</div>
+
+<div class="recap"><p><strong>Previously:</strong> Part 6 used molecular dynamics and post-MD fingerprinting to identify which designed contacts persisted after local relaxation across all 28 consensus candidates. This page adds affinity-like scoring and combines the accumulated evidence into a campaign-level prioritization framework.</p></div>
+
+<div class="callout callout-caution"><div class="callout-title">Interpretation</div><p>These scores are not experimental affinities. They are comparative triage features — different lenses on modeled complex quality. The output is a prioritized shortlist of hypotheses, not validated binders.</p></div>
+
 <h2>From persistent contacts to affinity-like scoring</h2>
 <p>Part 6 asked whether each designed interface remained engaged during molecular dynamics. That analysis showed which contacts survived local relaxation, but persistence alone does not estimate how favorable one modeled interface is relative to another. A complex can remain associated over a short trajectory while still presenting a comparatively small or weakly packed interface.</p>
 <p>This stage introduces affinity-like scoring as an additional ranking layer. PRODIGY estimates binding free energy from structural features of a protein–protein interface, primarily the pattern of interfacial contacts together with properties of the surrounding surface. It therefore converts a static complex structure into a comparative predicted ΔG and K<sub>d</sub>. For these de novo designs, the useful question is not whether the absolute value is correct, but whether the score helps distinguish stronger modeled interfaces and whether it agrees with the other evidence already collected.</p>
+
 <h2>The scoring problem</h2>
 <p>Of the 55 designs generated, 28 progressed through the complete downstream evaluation sequence: RFdiffusion backbone generation, ProteinMPNN sequence design, ESMFold fold validation, structural filtering, Boltz-2 complex prediction, interface fingerprinting, and 1 ns molecular dynamics simulations. Each of these downstream-complete designs now has metrics from multiple analyses. The question is whether those metrics tell a consistent story — and what happens when they do not.</p>
 <p>Five evidence types were assembled across the campaign. Boltz-2 complex confidence asks whether an independent predictor recovers a plausible complex from sequence alone. Static interface geometry describes the physical extent of the minimized interface. PRODIGY adds an empirical affinity-like score. MD-derived metrics test whether the modeled complex remains structurally coherent during short simulation. Post-MD contact persistence measures which designed interactions remain populated over the trajectory.</p>
-<div class="metrics-grid">
-<div class="metric-card accent"><div class="metric-value">55</div><div class="metric-label">Designs in retrospective</div></div>
-<div class="metric-card"><div class="metric-value">28</div><div class="metric-label">Downstream complete</div></div>
-<div class="metric-card"><div class="metric-value">14</div><div class="metric-label">Retrospective metrics</div></div>
-<div class="metric-card"><div class="metric-value">2</div><div class="metric-label">Fair scorecard regions</div></div>
+
+<div class="stats-row">
+  <div class="stat-card coral"><div class="num">55</div><div class="label">Designs in retrospective</div></div>
+  <div class="stat-card"><div class="num">28</div><div class="label">Downstream complete</div></div>
+  <div class="stat-card"><div class="num">14</div><div class="label">Retrospective metrics</div></div>
+  <div class="stat-card"><div class="num">2</div><div class="label">Fair scorecard regions</div></div>
 </div>
+
 <p>The first task is to place all 55 designs back into the context of the full screening funnel. That broader retrospective shows where evidence accumulated and where attrition occurred. It is a campaign map, not a final leaderboard.</p>
+
 <h2>Pipeline retrospective: all 55 designs</h2>
 <p>The retrospective matrix reconstructs the full campaign from the original 55 sequence designs. Fourteen quantitative metrics spanning seven pipeline stages are rank-normalized to [0, 1], where 1 is best. Designs that did not reach a stage remain blank, allowing performance, attrition, and evidence coverage to be read from the same figure.</p>
 <p>This view is deliberately uneven because the workflow itself is uneven: some candidates were evaluated only through early sequence and monomer-fold screens, while others progressed to complex prediction, interface analysis, PRODIGY scoring, MD, and contact persistence. That makes the matrix useful for visualizing the campaign, but unfair as a single global ranking.</p>
-<div class="figure-wrap"><div class="figure-title">Retrospective pipeline matrix — all 55 designs, rank-normalized</div><img alt="Rank-normalized retrospective heatmap for all 55 PD-L1 mini-binder designs across seven pipeline stages" src="11_pipeline_heatmap.png"/></div>
-<div class="callout insight">The full matrix should not be collapsed into one leaderboard. A design scored only on ProteinMPNN and ESMFold has not been judged on the same evidence as a design that also completed Boltz-2, static interface analysis, PRODIGY, MD, and post-MD fingerprinting.</div>
+
+<div class="figure-card">
+  <h3>Retrospective pipeline matrix — all 55 designs, rank-normalized</h3>
+  <img alt="Rank-normalized retrospective heatmap for all 55 PD-L1 mini-binder designs across seven pipeline stages" src="11_pipeline_heatmap.png">
+  <div class="fig-caption">Blank cells indicate candidates that did not reach a later stage of the pipeline.</div>
+</div>
+
+<div class="callout callout-insight"><div class="callout-title">Campaign-level interpretation</div><p>The full matrix should not be collapsed into one leaderboard. A design scored only on ProteinMPNN and ESMFold has not been judged on the same evidence as a design that also completed Boltz-2, static interface analysis, PRODIGY, MD, and post-MD fingerprinting.</p></div>
+
 <h2>Two fair scorecards within an uneven pipeline</h2>
 <p>To compare like with like, the matrix defines two rectangular scorecard regions. The first uses the low-cost upstream metrics available for all 55 designs. The second uses the downstream evidence package available for the 28 fully characterized designs.</p>
+
 <div class="scorecard-grid">
-<div class="scorecard-box">
-<div class="scorecard-kicker">Scorecard 1 · upstream screen</div>
-<h3>All 55 designs</h3>
-<p>This scorecard asks which candidates looked strongest after the inexpensive sequence-design and monomer-fold checks.</p>
-<ul>
-<li>ProteinMPNN sequence-design score</li>
-<li>ESMFold pLDDT</li>
-<li>ESMFold RMSD to the designed backbone</li>
-</ul>
-<div class="scorecard-note">Fair comparison: every design has the same upstream evidence.</div>
+  <div class="scorecard-box">
+    <div class="scorecard-kicker">Scorecard 1 · upstream screen</div>
+    <h3>All 55 designs</h3>
+    <p>This scorecard asks which candidates looked strongest after the inexpensive sequence-design and monomer-fold checks.</p>
+    <ul><li>ProteinMPNN sequence-design score</li><li>ESMFold pLDDT</li><li>ESMFold RMSD to the designed backbone</li></ul>
+    <div class="scorecard-note">Fair comparison: every design has the same upstream evidence.</div>
+  </div>
+  <div class="scorecard-box downstream">
+    <div class="scorecard-kicker">Scorecard 2 · downstream consensus</div>
+    <h3>28 fully characterized designs</h3>
+    <p>This scorecard asks which modeled complexes remain strongest after the more expensive downstream analyses.</p>
+    <ul><li>Boltz-2 ipTM</li><li>BSA, residue contacts, and polar contacts</li><li>PRODIGY ΔG</li><li>Binder RMSD and COM drift during MD</li></ul>
+    <div class="scorecard-note">Fair comparison: every retained design has the same downstream evidence.</div>
+  </div>
 </div>
-<div class="scorecard-box downstream">
-<div class="scorecard-kicker">Scorecard 2 · downstream consensus</div>
-<h3>28 fully characterized designs</h3>
-<p>This scorecard asks which modeled complexes remain strongest after the more expensive downstream analyses.</p>
-<ul>
-<li>Boltz-2 ipTM</li>
-<li>BSA, residue contacts, and polar contacts</li>
-<li>PRODIGY ΔG</li>
-<li>Binder RMSD and COM drift during MD</li>
-</ul>
-<div class="scorecard-note">Fair comparison: every retained design has the same downstream evidence.</div>
-</div>
-</div>
+
 <p>This framing avoids comparing early-stage candidates against downstream-complete candidates as though they had been measured on the same basis. Later in the page, every construct is listed explicitly with its upstream rank, downstream rank, and downstream-completion status.</p>
 <p>Before constructing the downstream consensus ranking, I first asked whether the individual evidence layers agree with one another — or whether each stage contributes a distinct signal.</p>
+
 <h2>Cross-stage agreement is limited</h2>
 <p>If every pipeline stage measured the same underlying property, its outputs would be strongly correlated. They are not. Most cross-stage relationships are weak or absent, indicating that the stages contribute partly independent information.</p>
+
 <div class="corr-grid">
-<div class="corr-card strong"><div class="corr-pair">BSA rank → PRODIGY affinity rank</div><div class="corr-value" style="color:var(--accent)">ρ = +0.825 (p &lt; 0.0001) ***</div><div class="corr-interp">PRODIGY largely recapitulates interface size. These are not independent signals.</div></div>
-<div class="corr-card strong"><div class="corr-pair">Static contacts → MD persistence</div><div class="corr-value" style="color:var(--accent)">ρ = +0.679 (p = 0.0001) ***</div><div class="corr-interp">Richer static contact networks tend to remain more populated during short MD.</div></div>
-<div class="corr-card weak"><div class="corr-pair">PRODIGY affinity rank → persistence</div><div class="corr-value" style="color:var(--amber)">ρ = +0.407 (p = 0.0316) *</div><div class="corr-interp">Modest agreement, consistent with the relationship between interface extent and persistence.</div></div>
-<div class="corr-card none"><div class="corr-pair">MPNN score → ESMFold pLDDT</div><div class="corr-value" style="color:var(--tx3)">ρ = −0.237 (p = 0.0820) ns</div><div class="corr-interp">Sequence-design confidence does not predict fold quality in this set.</div></div>
-<div class="corr-card none"><div class="corr-pair">ESMFold RMSD → Boltz ipTM</div><div class="corr-value" style="color:var(--tx3)">ρ = −0.004 (p = 0.9828) ns</div><div class="corr-interp">Monomer fold recovery and complex-prediction confidence are effectively unrelated.</div></div>
-<div class="corr-card none"><div class="corr-pair">Boltz ipTM → PRODIGY affinity rank</div><div class="corr-value" style="color:var(--tx3)">ρ = +0.118 (p = 0.5491) ns</div><div class="corr-interp">Complex confidence and affinity-like scoring provide different information.</div></div>
-<div class="corr-card none"><div class="corr-pair">Boltz ipTM → MD RMSD rank</div><div class="corr-value" style="color:var(--tx3)">ρ = +0.252 (p = 0.1964) ns</div><div class="corr-interp">Boltz-2 confidence does not predict short-MD structural stability.</div></div>
+  <div class="corr-card strong"><div class="corr-pair">BSA rank → PRODIGY affinity rank</div><div class="corr-value" style="color:var(--accent)">ρ = +0.825 (p &lt; 0.0001) ***</div><div class="corr-interp">PRODIGY largely recapitulates interface size. These are not independent signals.</div></div>
+  <div class="corr-card strong"><div class="corr-pair">Static contacts → MD persistence</div><div class="corr-value" style="color:var(--accent)">ρ = +0.679 (p = 0.0001) ***</div><div class="corr-interp">Richer static contact networks tend to remain more populated during short MD.</div></div>
+  <div class="corr-card weak"><div class="corr-pair">PRODIGY affinity rank → persistence</div><div class="corr-value" style="color:var(--amber)">ρ = +0.407 (p = 0.0316) *</div><div class="corr-interp">Modest agreement, consistent with the relationship between interface extent and persistence.</div></div>
+  <div class="corr-card none"><div class="corr-pair">MPNN score → ESMFold pLDDT</div><div class="corr-value" style="color:var(--tx3)">ρ = −0.237 (p = 0.0820) ns</div><div class="corr-interp">Sequence-design confidence does not predict fold quality in this set.</div></div>
+  <div class="corr-card none"><div class="corr-pair">ESMFold RMSD → Boltz ipTM</div><div class="corr-value" style="color:var(--tx3)">ρ = −0.004 (p = 0.9828) ns</div><div class="corr-interp">Monomer fold recovery and complex-prediction confidence are effectively unrelated.</div></div>
+  <div class="corr-card none"><div class="corr-pair">Boltz ipTM → PRODIGY affinity rank</div><div class="corr-value" style="color:var(--tx3)">ρ = +0.118 (p = 0.5491) ns</div><div class="corr-interp">Complex confidence and affinity-like scoring provide different information.</div></div>
+  <div class="corr-card none"><div class="corr-pair">Boltz ipTM → MD RMSD rank</div><div class="corr-value" style="color:var(--tx3)">ρ = +0.252 (p = 0.1964) ns</div><div class="corr-interp">Boltz-2 confidence does not predict short-MD structural stability.</div></div>
 </div>
-<div class="callout insight">The non-correlations are as informative as the correlations. Sequence confidence, fold recovery, complex plausibility, interface extent, affinity-like scoring, and dynamic coherence expose different failure modes. Two relationships nevertheless stand out: richer static contact networks tend to persist during MD, while PRODIGY affinity rankings largely track interface size.</div>
+
+<div class="callout callout-insight"><div class="callout-title">Workflow signal</div><p>The non-correlations are as informative as the correlations. Sequence confidence, fold recovery, complex plausibility, interface extent, affinity-like scoring, and dynamic coherence expose different failure modes. Two relationships nevertheless stand out: richer static contact networks tend to persist during MD, while PRODIGY affinity rankings largely track interface size.</p></div>
+
 <h2>Static contacts predict dynamic persistence</h2>
 <p>The strongest workflow-level finding is the relationship between static residue-level contacts and post-MD persistence. Designs that begin with richer contact networks in the minimized structure tend to retain more persistent contacts during molecular dynamics. The Spearman correlation (ρ = +0.679, p = 0.0001) makes static fingerprinting a useful low-cost triage feature before committing to more expensive simulation.</p>
 <p>This does not make static geometry a substitute for MD. It means the static screen contains information that survives the transition to dynamics.</p>
+
 <h2>PRODIGY largely tracks interface size</h2>
 <p>PRODIGY predicts binding free energy from interfacial contact features. Across these designs, the rank-normalized PRODIGY affinity score correlates strongly with buried surface area (ρ = +0.825). The practical implication is that PRODIGY contributes less independent information than Boltz confidence or MD stability; much of its ranking is already encoded in interface extent.</p>
-<p>The predicted ΔG values span −5.2 to −11.4 kcal/mol, with a mean of −8.2 ± 1.8 kcal/mol. For this workflow, the relative ordering is more useful than the absolute values.</p><p>Together, these comparisons show that some metrics reinforce one another while others remain largely independent. The next step is to combine those signals into a downstream scorecard for the 28 designs with complete evidence.</p>
+<p>The predicted ΔG values span −5.2 to −11.4 kcal/mol, with a mean of −8.2 ± 1.8 kcal/mol. For this workflow, the relative ordering is more useful than the absolute values.</p>
+<p>Together, these comparisons show that some metrics reinforce one another while others remain largely independent. The next step is to combine those signals into a downstream scorecard for the 28 designs with complete evidence.</p>
+
 <h2>Consensus ranking: the downstream scorecard</h2>
 <p>The downstream consensus scorecard averages seven rank-normalized features for the 28 fully characterized designs: buried surface area, residue contact pairs, polar close contacts, Boltz-2 ipTM, PRODIGY ΔG, binder RMSD, and absolute center-of-mass drift. Unlike the full retrospective matrix, this is an apples-to-apples ranking: every candidate in this table has the same evidence package.</p>
-<div class="table-scroll"><table class="design-table">
-<thead><tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>BSA</th><th>Contacts</th><th>PRODIGY ΔG</th><th>RMSD</th><th>COM drift</th><th>Score</th></tr></thead>
-<tbody>
+
+<div class="table-scroll"><table class="design-table"><thead><tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>BSA</th><th>Contacts</th><th>PRODIGY ΔG</th><th>RMSD</th><th>COM drift</th><th>Score</th></tr></thead><tbody>
 <tr class="rank-1"><td>1</td><td>len100_clusterA_noise0__design_16_0_rank6</td><td>clusterA</td><td>966.7</td><td>52</td><td>−10.11</td><td>1.37</td><td>+0.11</td><td>0.812</td></tr>
 <tr><td>2</td><td>len100_distributed_noise0__design_5_0_rank0</td><td>distributed</td><td>896.4</td><td>44</td><td>−10.43</td><td>1.55</td><td>+0.18</td><td>0.804</td></tr>
 <tr><td>3</td><td>len100_clusterB_noise05__design_13_0_rank0</td><td>clusterB</td><td>1105.7</td><td>48</td><td>−10.65</td><td>1.50</td><td>−0.27</td><td>0.783</td></tr>
@@ -183,149 +181,41 @@ footer{margin-top:3.5rem;padding-top:1.4rem;border-top:1px solid var(--line);fon
 <tr><td>9</td><td>len70_clusterB_noise0__design_15_0_rank2</td><td>clusterB</td><td>895.2</td><td>33</td><td>−9.21</td><td>1.32</td><td>+0.37</td><td>0.646</td></tr>
 <tr><td>10</td><td>len100_clusterA_noise05__design_14_0_rank3</td><td>clusterA</td><td>850.0</td><td>34</td><td>−7.76</td><td>1.56</td><td>+0.18</td><td>0.635</td></tr>
 </tbody></table></div>
-<div class="callout insight">The top 10 span all three hotspot strategies: four clusterA, four clusterB, and two distributed designs. No single hotspot configuration dominates once static geometry, complex confidence, affinity-like scoring, and MD stability are integrated.</div>
+
+<div class="callout callout-insight"><div class="callout-title">Shortlist composition</div><p>The top 10 span all three hotspot strategies: four clusterA, four clusterB, and two distributed designs. No single hotspot configuration dominates once static geometry, complex confidence, affinity-like scoring, and MD stability are integrated.</p></div>
+
 <h2>Different routes to the top</h2>
 <div class="profile-grid">
-<div class="profile-card"><div class="profile-rank">Consensus rank 1</div><div class="profile-name">len100_clusterA_noise0__design_16_0_rank6</div><p>The richest static contact network among the leaders: 52 residue contacts, 966.7 Å² BSA, ipTM 0.919, binder RMSD 1.37 Å, and minimal COM drift.</p></div>
-<div class="profile-card"><div class="profile-rank">Consensus rank 2</div><div class="profile-name">len100_distributed_noise0__design_5_0_rank0</div><p>Slightly smaller interface, but the strongest overall Boltz confidence among the top three (ipTM 0.941) and a favorable PRODIGY score.</p></div>
-<div class="profile-card"><div class="profile-rank">Consensus rank 3</div><div class="profile-name">len100_clusterB_noise05__design_13_0_rank0</div><p>The largest buried interface in the leading trio at 1105.7 Å², with 48 contacts and strong affinity-like scoring despite lower ipTM than ranks 1 and 2.</p></div>
+  <div class="profile-card"><div class="profile-rank">Consensus rank 1</div><div class="profile-name">len100_clusterA_noise0__design_16_0_rank6</div><p>The richest static contact network among the leaders: 52 residue contacts, 966.7 Å² BSA, ipTM 0.919, binder RMSD 1.37 Å, and minimal COM drift.</p></div>
+  <div class="profile-card"><div class="profile-rank">Consensus rank 2</div><div class="profile-name">len100_distributed_noise0__design_5_0_rank0</div><p>Slightly smaller interface, but the strongest overall Boltz confidence among the top three (ipTM 0.941) and a favorable PRODIGY score.</p></div>
+  <div class="profile-card"><div class="profile-rank">Consensus rank 3</div><div class="profile-name">len100_clusterB_noise05__design_13_0_rank0</div><p>The largest buried interface in the leading trio at 1105.7 Å², with 48 contacts and strong affinity-like scoring despite lower ipTM than ranks 1 and 2.</p></div>
 </div>
 <p>The point is not that one metric selects a winner. Similar composite scores arise from different evidence profiles, which is exactly what a useful experimental shortlist should preserve.</p>
+
 <h2>What did the downstream analysis add?</h2>
 <p>The fair comparison is Scorecard 1 versus Scorecard 2: inexpensive upstream rank versus downstream rank after complex prediction, affinity-like scoring, and MD. Designs that did not progress to the downstream scorecard are assigned downstream rank <strong>0</strong>.</p>
 <p>Across the 55 constructs, 28 reached the downstream scorecard and 27 fell out before complete downstream scoring. The upstream and downstream top-10 sets overlap by 4 designs; the top-5 sets overlap by 2 designs. That means the expensive downstream workflow did not simply preserve the upstream ordering — it materially changed which candidates looked strongest.</p>
-<div class="chart-container">
-<div class="chart-wrap">
-<div class="chart-title">Upstream rank versus downstream rank</div>
-<canvas id="scorecardRankChart" style="height:320px"></canvas>
-<div class="plot-legend">
-<span><span class="legend-dot" style="background:#2f6f9f"></span>Downstream complete</span>
-<span><span class="legend-dot" style="background:#d9772b"></span>Downstream top 10</span>
-<span><span class="legend-dot" style="background:#aeb9c1"></span>Fell out before downstream scoring</span>
-</div>
-<p class="chart-caption">Lower rank is better. Downstream rank 0 = did not reach the downstream consensus scorecard.</p>
-</div>
-</div>
-<div class="callout insight">A useful analysis should earn its place in the funnel. It should eliminate weak candidates, materially reorder the shortlist, or add evidence that cheaper stages do not already provide. The broader question — how to balance predictive value against compute cost, scientist time, wall-clock time, and operational complexity — is the focus of the final retrospective.</div>
+
+<div class="chart-card"><h3>Upstream rank versus downstream rank</h3><canvas id="scorecardRankChart"></canvas><div class="plot-legend"><span><span class="legend-dot" style="background:var(--blue)"></span>Downstream complete</span><span><span class="legend-dot" style="background:var(--coral)"></span>Downstream top 10</span><span><span class="legend-dot" style="background:#b0aba0"></span>Fell out before downstream scoring</span></div><p class="chart-caption">Lower rank is better. Downstream rank 0 = did not reach the downstream consensus scorecard.</p></div>
+
+<div class="callout callout-insight"><div class="callout-title">Funnel-design implication</div><p>A useful analysis should earn its place in the funnel. It should eliminate weak candidates, materially reorder the shortlist, or add evidence that cheaper stages do not already provide. The broader question — how to balance predictive value against compute cost, scientist time, wall-clock time, and operational complexity — is the focus of the final retrospective.</p></div>
+
 <h2>What this means</h2>
-<div class="callout key">The downstream scorecard defines a compact and diverse panel of modeled complexes that have survived multiple independent structural and dynamic challenges. The full retrospective matrix shows how those candidates emerged from an uneven funnel, but the final ranking is restricted to designs compared on the same evidence. That distinction matters: in a practical protein-engineering campaign, rankings are only useful if they support decisions that justify their compute, time, and FTE cost.</div><p>At this point, the pipeline has asked whether each sequence can recover its intended fold, form a plausible complex with PD-L1, build a substantial interface, receive a favorable affinity-like score, and retain its interaction network during short molecular dynamics. Those analyses characterize the modeled binder–target complex. They do not yet address a separate question that becomes critical when moving toward experiments: whether the isolated binder sequence looks producible, soluble, stable, and resistant to aggregation.</p>
-<section class="next-card"><h2>Next time</h2><p>In Part 8, I add Prot2Prop as a sequence-only developability screen across all 55 designs. That analysis ranks the same design set from a different perspective: not modeled interaction quality, but predicted production, solubility, stability, and aggregation behavior.</p><p>The final retrospective then asks how design-quality evidence and developability evidence should be combined, sequenced, and costed before the resulting shortlist is challenged experimentally.</p><a href="../Page8_DevelopabilityScreening/page8_developability_screening.html">Continue to Part 8: Sequence-based developability screening →</a></section><footer>Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">PD-L1 mini-binder design campaign</a></footer>
+<div class="callout callout-key"><p>The downstream scorecard defines a compact and diverse panel of modeled complexes that have survived multiple independent structural and dynamic challenges. The full retrospective matrix shows how those candidates emerged from an uneven funnel, but the final ranking is restricted to designs compared on the same evidence. That distinction matters: in a practical protein-engineering campaign, rankings are only useful if they support decisions that justify their compute, time, and FTE cost.</p></div>
+<p>At this point, the pipeline has asked whether each sequence can recover its intended fold, form a plausible complex with PD-L1, build a substantial interface, receive a favorable affinity-like score, and retain its interaction network during short molecular dynamics. Those analyses characterize the modeled binder–target complex. They do not yet address a separate question that becomes critical when moving toward experiments: whether the isolated binder sequence looks producible, soluble, stable, and resistant to aggregation.</p>
+
+<section class="next-section"><h2>Next time</h2><p>In Part 8, I add Prot2Prop as a sequence-only developability screen across all 55 designs. That analysis ranks the same design set from a different perspective: not modeled interaction quality, but predicted production, solubility, stability, and aggregation behavior.</p><p>The final retrospective then asks how design-quality evidence and developability evidence should be combined, sequenced, and costed before the resulting shortlist is challenged experimentally.</p><a href="../Page8_DevelopabilityScreening/page8_developability_screening.html">Continue to Part 8: Sequence-based developability screening →</a></section>
+
+<footer class="page-footer">Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/ai-guided-protein-design/">PD-L1 mini-binder design campaign</a></footer>
 </div>
-<script id="scorecard-rank-chart-data">
-const completeRankData = [{"x": 1, "y": 26, "design": "len100_clusterA_noise0__design_13_0_rank4", "label": "L100_cA_n0_design_13_0_rank4", "length": 100, "hotspot": "clusterA", "upstreamScore": 1.0, "downstreamScore": 0.249, "delta": -0.751, "status": "complete"}, {"x": 2, "y": 20, "design": "len70_clusterA_noise05__design_19_0_rank0", "label": "L70_cA_n05_design_19_0_rank0", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.981, "downstreamScore": 0.365, "delta": -0.616, "status": "complete"}, {"x": 3, "y": 28, "design": "len100_clusterA_noise0__design_10_0_rank3", "label": "L100_cA_n0_design_10_0_rank3", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.963, "downstreamScore": 0.185, "delta": -0.778, "status": "complete"}, {"x": 4, "y": 5, "design": "len70_clusterA_noise0__design_3_0_rank7", "label": "L70_cA_n0_design_3_0_rank7", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.944, "downstreamScore": 0.72, "delta": -0.225, "status": "complete"}, {"x": 5, "y": 2, "design": "len100_distributed_noise0__design_5_0_rank0", "label": "L100_dist_n0_design_5_0_rank0", "length": 100, "hotspot": "distributed", "upstreamScore": 0.926, "downstreamScore": 0.804, "delta": -0.122, "status": "complete"}, {"x": 6, "y": 24, "design": "len70_clusterA_noise0__design_16_0_rank5", "label": "L70_cA_n0_design_16_0_rank5", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.907, "downstreamScore": 0.262, "delta": -0.646, "status": "complete"}, {"x": 8, "y": 6, "design": "len70_distributed_noise0__design_17_0_rank1", "label": "L70_dist_n0_design_17_0_rank1", "length": 70, "hotspot": "distributed", "upstreamScore": 0.87, "downstreamScore": 0.706, "delta": -0.164, "status": "complete"}, {"x": 9, "y": 1, "design": "len100_clusterA_noise0__design_16_0_rank6", "label": "L100_cA_n0_design_16_0_rank6", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.852, "downstreamScore": 0.812, "delta": -0.04, "status": "complete"}, {"x": 10, "y": 19, "design": "len100_clusterA_noise05__design_3_0_rank2", "label": "L100_cA_n05_design_3_0_rank2", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.833, "downstreamScore": 0.386, "delta": -0.447, "status": "complete"}, {"x": 11, "y": 27, "design": "len25_clusterA_noise0__design_15_0_rank0", "label": "L25_cA_n0_design_15_0_rank0", "length": 25, "hotspot": "clusterA", "upstreamScore": 0.815, "downstreamScore": 0.212, "delta": -0.603, "status": "complete"}, {"x": 12, "y": 21, "design": "len70_clusterA_noise0__design_7_0_rank6", "label": "L70_cA_n0_design_7_0_rank6", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.796, "downstreamScore": 0.294, "delta": -0.503, "status": "complete"}, {"x": 13, "y": 22, "design": "len70_distributed_noise0__design_5_0_rank2", "label": "L70_dist_n0_design_5_0_rank2", "length": 70, "hotspot": "distributed", "upstreamScore": 0.778, "downstreamScore": 0.291, "delta": -0.487, "status": "complete"}, {"x": 14, "y": 17, "design": "len50_distributed_noise0__design_4_0_rank0", "label": "L50_dist_n0_design_4_0_rank0", "length": 50, "hotspot": "distributed", "upstreamScore": 0.759, "downstreamScore": 0.421, "delta": -0.339, "status": "complete"}, {"x": 15, "y": 16, "design": "len25_clusterA_noise0__design_11_0_rank1", "label": "L25_cA_n0_design_11_0_rank1", "length": 25, "hotspot": "clusterA", "upstreamScore": 0.741, "downstreamScore": 0.466, "delta": -0.275, "status": "complete"}, {"x": 16, "y": 12, "design": "len100_clusterA_noise0__design_9_0_rank8", "label": "L100_cA_n0_design_9_0_rank8", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.722, "downstreamScore": 0.571, "delta": -0.151, "status": "complete"}, {"x": 18, "y": 25, "design": "len70_clusterA_noise0__design_10_0_rank1", "label": "L70_cA_n0_design_10_0_rank1", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.685, "downstreamScore": 0.257, "delta": -0.429, "status": "complete"}, {"x": 19, "y": 8, "design": "len70_clusterB_noise0__design_19_0_rank1", "label": "L70_cB_n0_design_19_0_rank1", "length": 70, "hotspot": "clusterB", "upstreamScore": 0.667, "downstreamScore": 0.653, "delta": -0.013, "status": "complete"}, {"x": 20, "y": 15, "design": "len70_clusterB_noise0__design_17_0_rank0", "label": "L70_cB_n0_design_17_0_rank0", "length": 70, "hotspot": "clusterB", "upstreamScore": 0.648, "downstreamScore": 0.489, "delta": -0.159, "status": "complete"}, {"x": 21, "y": 11, "design": "len70_distributed_noise0__design_10_0_rank3", "label": "L70_dist_n0_design_10_0_rank3", "length": 70, "hotspot": "distributed", "upstreamScore": 0.63, "downstreamScore": 0.63, "delta": 0.0, "status": "complete"}, {"x": 22, "y": 10, "design": "len100_clusterA_noise05__design_14_0_rank3", "label": "L100_cA_n05_design_14_0_rank3", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.611, "downstreamScore": 0.635, "delta": 0.024, "status": "complete"}, {"x": 24, "y": 23, "design": "len50_clusterA_noise0__design_9_0_rank0", "label": "L50_cA_n0_design_9_0_rank0", "length": 50, "hotspot": "clusterA", "upstreamScore": 0.574, "downstreamScore": 0.275, "delta": -0.299, "status": "complete"}, {"x": 25, "y": 7, "design": "len100_clusterB_noise05__design_0_0_rank1", "label": "L100_cB_n05_design_0_0_rank1", "length": 100, "hotspot": "clusterB", "upstreamScore": 0.556, "downstreamScore": 0.672, "delta": 0.116, "status": "complete"}, {"x": 28, "y": 3, "design": "len100_clusterB_noise05__design_13_0_rank0", "label": "L100_cB_n05_design_13_0_rank0", "length": 100, "hotspot": "clusterB", "upstreamScore": 0.5, "downstreamScore": 0.783, "delta": 0.283, "status": "complete"}, {"x": 32, "y": 9, "design": "len70_clusterB_noise0__design_15_0_rank2", "label": "L70_cB_n0_design_15_0_rank2", "length": 70, "hotspot": "clusterB", "upstreamScore": 0.426, "downstreamScore": 0.646, "delta": 0.22, "status": "complete"}, {"x": 34, "y": 14, "design": "len70_clusterA_noise05__design_13_0_rank1", "label": "L70_cA_n05_design_13_0_rank1", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.389, "downstreamScore": 0.495, "delta": 0.106, "status": "complete"}, {"x": 44, "y": 13, "design": "len70_clusterB_noise05__design_17_0_rank0", "label": "L70_cB_n05_design_17_0_rank0", "length": 70, "hotspot": "clusterB", "upstreamScore": 0.204, "downstreamScore": 0.561, "delta": 0.357, "status": "complete"}, {"x": 46, "y": 4, "design": "len50_clusterA_noise05__design_0_0_rank0", "label": "L50_cA_n05_design_0_0_rank0", "length": 50, "hotspot": "clusterA", "upstreamScore": 0.167, "downstreamScore": 0.743, "delta": 0.577, "status": "complete"}, {"x": 47, "y": 18, "design": "len70_distributed_noise05__design_14_0_rank0", "label": "L70_dist_n05_design_14_0_rank0", "length": 70, "hotspot": "distributed", "upstreamScore": 0.148, "downstreamScore": 0.418, "delta": 0.27, "status": "complete"}];
-const felloutRankData = [{"x": 7, "y": 0, "design": "len100_distributed_noise0__design_18_0_rank1", "label": "L100_dist_n0_design_18_0_rank1", "length": 100, "hotspot": "distributed", "upstreamScore": 0.889, "downstreamScore": 0.0, "delta": -0.889, "status": "fell out"}, {"x": 17, "y": 0, "design": "len50_clusterB_noise0__design_19_0_rank0", "label": "L50_cB_n0_design_19_0_rank0", "length": 50, "hotspot": "clusterB", "upstreamScore": 0.704, "downstreamScore": 0.0, "delta": -0.704, "status": "fell out"}, {"x": 23, "y": 0, "design": "len100_clusterA_noise0__design_6_0_rank1", "label": "L100_cA_n0_design_6_0_rank1", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.593, "downstreamScore": 0.0, "delta": -0.593, "status": "fell out"}, {"x": 26, "y": 0, "design": "len70_clusterA_noise0__design_1_0_rank0", "label": "L70_cA_n0_design_1_0_rank0", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.537, "downstreamScore": 0.0, "delta": -0.537, "status": "fell out"}, {"x": 27, "y": 0, "design": "len100_distributed_noise0__design_15_0_rank5", "label": "L100_dist_n0_design_15_0_rank5", "length": 100, "hotspot": "distributed", "upstreamScore": 0.519, "downstreamScore": 0.0, "delta": -0.519, "status": "fell out"}, {"x": 29, "y": 0, "design": "len100_distributed_noise0__design_3_0_rank3", "label": "L100_dist_n0_design_3_0_rank3", "length": 100, "hotspot": "distributed", "upstreamScore": 0.481, "downstreamScore": 0.0, "delta": -0.481, "status": "fell out"}, {"x": 30, "y": 0, "design": "len70_clusterA_noise0__design_18_0_rank4", "label": "L70_cA_n0_design_18_0_rank4", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.463, "downstreamScore": 0.0, "delta": -0.463, "status": "fell out"}, {"x": 31, "y": 0, "design": "len70_clusterA_noise0__design_11_0_rank2", "label": "L70_cA_n0_design_11_0_rank2", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.444, "downstreamScore": 0.0, "delta": -0.444, "status": "fell out"}, {"x": 33, "y": 0, "design": "len50_clusterA_noise0__design_6_0_rank1", "label": "L50_cA_n0_design_6_0_rank1", "length": 50, "hotspot": "clusterA", "upstreamScore": 0.407, "downstreamScore": 0.0, "delta": -0.407, "status": "fell out"}, {"x": 35, "y": 0, "design": "len70_clusterA_noise0__design_17_0_rank3", "label": "L70_cA_n0_design_17_0_rank3", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.37, "downstreamScore": 0.0, "delta": -0.37, "status": "fell out"}, {"x": 36, "y": 0, "design": "len100_distributed_noise0__design_16_0_rank2", "label": "L100_dist_n0_design_16_0_rank2", "length": 100, "hotspot": "distributed", "upstreamScore": 0.352, "downstreamScore": 0.0, "delta": -0.352, "status": "fell out"}, {"x": 37, "y": 0, "design": "len100_clusterA_noise05__design_7_0_rank1", "label": "L100_cA_n05_design_7_0_rank1", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.333, "downstreamScore": 0.0, "delta": -0.333, "status": "fell out"}, {"x": 38, "y": 0, "design": "len100_clusterA_noise0__design_7_0_rank5", "label": "L100_cA_n0_design_7_0_rank5", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.315, "downstreamScore": 0.0, "delta": -0.315, "status": "fell out"}, {"x": 39, "y": 0, "design": "len70_distributed_noise0__design_18_0_rank0", "label": "L70_dist_n0_design_18_0_rank0", "length": 70, "hotspot": "distributed", "upstreamScore": 0.296, "downstreamScore": 0.0, "delta": -0.296, "status": "fell out"}, {"x": 40, "y": 0, "design": "len100_distributed_noise0__design_19_0_rank4", "label": "L100_dist_n0_design_19_0_rank4", "length": 100, "hotspot": "distributed", "upstreamScore": 0.278, "downstreamScore": 0.0, "delta": -0.278, "status": "fell out"}, {"x": 41, "y": 0, "design": "len100_clusterA_noise0__design_1_0_rank0", "label": "L100_cA_n0_design_1_0_rank0", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.259, "downstreamScore": 0.0, "delta": -0.259, "status": "fell out"}, {"x": 42, "y": 0, "design": "len100_clusterA_noise0__design_15_0_rank2", "label": "L100_cA_n0_design_15_0_rank2", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.241, "downstreamScore": 0.0, "delta": -0.241, "status": "fell out"}, {"x": 43, "y": 0, "design": "len100_clusterB_noise0__design_1_0_rank0", "label": "L100_cB_n0_design_1_0_rank0", "length": 100, "hotspot": "clusterB", "upstreamScore": 0.222, "downstreamScore": 0.0, "delta": -0.222, "status": "fell out"}, {"x": 45, "y": 0, "design": "len100_clusterA_noise05__design_6_0_rank0", "label": "L100_cA_n05_design_6_0_rank0", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.185, "downstreamScore": 0.0, "delta": -0.185, "status": "fell out"}, {"x": 48, "y": 0, "design": "len70_clusterA_noise0__design_13_0_rank8", "label": "L70_cA_n0_design_13_0_rank8", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.13, "downstreamScore": 0.0, "delta": -0.13, "status": "fell out"}, {"x": 49, "y": 0, "design": "len70_clusterA_noise0__design_9_0_rank9", "label": "L70_cA_n0_design_9_0_rank9", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.111, "downstreamScore": 0.0, "delta": -0.111, "status": "fell out"}, {"x": 50, "y": 0, "design": "len100_clusterA_noise0__design_0_0_rank7", "label": "L100_cA_n0_design_0_0_rank7", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.093, "downstreamScore": 0.0, "delta": -0.093, "status": "fell out"}, {"x": 51, "y": 0, "design": "len70_clusterA_noise0__design_19_0_rank10", "label": "L70_cA_n0_design_19_0_rank10", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.074, "downstreamScore": 0.0, "delta": -0.074, "status": "fell out"}, {"x": 52, "y": 0, "design": "len50_distributed_noise0__design_18_0_rank2", "label": "L50_dist_n0_design_18_0_rank2", "length": 50, "hotspot": "distributed", "upstreamScore": 0.056, "downstreamScore": 0.0, "delta": -0.056, "status": "fell out"}, {"x": 53, "y": 0, "design": "len50_distributed_noise0__design_15_0_rank3", "label": "L50_dist_n0_design_15_0_rank3", "length": 50, "hotspot": "distributed", "upstreamScore": 0.037, "downstreamScore": 0.0, "delta": -0.037, "status": "fell out"}, {"x": 54, "y": 0, "design": "len50_clusterA_noise0__design_16_0_rank2", "label": "L50_cA_n0_design_16_0_rank2", "length": 50, "hotspot": "clusterA", "upstreamScore": 0.019, "downstreamScore": 0.0, "delta": -0.019, "status": "fell out"}, {"x": 55, "y": 0, "design": "len50_distributed_noise0__design_14_0_rank1", "label": "L50_dist_n0_design_14_0_rank1", "length": 50, "hotspot": "distributed", "upstreamScore": 0.0, "downstreamScore": 0.0, "delta": 0.0, "status": "fell out"}];
-const top10RankData = [{"x": 4, "y": 5, "design": "len70_clusterA_noise0__design_3_0_rank7", "label": "L70_cA_n0_design_3_0_rank7", "length": 70, "hotspot": "clusterA", "upstreamScore": 0.944, "downstreamScore": 0.72, "delta": -0.225, "status": "complete"}, {"x": 5, "y": 2, "design": "len100_distributed_noise0__design_5_0_rank0", "label": "L100_dist_n0_design_5_0_rank0", "length": 100, "hotspot": "distributed", "upstreamScore": 0.926, "downstreamScore": 0.804, "delta": -0.122, "status": "complete"}, {"x": 8, "y": 6, "design": "len70_distributed_noise0__design_17_0_rank1", "label": "L70_dist_n0_design_17_0_rank1", "length": 70, "hotspot": "distributed", "upstreamScore": 0.87, "downstreamScore": 0.706, "delta": -0.164, "status": "complete"}, {"x": 9, "y": 1, "design": "len100_clusterA_noise0__design_16_0_rank6", "label": "L100_cA_n0_design_16_0_rank6", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.852, "downstreamScore": 0.812, "delta": -0.04, "status": "complete"}, {"x": 19, "y": 8, "design": "len70_clusterB_noise0__design_19_0_rank1", "label": "L70_cB_n0_design_19_0_rank1", "length": 70, "hotspot": "clusterB", "upstreamScore": 0.667, "downstreamScore": 0.653, "delta": -0.013, "status": "complete"}, {"x": 22, "y": 10, "design": "len100_clusterA_noise05__design_14_0_rank3", "label": "L100_cA_n05_design_14_0_rank3", "length": 100, "hotspot": "clusterA", "upstreamScore": 0.611, "downstreamScore": 0.635, "delta": 0.024, "status": "complete"}, {"x": 25, "y": 7, "design": "len100_clusterB_noise05__design_0_0_rank1", "label": "L100_cB_n05_design_0_0_rank1", "length": 100, "hotspot": "clusterB", "upstreamScore": 0.556, "downstreamScore": 0.672, "delta": 0.116, "status": "complete"}, {"x": 28, "y": 3, "design": "len100_clusterB_noise05__design_13_0_rank0", "label": "L100_cB_n05_design_13_0_rank0", "length": 100, "hotspot": "clusterB", "upstreamScore": 0.5, "downstreamScore": 0.783, "delta": 0.283, "status": "complete"}, {"x": 32, "y": 9, "design": "len70_clusterB_noise0__design_15_0_rank2", "label": "L70_cB_n0_design_15_0_rank2", "length": 70, "hotspot": "clusterB", "upstreamScore": 0.426, "downstreamScore": 0.646, "delta": 0.22, "status": "complete"}, {"x": 46, "y": 4, "design": "len50_clusterA_noise05__design_0_0_rank0", "label": "L50_cA_n05_design_0_0_rank0", "length": 50, "hotspot": "clusterA", "upstreamScore": 0.167, "downstreamScore": 0.743, "delta": 0.577, "status": "complete"}];
 
-function pointTooltip(ctx) {
-  const r = ctx.raw;
-  return [
-    r.design,
-    `Length: ${r.length} | Hotspot: ${r.hotspot}`,
-    `Upstream rank: ${r.x}`,
-    `Downstream rank: ${r.y}`,
-    `Status: ${r.status}`,
-    `Δ score: ${r.delta >= 0 ? '+' : ''}${r.delta}`
-  ];
-}
-
-const scorecardCtx = document.getElementById("scorecardRankChart");
-if (scorecardCtx) {
-  new Chart(scorecardCtx, {
-    type: "scatter",
-    data: {
-      datasets: [
-        {
-          label: "Downstream complete",
-          data: completeRankData,
-          backgroundColor: "#2f6f9fcc",
-          borderColor: "#1f5b85",
-          borderWidth: 1.2,
-          pointRadius: 5,
-          pointHoverRadius: 8
-        },
-        {
-          label: "Downstream top 10",
-          data: top10RankData,
-          backgroundColor: "#d9772bcc",
-          borderColor: "#a9581f",
-          borderWidth: 1.5,
-          pointRadius: 7,
-          pointHoverRadius: 9
-        },
-        {
-          label: "Fell out",
-          data: felloutRankData,
-          backgroundColor: "#aeb9c1aa",
-          borderColor: "#7e8b96",
-          borderWidth: 1,
-          pointRadius: 4,
-          pointHoverRadius: 7
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return pointTooltip(ctx); }
-          }
-        }
-      },
-      scales: {
-        x: {
-          title: { display: true, text: "Scorecard 1 upstream rank among all 55 designs", font: { size: 12, weight: "600" } },
-          min: 0,
-          max: 56,
-          reverse: false,
-          grid: { color: "rgba(16,42,67,0.08)" },
-          ticks: { stepSize: 10 }
-        },
-        y: {
-          title: { display: true, text: "Scorecard 2 downstream rank (0 = fell out)", font: { size: 12, weight: "600" } },
-          min: 0,
-          max: 30,
-          reverse: false,
-          grid: { color: "rgba(16,42,67,0.08)" },
-          ticks: { stepSize: 5 }
-        }
-      }
-    },
-    plugins: [{
-      id: "rankGuides",
-      afterDraw(chart) {
-        const {ctx, chartArea, scales} = chart;
-        ctx.save();
-
-        // Top-10 downstream region
-        const y10 = scales.y.getPixelForValue(10);
-        const y0 = scales.y.getPixelForValue(0);
-        ctx.fillStyle = "rgba(217,119,43,0.08)";
-        ctx.fillRect(chartArea.left, y10, chartArea.right - chartArea.left, y0 - y10);
-
-        // Fell-out baseline
-        const yFell = scales.y.getPixelForValue(0);
-        ctx.strokeStyle = "rgba(185,78,72,0.55)";
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([5,4]);
-        ctx.beginPath();
-        ctx.moveTo(chartArea.left, yFell);
-        ctx.lineTo(chartArea.right, yFell);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        // Label
-        ctx.fillStyle = "#5c6b78";
-        ctx.font = "11px Inter, sans-serif";
-        ctx.fillText("fell out", chartArea.left + 8, yFell - 8);
-        ctx.fillText("downstream top 10", chartArea.left + 8, y10 - 8);
-
-        ctx.restore();
-      }
-    }]
-  });
-}
-</script></body>
+<script>
+const completeRankData = [{"x":1,"y":26,"design":"len100_clusterA_noise0__design_13_0_rank4","label":"L100_cA_n0_design_13_0_rank4","length":100,"hotspot":"clusterA","upstreamScore":1.0,"downstreamScore":0.249,"delta":-0.751,"status":"complete"},{"x":2,"y":20,"design":"len70_clusterA_noise05__design_19_0_rank0","label":"L70_cA_n05_design_19_0_rank0","length":70,"hotspot":"clusterA","upstreamScore":0.981,"downstreamScore":0.365,"delta":-0.616,"status":"complete"},{"x":3,"y":28,"design":"len100_clusterA_noise0__design_10_0_rank3","label":"L100_cA_n0_design_10_0_rank3","length":100,"hotspot":"clusterA","upstreamScore":0.963,"downstreamScore":0.185,"delta":-0.778,"status":"complete"},{"x":4,"y":5,"design":"len70_clusterA_noise0__design_3_0_rank7","label":"L70_cA_n0_design_3_0_rank7","length":70,"hotspot":"clusterA","upstreamScore":0.944,"downstreamScore":0.72,"delta":-0.225,"status":"complete"},{"x":5,"y":2,"design":"len100_distributed_noise0__design_5_0_rank0","label":"L100_dist_n0_design_5_0_rank0","length":100,"hotspot":"distributed","upstreamScore":0.926,"downstreamScore":0.804,"delta":-0.122,"status":"complete"},{"x":6,"y":24,"design":"len70_clusterA_noise0__design_16_0_rank5","label":"L70_cA_n0_design_16_0_rank5","length":70,"hotspot":"clusterA","upstreamScore":0.907,"downstreamScore":0.262,"delta":-0.646,"status":"complete"},{"x":8,"y":6,"design":"len70_distributed_noise0__design_17_0_rank1","label":"L70_dist_n0_design_17_0_rank1","length":70,"hotspot":"distributed","upstreamScore":0.87,"downstreamScore":0.706,"delta":-0.164,"status":"complete"},{"x":9,"y":1,"design":"len100_clusterA_noise0__design_16_0_rank6","label":"L100_cA_n0_design_16_0_rank6","length":100,"hotspot":"clusterA","upstreamScore":0.852,"downstreamScore":0.812,"delta":-0.04,"status":"complete"},{"x":10,"y":19,"design":"len100_clusterA_noise05__design_3_0_rank2","label":"L100_cA_n05_design_3_0_rank2","length":100,"hotspot":"clusterA","upstreamScore":0.833,"downstreamScore":0.386,"delta":-0.447,"status":"complete"},{"x":11,"y":27,"design":"len25_clusterA_noise0__design_15_0_rank0","label":"L25_cA_n0_design_15_0_rank0","length":25,"hotspot":"clusterA","upstreamScore":0.815,"downstreamScore":0.212,"delta":-0.603,"status":"complete"},{"x":12,"y":21,"design":"len70_clusterA_noise0__design_7_0_rank6","label":"L70_cA_n0_design_7_0_rank6","length":70,"hotspot":"clusterA","upstreamScore":0.796,"downstreamScore":0.294,"delta":-0.503,"status":"complete"},{"x":13,"y":22,"design":"len70_distributed_noise0__design_5_0_rank2","label":"L70_dist_n0_design_5_0_rank2","length":70,"hotspot":"distributed","upstreamScore":0.778,"downstreamScore":0.291,"delta":-0.487,"status":"complete"},{"x":14,"y":17,"design":"len50_distributed_noise0__design_4_0_rank0","label":"L50_dist_n0_design_4_0_rank0","length":50,"hotspot":"distributed","upstreamScore":0.759,"downstreamScore":0.421,"delta":-0.339,"status":"complete"},{"x":15,"y":16,"design":"len25_clusterA_noise0__design_11_0_rank1","label":"L25_cA_n0_design_11_0_rank1","length":25,"hotspot":"clusterA","upstreamScore":0.741,"downstreamScore":0.466,"delta":-0.275,"status":"complete"},{"x":16,"y":12,"design":"len100_clusterA_noise0__design_9_0_rank8","label":"L100_cA_n0_design_9_0_rank8","length":100,"hotspot":"clusterA","upstreamScore":0.722,"downstreamScore":0.571,"delta":-0.151,"status":"complete"},{"x":18,"y":25,"design":"len70_clusterA_noise0__design_10_0_rank1","label":"L70_cA_n0_design_10_0_rank1","length":70,"hotspot":"clusterA","upstreamScore":0.685,"downstreamScore":0.257,"delta":-0.429,"status":"complete"},{"x":19,"y":8,"design":"len70_clusterB_noise0__design_19_0_rank1","label":"L70_cB_n0_design_19_0_rank1","length":70,"hotspot":"clusterB","upstreamScore":0.667,"downstreamScore":0.653,"delta":-0.013,"status":"complete"},{"x":20,"y":15,"design":"len70_clusterB_noise0__design_17_0_rank0","label":"L70_cB_n0_design_17_0_rank0","length":70,"hotspot":"clusterB","upstreamScore":0.648,"downstreamScore":0.489,"delta":-0.159,"status":"complete"},{"x":21,"y":11,"design":"len70_distributed_noise0__design_10_0_rank3","label":"L70_dist_n0_design_10_0_rank3","length":70,"hotspot":"distributed","upstreamScore":0.63,"downstreamScore":0.63,"delta":0.0,"status":"complete"},{"x":22,"y":10,"design":"len100_clusterA_noise05__design_14_0_rank3","label":"L100_cA_n05_design_14_0_rank3","length":100,"hotspot":"clusterA","upstreamScore":0.611,"downstreamScore":0.635,"delta":0.024,"status":"complete"},{"x":24,"y":23,"design":"len50_clusterA_noise0__design_9_0_rank0","label":"L50_cA_n0_design_9_0_rank0","length":50,"hotspot":"clusterA","upstreamScore":0.574,"downstreamScore":0.275,"delta":-0.299,"status":"complete"},{"x":25,"y":7,"design":"len100_clusterB_noise05__design_0_0_rank1","label":"L100_cB_n05_design_0_0_rank1","length":100,"hotspot":"clusterB","upstreamScore":0.556,"downstreamScore":0.672,"delta":0.116,"status":"complete"},{"x":28,"y":3,"design":"len100_clusterB_noise05__design_13_0_rank0","label":"L100_cB_n05_design_13_0_rank0","length":100,"hotspot":"clusterB","upstreamScore":0.5,"downstreamScore":0.783,"delta":0.283,"status":"complete"},{"x":32,"y":9,"design":"len70_clusterB_noise0__design_15_0_rank2","label":"L70_cB_n0_design_15_0_rank2","length":70,"hotspot":"clusterB","upstreamScore":0.426,"downstreamScore":0.646,"delta":0.22,"status":"complete"},{"x":34,"y":14,"design":"len70_clusterA_noise05__design_13_0_rank1","label":"L70_cA_n05_design_13_0_rank1","length":70,"hotspot":"clusterA","upstreamScore":0.389,"downstreamScore":0.495,"delta":0.106,"status":"complete"},{"x":44,"y":13,"design":"len70_clusterB_noise05__design_17_0_rank0","label":"L70_cB_n05_design_17_0_rank0","length":70,"hotspot":"clusterB","upstreamScore":0.204,"downstreamScore":0.561,"delta":0.357,"status":"complete"},{"x":46,"y":4,"design":"len50_clusterA_noise05__design_0_0_rank0","label":"L50_cA_n05_design_0_0_rank0","length":50,"hotspot":"clusterA","upstreamScore":0.167,"downstreamScore":0.743,"delta":0.577,"status":"complete"},{"x":47,"y":18,"design":"len70_distributed_noise05__design_14_0_rank0","label":"L70_dist_n05_design_14_0_rank0","length":70,"hotspot":"distributed","upstreamScore":0.148,"downstreamScore":0.418,"delta":0.27,"status":"complete"}];
+const felloutRankData = [{"x":7,"y":0,"design":"len100_distributed_noise0__design_18_0_rank1","label":"L100_dist_n0_design_18_0_rank1","length":100,"hotspot":"distributed","upstreamScore":0.889,"downstreamScore":0.0,"delta":-0.889,"status":"fell out"},{"x":17,"y":0,"design":"len50_clusterB_noise0__design_19_0_rank0","label":"L50_cB_n0_design_19_0_rank0","length":50,"hotspot":"clusterB","upstreamScore":0.704,"downstreamScore":0.0,"delta":-0.704,"status":"fell out"},{"x":23,"y":0,"design":"len100_clusterA_noise0__design_6_0_rank1","label":"L100_cA_n0_design_6_0_rank1","length":100,"hotspot":"clusterA","upstreamScore":0.593,"downstreamScore":0.0,"delta":-0.593,"status":"fell out"},{"x":26,"y":0,"design":"len70_clusterA_noise0__design_1_0_rank0","label":"L70_cA_n0_design_1_0_rank0","length":70,"hotspot":"clusterA","upstreamScore":0.537,"downstreamScore":0.0,"delta":-0.537,"status":"fell out"},{"x":27,"y":0,"design":"len100_distributed_noise0__design_15_0_rank5","label":"L100_dist_n0_design_15_0_rank5","length":100,"hotspot":"distributed","upstreamScore":0.519,"downstreamScore":0.0,"delta":-0.519,"status":"fell out"},{"x":29,"y":0,"design":"len100_distributed_noise0__design_3_0_rank3","label":"L100_dist_n0_design_3_0_rank3","length":100,"hotspot":"distributed","upstreamScore":0.481,"downstreamScore":0.0,"delta":-0.481,"status":"fell out"},{"x":30,"y":0,"design":"len70_clusterA_noise0__design_18_0_rank4","label":"L70_cA_n0_design_18_0_rank4","length":70,"hotspot":"clusterA","upstreamScore":0.463,"downstreamScore":0.0,"delta":-0.463,"status":"fell out"},{"x":31,"y":0,"design":"len70_clusterA_noise0__design_11_0_rank2","label":"L70_cA_n0_design_11_0_rank2","length":70,"hotspot":"clusterA","upstreamScore":0.444,"downstreamScore":0.0,"delta":-0.444,"status":"fell out"},{"x":33,"y":0,"design":"len50_clusterA_noise0__design_6_0_rank1","label":"L50_cA_n0_design_6_0_rank1","length":50,"hotspot":"clusterA","upstreamScore":0.407,"downstreamScore":0.0,"delta":-0.407,"status":"fell out"},{"x":35,"y":0,"design":"len70_clusterA_noise0__design_17_0_rank3","label":"L70_cA_n0_design_17_0_rank3","length":70,"hotspot":"clusterA","upstreamScore":0.37,"downstreamScore":0.0,"delta":-0.37,"status":"fell out"},{"x":36,"y":0,"design":"len100_distributed_noise0__design_16_0_rank2","label":"L100_dist_n0_design_16_0_rank2","length":100,"hotspot":"distributed","upstreamScore":0.352,"downstreamScore":0.0,"delta":-0.352,"status":"fell out"},{"x":37,"y":0,"design":"len100_clusterA_noise05__design_7_0_rank1","label":"L100_cA_n05_design_7_0_rank1","length":100,"hotspot":"clusterA","upstreamScore":0.333,"downstreamScore":0.0,"delta":-0.333,"status":"fell out"},{"x":38,"y":0,"design":"len100_clusterA_noise0__design_7_0_rank5","label":"L100_cA_n0_design_7_0_rank5","length":100,"hotspot":"clusterA","upstreamScore":0.315,"downstreamScore":0.0,"delta":-0.315,"status":"fell out"},{"x":39,"y":0,"design":"len70_distributed_noise0__design_18_0_rank0","label":"L70_dist_n0_design_18_0_rank0","length":70,"hotspot":"distributed","upstreamScore":0.296,"downstreamScore":0.0,"delta":-0.296,"status":"fell out"},{"x":40,"y":0,"design":"len100_distributed_noise0__design_19_0_rank4","label":"L100_dist_n0_design_19_0_rank4","length":100,"hotspot":"distributed","upstreamScore":0.278,"downstreamScore":0.0,"delta":-0.278,"status":"fell out"},{"x":41,"y":0,"design":"len100_clusterA_noise0__design_1_0_rank0","label":"L100_cA_n0_design_1_0_rank0","length":100,"hotspot":"clusterA","upstreamScore":0.259,"downstreamScore":0.0,"delta":-0.259,"status":"fell out"},{"x":42,"y":0,"design":"len100_clusterA_noise0__design_15_0_rank2","label":"L100_cA_n0_design_15_0_rank2","length":100,"hotspot":"clusterA","upstreamScore":0.241,"downstreamScore":0.0,"delta":-0.241,"status":"fell out"},{"x":43,"y":0,"design":"len100_clusterB_noise0__design_1_0_rank0","label":"L100_cB_n0_design_1_0_rank0","length":100,"hotspot":"clusterB","upstreamScore":0.222,"downstreamScore":0.0,"delta":-0.222,"status":"fell out"},{"x":45,"y":0,"design":"len100_clusterA_noise05__design_6_0_rank0","label":"L100_cA_n05_design_6_0_rank0","length":100,"hotspot":"clusterA","upstreamScore":0.185,"downstreamScore":0.0,"delta":-0.185,"status":"fell out"},{"x":48,"y":0,"design":"len70_clusterA_noise0__design_13_0_rank8","label":"L70_cA_n0_design_13_0_rank8","length":70,"hotspot":"clusterA","upstreamScore":0.13,"downstreamScore":0.0,"delta":-0.13,"status":"fell out"},{"x":49,"y":0,"design":"len70_clusterA_noise0__design_9_0_rank9","label":"L70_cA_n0_design_9_0_rank9","length":70,"hotspot":"clusterA","upstreamScore":0.111,"downstreamScore":0.0,"delta":-0.111,"status":"fell out"},{"x":50,"y":0,"design":"len100_clusterA_noise0__design_0_0_rank7","label":"L100_cA_n0_design_0_0_rank7","length":100,"hotspot":"clusterA","upstreamScore":0.093,"downstreamScore":0.0,"delta":-0.093,"status":"fell out"},{"x":51,"y":0,"design":"len70_clusterA_noise0__design_19_0_rank10","label":"L70_cA_n0_design_19_0_rank10","length":70,"hotspot":"clusterA","upstreamScore":0.074,"downstreamScore":0.0,"delta":-0.074,"status":"fell out"},{"x":52,"y":0,"design":"len50_distributed_noise0__design_18_0_rank2","label":"L50_dist_n0_design_18_0_rank2","length":50,"hotspot":"distributed","upstreamScore":0.056,"downstreamScore":0.0,"delta":-0.056,"status":"fell out"},{"x":53,"y":0,"design":"len50_distributed_noise0__design_15_0_rank3","label":"L50_dist_n0_design_15_0_rank3","length":50,"hotspot":"distributed","upstreamScore":0.037,"downstreamScore":0.0,"delta":-0.037,"status":"fell out"},{"x":54,"y":0,"design":"len50_clusterA_noise0__design_16_0_rank2","label":"L50_cA_n0_design_16_0_rank2","length":50,"hotspot":"clusterA","upstreamScore":0.019,"downstreamScore":0.0,"delta":-0.019,"status":"fell out"},{"x":55,"y":0,"design":"len50_distributed_noise0__design_14_0_rank1","label":"L50_dist_n0_design_14_0_rank1","length":50,"hotspot":"distributed","upstreamScore":0.0,"downstreamScore":0.0,"delta":0.0,"status":"fell out"}];
+const top10RankData = completeRankData.filter(d => d.y >= 1 && d.y <= 10);
+function pointTooltip(ctx){const r=ctx.raw;return [r.design,'Length: '+r.length+' | Hotspot: '+r.hotspot,'Upstream rank: '+r.x,'Downstream rank: '+r.y,'Status: '+r.status,'Δ score: '+(r.delta>=0?'+':'')+r.delta];}
+const scorecardCtx=document.getElementById('scorecardRankChart');
+if(scorecardCtx){new Chart(scorecardCtx,{type:'scatter',data:{datasets:[{label:'Downstream complete',data:completeRankData,backgroundColor:'rgba(46,109,164,0.75)',borderColor:'#2e6da4',borderWidth:1,pointRadius:5,pointHoverRadius:8},{label:'Downstream top 10',data:top10RankData,backgroundColor:'rgba(200,90,58,0.82)',borderColor:'#c85a3a',borderWidth:1.2,pointRadius:7,pointHoverRadius:9},{label:'Fell out',data:felloutRankData,backgroundColor:'rgba(138,136,120,0.55)',borderColor:'#8a8878',borderWidth:1,pointRadius:4,pointHoverRadius:7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return pointTooltip(ctx);}}}},scales:{x:{title:{display:true,text:'Scorecard 1 upstream rank among all 55 designs',font:{family:'DM Sans',size:12,weight:'600'}},min:0,max:56,grid:{color:'rgba(26,26,24,0.07)'},ticks:{stepSize:10,font:{family:'DM Sans'}}},y:{title:{display:true,text:'Scorecard 2 downstream rank (0 = fell out)',font:{family:'DM Sans',size:12,weight:'600'}},min:0,max:30,grid:{color:'rgba(26,26,24,0.07)'},ticks:{stepSize:5,font:{family:'DM Sans'}}}}},plugins:[{id:'rankGuides',beforeDatasetsDraw(chart){const{ctx,chartArea,scales}=chart;ctx.save();const y10=scales.y.getPixelForValue(10);const y0=scales.y.getPixelForValue(0);ctx.fillStyle='rgba(200,90,58,0.07)';ctx.fillRect(chartArea.left,y10,chartArea.right-chartArea.left,y0-y10);ctx.restore();},afterDraw(chart){const{ctx,chartArea,scales}=chart;ctx.save();const yFell=scales.y.getPixelForValue(0);const y10=scales.y.getPixelForValue(10);ctx.strokeStyle='rgba(200,90,58,0.45)';ctx.lineWidth=1.5;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(chartArea.left,yFell);ctx.lineTo(chartArea.right,yFell);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#8a8878';ctx.font='11px "DM Sans", sans-serif';ctx.fillText('fell out',chartArea.left+8,yFell-8);ctx.fillText('downstream top 10',chartArea.left+8,y10-8);ctx.restore();}}]});}
+</script>
+</body>
 </html>
