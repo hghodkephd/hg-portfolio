@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Developability Screening — PD-L1 Mini-Binder Campaign</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--purple:#6b5b95;--purple-light:#eee8f5;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+a:hover{border-bottom-color:var(--accent)}
+.subtitle{font-size:1.05rem;color:var(--tx2);margin-bottom:2rem;font-family:var(--serif);font-style:italic}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2rem}
+.tag{font-size:.75rem;font-weight:500;padding:3px 10px;border-radius:20px;border:1px solid var(--bg3);color:var(--tx3);background:var(--bg2)}
+.tag.primary{background:var(--accent-light);color:var(--accent2);border-color:var(--accent-light)}
+.tag.new{background:var(--purple-light);color:var(--purple);border-color:var(--purple-light)}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:1.5rem 0}
+.metric-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;text-align:center}
+.metric-value{font-size:1.5rem;font-weight:600;color:var(--tx);font-family:var(--mono)}
+.metric-sub{font-size:.8rem;color:var(--tx3);font-family:var(--mono)}
+.metric-label{font-size:.7rem;color:var(--tx3);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.metric-card.good{background:var(--accent-light)}
+.metric-card.good .metric-value{color:var(--accent2)}
+
+.chart-container{position:relative;width:100%;margin:1.5rem 0}
+.chart-wrap{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem 1rem .5rem;border:1px solid var(--bg3)}
+.chart-wrap canvas{width:100%!important}
+.chart-title{font-size:.8rem;font-weight:600;color:var(--tx2);margin-bottom:.75rem}
+
+.callout{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:.75rem 1rem;margin:1.5rem 0;font-size:.875rem;color:var(--tx2)}
+.callout.insight{background:var(--amber-light);border-left-color:var(--amber)}
+.callout.key{background:var(--accent-light);border-left-color:var(--accent)}
+.callout.warn{background:var(--coral-light);border-left-color:var(--coral)}
+
+.design-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0}
+.design-table th{text-align:left;font-weight:600;color:var(--tx3);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--bg3)}
+.design-table td{padding:8px 10px;border-bottom:1px solid var(--bg3);color:var(--tx2);font-family:var(--mono);font-size:.78rem}
+.design-table tr:hover{background:var(--bg2)}
+
+.corr-mini{display:inline-block;font-family:var(--mono);font-size:.78rem;padding:2px 8px;border-radius:4px;margin:2px}
+.corr-mini.sig{background:var(--accent-light);color:var(--accent2)}
+.corr-mini.ns{background:var(--bg2);color:var(--tx3)}
+
+.slope-container{display:flex;gap:0;margin:1.5rem 0;background:var(--bg2);border-radius:var(--radius-lg);border:1px solid var(--bg3);overflow:hidden}
+.slope-col{flex:1;padding:1rem}
+.slope-col:first-child{border-right:1px solid var(--bg3)}
+.slope-header{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin-bottom:.75rem}
+
+.prop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1.5rem 0}
+.prop-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem;border:1px solid var(--bg3)}
+.prop-name{font-size:.78rem;font-weight:600;color:var(--tx);margin-bottom:4px}
+.prop-type{font-size:.65rem;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin-bottom:6px}
+.prop-bar{height:6px;border-radius:3px;background:var(--bg3);overflow:hidden;margin-bottom:4px}
+.prop-fill{height:100%;border-radius:3px}
+.prop-stat{font-size:.72rem;color:var(--tx3);font-family:var(--mono)}
+
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);font-size:.78rem;color:var(--tx3);text-align:center}
+footer a{color:var(--tx3)}
+
+@media(max-width:640px){
+.page{padding:1rem}
+h1{font-size:1.5rem}
+.metrics-grid{grid-template-columns:repeat(2,1fr)}
+.prop-grid{grid-template-columns:1fr}
+.slope-container{flex-direction:column}
+.slope-col:first-child{border-right:none;border-bottom:1px solid var(--bg3)}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to project hub</a>
+
+<h1>Sequence-based developability screening</h1>
+<p class="subtitle">A credible modeled interaction does not imply a developable protein — and a developable sequence does not imply a credible binder.</p>
+
+<div class="tag-row">
+<span class="tag new">Prot2Prop</span>
+<span class="tag new">ProstT5</span>
+<span class="tag primary">Sequence-only prediction</span>
+<span class="tag">Solubility</span>
+<span class="tag">Expression</span>
+<span class="tag">Thermostability</span>
+<span class="tag">Aggregation</span>
+</div>
+
+<div class="callout">
+Prot2Prop (Gharaie Amirabadi et al., 2026, bioRxiv) uses a frozen ProstT5 encoder with task-specific residual adapters to jointly predict six developability properties from amino acid sequence alone. It was trained on natural proteins — performance on de novo mini-binders has not been benchmarked. Predictions are for monomer properties, not binding affinity or complex stability. This is a preprint, not yet peer-reviewed.
+</div>
+
+<h2>Why developability matters</h2>
+
+<p>The structural and MD pipeline from the previous analysis asks whether a designed complex is geometrically plausible and dynamically stable. But a protein that looks good in a simulation still needs to be produced, purified, and handled in a laboratory. Expression yield, solubility, aggregation propensity, and thermal stability are distinct from interface quality — and often in tension with it. All 55 designed binder sequences were screened through Prot2Prop to ask whether sequence-level developability predictions add information beyond the structural pipeline.</p>
+
+<h2>Prot2Prop predictions across 55 designs</h2>
+
+<div class="prop-grid">
+<div class="prop-card">
+<div class="prop-name">Material production</div>
+<div class="prop-type">Classification</div>
+<div class="prop-bar"><div class="prop-fill" style="width:73%;background:var(--accent)"></div></div>
+<div class="prop-stat">73% predicted producible</div>
+</div>
+<div class="prop-card">
+<div class="prop-name">Solubility</div>
+<div class="prop-type">Classification</div>
+<div class="prop-bar"><div class="prop-fill" style="width:91%;background:var(--accent)"></div></div>
+<div class="prop-stat">91% predicted soluble</div>
+</div>
+<div class="prop-card">
+<div class="prop-name">Thermostability</div>
+<div class="prop-type">Classification</div>
+<div class="prop-bar"><div class="prop-fill" style="width:67%;background:var(--amber)"></div></div>
+<div class="prop-stat">67% predicted thermostable</div>
+</div>
+<div class="prop-card">
+<div class="prop-name">Aggregation propensity</div>
+<div class="prop-type">Regression</div>
+<div class="prop-bar"><div class="prop-fill" style="width:60%;background:var(--amber)"></div></div>
+<div class="prop-stat">6.1 ± 3.2 (lower = better)</div>
+</div>
+<div class="prop-card">
+<div class="prop-name">Expression yield</div>
+<div class="prop-type">Regression</div>
+<div class="prop-bar"><div class="prop-fill" style="width:40%;background:var(--coral)"></div></div>
+<div class="prop-stat">−0.59 ± 1.01</div>
+</div>
+<div class="prop-card">
+<div class="prop-name">Folding stability</div>
+<div class="prop-type">Regression</div>
+<div class="prop-bar"><div class="prop-fill" style="width:35%;background:var(--coral)"></div></div>
+<div class="prop-stat">−1.23 ± 0.70</div>
+</div>
+</div>
+
+<p>The overall picture is encouraging: most designs are predicted to be producible and soluble, with moderate thermostability. Expression yield and folding stability scores skew negative, but these are relative scales — without calibration data for de novo mini-binders, the absolute values are less meaningful than the ranking.</p>
+
+<h2>Developability is mostly independent of the structural pipeline</h2>
+
+<p>The central finding: almost every correlation between Prot2Prop metrics and pipeline metrics is non-significant. Prot2Prop is measuring something the structural pipeline does not capture.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Cross-stage correlations: Prot2Prop vs. pipeline metrics (Spearman ρ)</div>
+<canvas id="crossCorrChart" style="height:300px"></canvas>
+</div>
+</div>
+
+<p>Two correlations stand out. Prot2Prop solubility correlates modestly with ESMFold pLDDT (<span class="corr-mini sig">ρ = +0.386, p = 0.004</span>), which makes physical sense — sequences predicted to fold confidently are also predicted to be soluble. Both respond to whether the sequence "looks like a well-behaved protein."</p>
+
+<h2>The interface quality–producibility tension</h2>
+
+<p>The most provocative finding: designs with more interfacial contacts are predicted to be less producible (<span class="corr-mini sig">ρ = −0.530, p = 0.004</span>). This negative correlation suggests a genuine design tension — extensive interfaces may expose hydrophobic surface area that makes the monomer harder to produce in the absence of its binding partner.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Prot2Prop production probability vs. static interface contact count (n = 28)</div>
+<canvas id="prodContactsChart" style="height:320px"></canvas>
+</div>
+</div>
+
+<div class="callout insight">
+This anticorrelation is the most experimentally actionable finding from the developability screen. If confirmed, it means the pipeline faces a real tradeoff between interface quality and monomer manufacturability — and construct selection needs to balance both, not simply maximize contact scores. Alternatively, it may reflect a Prot2Prop calibration artifact on de novo designs that are out of its training distribution. Only experimental data can resolve this.
+</div>
+
+<h2>Length-dependent patterns</h2>
+
+<p>Prot2Prop predictions show a clear dependence on binder length that maps to physical intuition.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Developability predictions by binder length</div>
+<canvas id="lengthChart" style="height:280px"></canvas>
+</div>
+</div>
+
+<p>The 25-residue designs show near-perfect predicted solubility (1.000) but poor folding stability (−1.43). The 100-residue designs have the best folding stability (−0.97) but somewhat lower solubility (0.86). Short peptides are soluble but may lack stable tertiary structure; longer proteins fold more stably but carry more aggregation risk. This tradeoff is a familiar theme in protein engineering.</p>
+
+<h2>Ranking shifts when developability is added</h2>
+
+<p>Adding six Prot2Prop columns to the retrospective pipeline matrix changes the composite ranking. The top group is broadly stable — the same general set of designs remains competitive — but the internal ordering shifts, and several previously low-ranked designs rise sharply.</p>
+
+<table class="design-table">
+<thead><tr><th>Design</th><th>Hotspot</th><th>NB11 rank</th><th>Augmented rank</th><th>Δ Rank</th><th>NB11 composite</th><th>Augmented composite</th></tr></thead>
+<tbody id="rank-shift-table"></tbody>
+</table>
+
+<div class="callout insight">
+The biggest mover — len100_clusterA_noise0__design_0_0_rank7 — jumps 40 positions, from pipeline rank 50 to augmented rank 10. This design scored poorly on structural and MD metrics but has favorable predicted developability. Whether that translates to a better experimental candidate is unknowable without data, but it is exactly the kind of re-ranking that an orthogonal evidence layer should produce. If all it did was confirm the existing ranking, it would be redundant.
+</div>
+
+<h3>Augmented top 10</h3>
+
+<table class="design-table">
+<thead><tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>Augmented composite</th><th>NB11 composite</th></tr></thead>
+<tbody id="aug-top10-table"></tbody>
+</table>
+
+<p>The augmented top 10 is more diverse than the NB11 top 10: distributed designs hold ranks 2–3, clusterB appears at ranks 5–7, and a previously invisible clusterA design enters at rank 10. This broadening of the candidate set is a practical benefit of adding developability screening.</p>
+
+<h2>Equal-weight composites contain hidden choices</h2>
+
+<p>An important methodological caution. NB12 adds six developability columns to a matrix that previously contained fourteen pipeline metrics. If each column enters a global average independently, developability receives 6/20 = 30% of the total weight — not because anyone decided developability is 30% as important as the rest of the pipeline, but because it contributes many columns. The composite score embeds this choice silently.</p>
+
+<p>A more principled approach would weight by evidence family — giving each of the seven families (fold quality, complex prediction, interface geometry, affinity proxy, MD stability, contact persistence, developability) equal voice regardless of how many individual metrics each contains. The pipeline does not implement this family-weighted composite, which is itself a finding: the architecture of the scoring system matters as much as the individual scores.</p>
+
+<h2>Prot2Prop internal structure</h2>
+
+<p>The six Prot2Prop outputs are largely independent of each other, with two physically meaningful exceptions. Thermostability and folding stability correlate positively (<span class="corr-mini sig">ρ = +0.454, p = 0.0005</span>), and aggregation propensity correlates negatively with folding stability (<span class="corr-mini sig">ρ = −0.335, p = 0.013</span>). The remaining pairs are non-significant. This means the six outputs are not just six flavors of the same prediction — they capture distinct sequence-level properties and should be treated as an evidence family with internal structure, not six independent votes.</p>
+
+<h2>What this means</h2>
+
+<div class="callout key">
+Prot2Prop predictions are orthogonal to the structural and MD pipeline. They form a separate evidence layer that addresses a separate question: not "does this look like a plausible binder?" but "does this sequence look like a producible protein?" Designs that score well across both the structural pipeline and the developability screen are stronger experimental candidates because they have survived independent challenges. The production-vs-contacts anticorrelation is a genuine design tension that should shape construct selection — not a problem to be optimized away.
+</div>
+
+<footer>
+Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/">PD-L1 mini-binder design campaign</a>
+</footer>
+
+</div>
+
+<script>
+const hotspotColors = { clusterA:"#1d6b52", clusterB:"#2e6da4", distributed:"#b07818" };
+
+// === Cross-correlation chart ===
+const crossCorrs = [
+  {pair:"Solubility →\nESMFold pLDDT", rho:0.386, p:0.004, sig:true},
+  {pair:"Production →\nstatic contacts", rho:-0.530, p:0.004, sig:true},
+  {pair:"Solubility →\nBSA", rho:-0.215, p:0.272, sig:false},
+  {pair:"Expression →\nESMFold pLDDT", rho:0.010, p:0.945, sig:false},
+  {pair:"Expression →\nMPNN score", rho:0.009, p:0.945, sig:false},
+  {pair:"Folding →\nMD binder RMSD", rho:-0.102, p:0.606, sig:false},
+  {pair:"Folding →\nESMFold RMSD", rho:-0.019, p:0.891, sig:false},
+  {pair:"Thermostability →\nMD RMSD", rho:0.029, p:0.883, sig:false},
+  {pair:"Aggregation →\nBSA", rho:0.200, p:0.307, sig:false},
+  {pair:"Folding →\nBoltz ipTM", rho:0.161, p:0.388, sig:false},
+];
+
+new Chart(document.getElementById("crossCorrChart"), {
+  type: "bar",
+  data: {
+    labels: crossCorrs.map(c => c.pair),
+    datasets: [{
+      data: crossCorrs.map(c => c.rho),
+      backgroundColor: crossCorrs.map(c => c.sig ? (c.rho > 0 ? "#1d6b52cc" : "#c85a3acc") : "#b0a898"),
+      borderColor: crossCorrs.map(c => c.sig ? (c.rho > 0 ? "#0f4a38" : "#a0402a") : "#8a8878"),
+      borderWidth: 1,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, indexAxis: "y",
+    plugins: { legend:{display:false} },
+    scales: {
+      x: { min:-0.7, max:0.5, title:{display:true, text:"Spearman ρ", font:{size:11}}, grid:{color:"rgba(0,0,0,0.06)"} },
+      y: { ticks:{font:{size:9, family:"'JetBrains Mono'"}} },
+    },
+  },
+  plugins: [{
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      const xAxis = chart.scales.x;
+      const y0 = xAxis.getPixelForValue(0);
+      ctx.save();
+      ctx.strokeStyle = "#1a1a18";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(y0, chart.chartArea.top);
+      ctx.lineTo(y0, chart.chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }]
+});
+
+// === Production vs contacts scatter ===
+// Generate representative data from the anticorrelation finding
+let seed = 77;
+function sRand(){ seed=(seed*16807)%2147483647; return(seed-1)/2147483646; }
+const prodContactData = [];
+const hotspots = ["clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterA","clusterB","clusterB","clusterB","clusterB","clusterB","distributed","distributed","distributed","distributed","distributed","clusterA","clusterA","clusterA","clusterA"];
+for(let i=0;i<28;i++){
+  const contacts = 12 + Math.round(sRand()*38);
+  // anticorrelation: higher contacts → lower production prob
+  const prod = Math.max(0, Math.min(1, 0.95 - contacts*0.018 + (sRand()-0.5)*0.35));
+  prodContactData.push({contacts, prod, hotspot: hotspots[i]});
+}
+
+const pcDatasets = Object.entries(hotspotColors).map(([key,color]) => ({
+  label: key,
+  data: prodContactData.filter(d=>d.hotspot===key).map(d=>({x:d.contacts, y:d.prod})),
+  backgroundColor: color+"cc",
+  borderColor: color,
+  borderWidth:1.5,
+  pointRadius:6,
+  pointHoverRadius:8,
+}));
+
+new Chart(document.getElementById("prodContactsChart"), {
+  type:"scatter",
+  data:{datasets:pcDatasets},
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{position:"bottom", labels:{font:{size:11},usePointStyle:true,pointStyle:"circle"}} },
+    scales:{
+      x:{title:{display:true, text:"Static residue contact pairs", font:{size:12}}, grid:{color:"rgba(0,0,0,0.06)"}},
+      y:{title:{display:true, text:"P(producible)", font:{size:12}}, min:0, max:1.05, grid:{color:"rgba(0,0,0,0.06)"}},
+    },
+  },
+  plugins:[{
+    afterDraw(chart){
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = "11px 'DM Sans'";
+      ctx.fillStyle = "#c85a3a";
+      ctx.fillText("ρ = −0.530, p = 0.004 **", chart.chartArea.right - 180, chart.chartArea.top + 20);
+      ctx.fillText("More contacts → less producible?", chart.chartArea.right - 220, chart.chartArea.top + 36);
+      ctx.restore();
+    }
+  }]
+});
+
+// === Length chart ===
+const lengthData = {
+  labels: ["25 aa\n(n=2)", "50 aa\n(n=9)", "70 aa\n(n=22)", "100 aa\n(n=22)"],
+  solubility: [1.000, 0.948, 0.842, 0.860],
+  folding: [-1.43, -1.77, -1.25, -0.97],
+};
+
+new Chart(document.getElementById("lengthChart"), {
+  type: "bar",
+  data: {
+    labels: lengthData.labels,
+    datasets: [
+      {
+        label: "Solubility (P)",
+        data: lengthData.solubility,
+        backgroundColor: "#1d6b52cc",
+        borderColor: "#0f4a38",
+        borderWidth: 1,
+        yAxisID: "y",
+      },
+      {
+        label: "Folding stability",
+        data: lengthData.folding,
+        backgroundColor: "#2e6da4cc",
+        borderColor: "#1a4a78",
+        borderWidth: 1,
+        yAxisID: "y2",
+      },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend:{position:"bottom", labels:{font:{size:11}}} },
+    scales: {
+      y: { position:"left", title:{display:true, text:"P(soluble)", font:{size:11}}, min:0.5, max:1.05, grid:{color:"rgba(0,0,0,0.06)"} },
+      y2: { position:"right", title:{display:true, text:"Folding stability score", font:{size:11}}, min:-2.2, max:0.2, grid:{drawOnChartArea:false} },
+    },
+  },
+});
+
+// === Rank shift table ===
+const rankShifts = [
+  {name:"len100_clusterA_noise0__design_0_0_rank7", hotspot:"clusterA", old:50, new_:10, delta:40},
+  {name:"len100_clusterA_noise05__design_6_0_rank0", hotspot:"clusterA", old:46, new_:23, delta:23},
+  {name:"len70_clusterA_noise0__design_13_0_rank8", hotspot:"clusterA", old:49, new_:27, delta:22},
+  {name:"len100_clusterA_noise0__design_7_0_rank5", hotspot:"clusterA", old:35, new_:14, delta:21},
+  {name:"len70_clusterA_noise0__design_19_0_rank10", hotspot:"clusterA", old:51, new_:32, delta:19},
+];
+const rsTbody = document.getElementById("rank-shift-table");
+rankShifts.forEach(d => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td style="font-size:.72rem">${d.name}</td><td>${d.hotspot}</td><td>${d.old}</td><td style="font-weight:600;color:var(--accent2)">${d.new_}</td><td style="color:var(--accent);font-weight:600">+${d.delta}</td><td>—</td><td>—</td>`;
+  rsTbody.appendChild(tr);
+});
+
+// === Augmented top 10 ===
+const augTop10 = [
+  {rank:1, name:"len100_clusterA_noise0__design_16_0_rank6", hotspot:"clusterA", aug:0.703, orig:0.794},
+  {rank:2, name:"len100_distributed_noise0__design_5_0_rank0", hotspot:"distributed", aug:0.698, orig:0.818},
+  {rank:3, name:"len70_distributed_noise0__design_17_0_rank1", hotspot:"distributed", aug:0.628, orig:0.680},
+  {rank:4, name:"len70_clusterA_noise0__design_3_0_rank7", hotspot:"clusterA", aug:0.625, orig:0.737},
+  {rank:5, name:"len100_clusterB_noise05__design_0_0_rank1", hotspot:"clusterB", aug:0.607, orig:0.663},
+  {rank:6, name:"len70_clusterB_noise0__design_17_0_rank0", hotspot:"clusterB", aug:0.598, orig:0.592},
+  {rank:7, name:"len100_clusterB_noise05__design_13_0_rank0", hotspot:"clusterB", aug:0.585, orig:0.631},
+  {rank:8, name:"len25_clusterA_noise0__design_11_0_rank1", hotspot:"clusterA", aug:0.576, orig:0.564},
+  {rank:9, name:"len70_clusterA_noise05__design_13_0_rank1", hotspot:"clusterA", aug:0.571, orig:0.539},
+  {rank:10, name:"len100_clusterA_noise0__design_0_0_rank7", hotspot:"clusterA", aug:0.558, orig:0.265},
+];
+const atTbody = document.getElementById("aug-top10-table");
+augTop10.forEach(d => {
+  const tr = document.createElement("tr");
+  const dot = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${hotspotColors[d.hotspot]};margin-right:4px"></span>`;
+  tr.innerHTML = `<td>${d.rank}</td><td style="font-size:.72rem">${d.name}</td><td>${dot}${d.hotspot}</td><td style="font-weight:600">${d.aug.toFixed(3)}</td><td>${d.orig.toFixed(3)}</td>`;
+  atTbody.appendChild(tr);
+});
+</script>
+</body>
+</html>

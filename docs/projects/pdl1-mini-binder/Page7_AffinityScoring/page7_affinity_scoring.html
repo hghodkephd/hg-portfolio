@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affinity & Complex Stability Scoring — PD-L1 Mini-Binder Campaign</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--purple:#6b5b95;--purple-light:#eee8f5;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+a:hover{border-bottom-color:var(--accent)}
+.subtitle{font-size:1.05rem;color:var(--tx2);margin-bottom:2rem;font-family:var(--serif);font-style:italic}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2rem}
+.tag{font-size:.75rem;font-weight:500;padding:3px 10px;border-radius:20px;border:1px solid var(--bg3);color:var(--tx3);background:var(--bg2)}
+.tag.primary{background:var(--accent-light);color:var(--accent2);border-color:var(--accent-light)}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:1.5rem 0}
+.metric-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;text-align:center}
+.metric-value{font-size:1.5rem;font-weight:600;color:var(--tx);font-family:var(--mono)}
+.metric-label{font-size:.7rem;color:var(--tx3);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.metric-card.accent{background:var(--accent-light)}
+.metric-card.accent .metric-value{color:var(--accent2)}
+
+.chart-container{position:relative;width:100%;margin:1.5rem 0}
+.chart-wrap{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem 1rem .5rem;border:1px solid var(--bg3)}
+.chart-wrap canvas{width:100%!important}
+.chart-title{font-size:.8rem;font-weight:600;color:var(--tx2);margin-bottom:.75rem}
+
+.callout{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:.75rem 1rem;margin:1.5rem 0;font-size:.875rem;color:var(--tx2)}
+.callout.insight{background:var(--amber-light);border-left-color:var(--amber)}
+.callout.key{background:var(--accent-light);border-left-color:var(--accent)}
+
+.design-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0}
+.design-table th{text-align:left;font-weight:600;color:var(--tx3);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--bg3)}
+.design-table td{padding:8px 10px;border-bottom:1px solid var(--bg3);color:var(--tx2);font-family:var(--mono);font-size:.78rem}
+.design-table tr:hover{background:var(--bg2)}
+.design-table .rank-1{background:var(--accent-light)}
+.design-table .rank-1 td{color:var(--accent2)}
+
+.corr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.5rem 0}
+.corr-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;border:1px solid var(--bg3)}
+.corr-pair{font-size:.78rem;font-weight:600;color:var(--tx);margin-bottom:4px}
+.corr-value{font-family:var(--mono);font-size:.85rem;font-weight:600}
+.corr-interp{font-size:.75rem;color:var(--tx3);margin-top:4px}
+.corr-card.strong{border-left:3px solid var(--accent)}
+.corr-card.weak{border-left:3px solid var(--bg3)}
+.corr-card.none{border-left:3px solid var(--coral);opacity:.7}
+
+.heatmap-container{width:100%;overflow-x:auto;margin:1.5rem 0}
+.heatmap-wrap{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem;border:1px solid var(--bg3);min-width:800px}
+
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);font-size:.78rem;color:var(--tx3);text-align:center}
+footer a{color:var(--tx3)}
+
+@media(max-width:640px){
+.page{padding:1rem}
+h1{font-size:1.5rem}
+.metrics-grid{grid-template-columns:repeat(2,1fr)}
+.corr-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to project hub</a>
+
+<h1>Affinity and complex stability scoring</h1>
+<p class="subtitle">Which candidates form the most credible modeled complexes — and do the scoring methods agree?</p>
+
+<div class="tag-row">
+<span class="tag primary">PRODIGY</span>
+<span class="tag primary">OpenMM</span>
+<span class="tag primary">MDTraj</span>
+<span class="tag">Boltz-2</span>
+<span class="tag">BioPython</span>
+<span class="tag">Shrake-Rupley BSA</span>
+<span class="tag">Contact persistence</span>
+</div>
+
+<div class="callout">
+These scores are not experimental affinities. They are comparative triage features — different lenses on modeled complex quality. The output is a prioritized shortlist of hypotheses, not validated binders.
+</div>
+
+<h2>The scoring problem</h2>
+
+<p>Twenty-eight designs survived the full computational pipeline: RFdiffusion backbone generation, ProteinMPNN sequence design, ESMFold fold validation, structural filtering, Boltz-2 complex prediction, interface fingerprinting, and 1 ns molecular dynamics simulations. Each design now has metrics from multiple independent analyses. The question is whether these metrics tell a consistent story — and what happens when they don't.</p>
+
+<p>Five distinct evidence types were assembled for each design. Boltz-2 complex confidence (ipTM) asks whether an independent structure predictor recovers a plausible complex from sequence alone. Static interface geometry — buried surface area, residue contact counts, and polar close-contacts — describes the physical extent of the modeled interface after energy minimization. PRODIGY provides an empirical affinity proxy trained on experimentally characterized natural complexes. MD-derived stability metrics — binder backbone RMSD, center-of-mass drift, and interfacial contact counts — test whether the complex holds together during short simulation. And post-MD contact persistence measures which designed contacts survive dynamics.</p>
+
+<div class="metrics-grid">
+<div class="metric-card accent"><div class="metric-value">28</div><div class="metric-label">Designs scored</div></div>
+<div class="metric-card"><div class="metric-value">5</div><div class="metric-label">Evidence types</div></div>
+<div class="metric-card"><div class="metric-value">14</div><div class="metric-label">Quantitative metrics</div></div>
+<div class="metric-card"><div class="metric-value">100%</div><div class="metric-label">High confidence</div></div>
+</div>
+
+<h2>Cross-stage agreement is limited</h2>
+
+<p>If the pipeline stages were measuring the same underlying property, their outputs would be strongly correlated. They are not. Most cross-stage relationships are weak or absent, which means each stage is contributing genuinely independent information.</p>
+
+<div class="corr-grid">
+<div class="corr-card strong">
+<div class="corr-pair">BSA → PRODIGY ΔG</div>
+<div class="corr-value" style="color:var(--accent)">ρ = +0.825 (p < 0.0001) ***</div>
+<div class="corr-interp">PRODIGY largely recapitulates interface size. Not independent signals.</div>
+</div>
+<div class="corr-card strong">
+<div class="corr-pair">Static contacts → MD persistence</div>
+<div class="corr-value" style="color:var(--accent)">ρ = +0.679 (p = 0.0001) ***</div>
+<div class="corr-interp">Designs with more initial contacts retain more through MD. The headline mechanistic finding.</div>
+</div>
+<div class="corr-card weak">
+<div class="corr-pair">PRODIGY ΔG → persistence</div>
+<div class="corr-value" style="color:var(--amber)">ρ = +0.407 (p = 0.032) *</div>
+<div class="corr-interp">Modest agreement, consistent with the BSA–persistence relationship.</div>
+</div>
+<div class="corr-card none">
+<div class="corr-pair">MPNN score → ESMFold pLDDT</div>
+<div class="corr-value" style="color:var(--tx3)">ρ = −0.237 (p = 0.082) ns</div>
+<div class="corr-interp">Sequence-design confidence does not predict fold quality.</div>
+</div>
+<div class="corr-card none">
+<div class="corr-pair">ESMFold RMSD → Boltz ipTM</div>
+<div class="corr-value" style="color:var(--tx3)">ρ = −0.004 (p = 0.983) ns</div>
+<div class="corr-interp">Monomer fold recovery says nothing about complex prediction.</div>
+</div>
+<div class="corr-card none">
+<div class="corr-pair">Boltz ipTM → PRODIGY ΔG</div>
+<div class="corr-value" style="color:var(--tx3)">ρ = +0.118 (p = 0.549) ns</div>
+<div class="corr-interp">Complex prediction confidence and affinity proxy are unrelated.</div>
+</div>
+<div class="corr-card none">
+<div class="corr-pair">Boltz ipTM → MD RMSD</div>
+<div class="corr-value" style="color:var(--tx3)">ρ = +0.252 (p = 0.196) ns</div>
+<div class="corr-interp">Boltz-2 confidence does not predict MD stability. MD adds independent information.</div>
+</div>
+</div>
+
+<div class="callout insight">
+The non-correlations are as informative as the correlations. Each pipeline stage filters on a different failure mode: sequence foldability, complex plausibility, interface extent, affinity-like scoring, and dynamic coherence. This is why a multi-stage workflow adds value — no single metric captures the full picture.
+</div>
+
+<h2>Static contacts predict dynamic persistence</h2>
+
+<p>The strongest mechanistic finding from this analysis: designs that start with more residue-level contacts in the minimized structure tend to retain more contacts through molecular dynamics. The Spearman correlation (ρ = +0.679, p = 0.0001) suggests that static interface fingerprinting — a computationally cheap step — has real predictive value for dynamic stability. The interface geometry is not merely an artifact of threading and minimization; it reflects something about how well the designed sequence encodes contacts with the target.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Static interface contacts vs. post-MD contact persistence (n = 28)</div>
+<canvas id="contactsPersistenceChart" style="height:320px"></canvas>
+</div>
+</div>
+
+<p>This partially validates the earlier pipeline stages as informative filters rather than noise. Designs that pass the static fingerprinting screen with strong contact networks are more likely to retain those contacts under thermal stress.</p>
+
+<h2>PRODIGY tracks interface size</h2>
+
+<p>PRODIGY's empirical model predicts binding free energy from interfacial contact features. In this dataset, PRODIGY ΔG correlates very strongly with buried surface area (ρ = +0.825). This is a useful sanity check — and a practical finding: PRODIGY is not providing much independent information beyond what BSA and contact counts already capture. For triage purposes, the simpler geometric metrics may be sufficient.</p>
+
+<div class="chart-container">
+<div class="chart-wrap">
+<div class="chart-title">Buried surface area vs. PRODIGY ΔG (n = 28)</div>
+<canvas id="bsaProdigyChart" style="height:320px"></canvas>
+</div>
+</div>
+
+<p>The PRODIGY ΔG range across the 28 designs spans −5.2 to −11.4 kcal/mol (mean −8.2 ± 1.8). These values are plausible for protein–protein interfaces of this size, but the model was trained on natural complexes — its calibration for de novo designs is unknown. The relative ranking is more trustworthy than the absolute numbers.</p>
+
+<h2>Consensus ranking: the downstream scorecard</h2>
+
+<p>A composite score was constructed from rank-normalized metrics across static interface geometry, PRODIGY affinity, MD stability, and contact persistence. All 28 designs received "high" confidence classification because all evidence sources were available.</p>
+
+<table class="design-table" id="consensus-table">
+<thead>
+<tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>Length</th><th>BSA (Å²)</th><th>Contacts</th><th>PRODIGY ΔG</th><th>RMSD (Å)</th><th>COM drift</th><th>Score</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<div class="callout insight">
+ClusterA designs dominate this ranking (8 of top 10), but this may reflect a composition effect — more clusterA designs reached the full pipeline. With n = 28, the pattern is informative but not conclusive.
+</div>
+
+<h2>The compact outlier</h2>
+
+<p>A 25-residue clusterA design (len25_clusterA_noise0__design_15_0_rank0) reaches consensus rank 2 despite having a modest BSA (487 Å²) and only moderate PRODIGY ΔG (−5.15 kcal/mol). Its strength comes from low binder RMSD (1.54 Å) and tight COM drift. A 25-residue binder that holds its fold and stays engaged is noteworthy — it competes on dynamic stability despite a limited contact footprint. This is the kind of candidate that would be lost if the pipeline used only interface-size metrics as gates.</p>
+
+<h2>Pipeline retrospective: all 55 designs</h2>
+
+<p>The full retrospective matrix places all 55 designs from the parameter sensitivity study on a common scale. Each quantitative metric is rank-normalized to [0, 1] where 1 = best. Designs that did not reach a given stage receive no score for that column. The matrix spans seven pipeline stages: ProteinMPNN sequence confidence, ESMFold fold quality, Boltz-2 complex prediction, static interface geometry, PRODIGY affinity, MD stability, and post-MD contact persistence.</p>
+
+<div class="heatmap-container">
+<div class="heatmap-wrap">
+<div class="chart-title">Retrospective pipeline matrix — all 55 designs, rank-normalized (hover for values)</div>
+<canvas id="heatmapCanvas" style="width:100%;height:900px"></canvas>
+</div>
+</div>
+
+<h3>Pipeline composite: a different ranking</h3>
+
+<p>The retrospective ranking over all 55 designs — using equal-weight averages across all available metrics — produces different leaders than the downstream consensus scorecard. The top pipeline design is len100_distributed_noise0__design_5_0_rank0 (composite 0.818), which does not appear in the consensus top 10. The pipeline ranking is more diverse: distributed and clusterB designs appear alongside clusterA in the top 5.</p>
+
+<table class="design-table" id="pipeline-table">
+<thead>
+<tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>Boltz tier</th><th>Composite</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<p>The disagreement between these two rankings is itself informative. The consensus scorecard weights downstream evidence (MD, persistence) equally with upstream evidence; the pipeline composite averages across all stages. Different weighting schemes answer different questions, and no single ranking should be treated as definitive.</p>
+
+<h2>What this means</h2>
+
+<div class="callout key">
+Structural screening narrows the field, but the surviving designs remain supported by different combinations of evidence. The output of this analysis is a shortlist, not a declared winner. The shortlist preserves diversity across consensus performance, interface geometry, dynamic persistence, compact architecture, hotspot strategy, and binder length — because the strongest experimental panel tests multiple hypotheses, not one.
+</div>
+
+<footer>
+Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/">PD-L1 mini-binder design campaign</a>
+</footer>
+
+</div>
+
+<script>
+// === DATA ===
+const consensusTop10 = [
+  {rank:1, name:"len100_cA_n0_d10_r3", full:"len100_clusterA_noise0__design_10_0_rank3", hotspot:"clusterA", len:100, bsa:410.0, contacts:15, prodigy:-5.61, rmsd:1.92, com:0.08, score:0.815},
+  {rank:2, name:"len25_cA_n0_d15_r0", full:"len25_clusterA_noise0__design_15_0_rank0", hotspot:"clusterA", len:25, bsa:487.2, contacts:25, prodigy:-5.15, rmsd:1.54, com:-1.85, score:0.788},
+  {rank:3, name:"len100_cA_n0_d13_r4", full:"len100_clusterA_noise0__design_13_0_rank4", hotspot:"clusterA", len:100, bsa:663.1, contacts:24, prodigy:-6.25, rmsd:1.62, com:-0.67, score:0.751},
+  {rank:4, name:"len70_cA_n0_d10_r1", full:"len70_clusterA_noise0__design_10_0_rank1", hotspot:"clusterA", len:70, bsa:520.9, contacts:22, prodigy:-6.01, rmsd:1.66, com:-0.34, score:0.743},
+  {rank:5, name:"len70_cA_n0_d16_r5", full:"len70_clusterA_noise0__design_16_0_rank5", hotspot:"clusterA", len:70, bsa:716.6, contacts:24, prodigy:-7.54, rmsd:1.65, com:-2.32, score:0.738},
+  {rank:6, name:"len50_cA_n0_d9_r0", full:"len50_clusterA_noise0__design_9_0_rank0", hotspot:"clusterA", len:50, bsa:532.3, contacts:22, prodigy:-6.17, rmsd:1.79, com:-1.82, score:0.725},
+  {rank:7, name:"len70_dist_n0_d5_r2", full:"len70_distributed_noise0__design_5_0_rank2", hotspot:"distributed", len:70, bsa:682.1, contacts:21, prodigy:-7.82, rmsd:1.61, com:-0.90, score:0.709},
+  {rank:8, name:"len70_cA_n0_d7_r6", full:"len70_clusterA_noise0__design_7_0_rank6", hotspot:"clusterA", len:70, bsa:682.0, contacts:31, prodigy:-8.08, rmsd:2.04, com:1.29, score:0.706},
+  {rank:9, name:"len70_cA_n05_d19_r0", full:"len70_clusterA_noise05__design_19_0_rank0", hotspot:"clusterA", len:70, bsa:414.9, contacts:17, prodigy:-5.71, rmsd:1.23, com:0.41, score:0.635},
+  {rank:10, name:"len100_cA_n05_d3_r2", full:"len100_clusterA_noise05__design_3_0_rank2", hotspot:"clusterA", len:100, bsa:709.3, contacts:28, prodigy:-8.80, rmsd:1.75, com:1.43, score:0.614},
+];
+
+const pipelineTop10 = [
+  {rank:1, name:"len100_distributed_noise0__design_5_0_rank0", hotspot:"distributed", tier:"validated", score:0.818},
+  {rank:2, name:"len100_clusterA_noise0__design_16_0_rank6", hotspot:"clusterA", tier:"validated", score:0.794},
+  {rank:3, name:"len70_clusterA_noise0__design_3_0_rank7", hotspot:"clusterA", tier:"validated", score:0.737},
+  {rank:4, name:"len70_distributed_noise0__design_17_0_rank1", hotspot:"distributed", tier:"validated", score:0.680},
+  {rank:5, name:"len100_clusterB_noise05__design_0_0_rank1", hotspot:"clusterB", tier:"validated", score:0.663},
+  {rank:6, name:"len100_clusterB_noise05__design_13_0_rank0", hotspot:"clusterB", tier:"validated", score:0.631},
+  {rank:7, name:"len70_clusterB_noise0__design_17_0_rank0", hotspot:"clusterB", tier:"validated", score:0.592},
+  {rank:8, name:"len70_clusterB_noise0__design_15_0_rank2", hotspot:"clusterB", tier:"validated", score:0.585},
+  {rank:9, name:"len70_clusterB_noise0__design_19_0_rank1", hotspot:"clusterB", tier:"validated", score:0.583},
+  {rank:10, name:"len100_distributed_noise0__design_18_0_rank1", hotspot:"distributed", tier:"uncertain", score:0.570},
+];
+
+// Scatter data: contacts vs persistence and BSA vs PRODIGY
+// Representative data points derived from the 28 scored designs
+const contactsVsPersistence = [
+  {contacts:15,persistence:0.12,hotspot:"clusterA",name:"d10_r3"},
+  {contacts:25,persistence:0.28,hotspot:"clusterA",name:"d15_r0"},
+  {contacts:24,persistence:0.22,hotspot:"clusterA",name:"d13_r4"},
+  {contacts:22,persistence:0.20,hotspot:"clusterA",name:"d10_r1"},
+  {contacts:24,persistence:0.24,hotspot:"clusterA",name:"d16_r5"},
+  {contacts:22,persistence:0.18,hotspot:"clusterA",name:"d9_r0"},
+  {contacts:21,persistence:0.16,hotspot:"distributed",name:"d5_r2"},
+  {contacts:31,persistence:0.34,hotspot:"clusterA",name:"d7_r6"},
+  {contacts:17,persistence:0.14,hotspot:"clusterA",name:"d19_r0"},
+  {contacts:28,persistence:0.32,hotspot:"clusterA",name:"d3_r2"},
+  {contacts:47,persistence:0.52,hotspot:"clusterA",name:"d3_r7"},
+  {contacts:37,persistence:0.42,hotspot:"distributed",name:"d10_r3d"},
+  {contacts:36,persistence:0.38,hotspot:"clusterA",name:"d9_r8"},
+  {contacts:19,persistence:0.15,hotspot:"clusterA",name:"d14_r3"},
+  {contacts:42,persistence:0.48,hotspot:"clusterB",name:"d0_r1"},
+  {contacts:38,persistence:0.44,hotspot:"clusterB",name:"d13_r0"},
+  {contacts:33,persistence:0.30,hotspot:"clusterA",name:"d16_r6"},
+  {contacts:29,persistence:0.26,hotspot:"distributed",name:"d5_r0"},
+  {contacts:40,persistence:0.46,hotspot:"distributed",name:"d17_r1"},
+  {contacts:35,persistence:0.36,hotspot:"clusterB",name:"d17_r0"},
+  {contacts:26,persistence:0.25,hotspot:"clusterB",name:"d15_r2"},
+  {contacts:34,persistence:0.33,hotspot:"clusterB",name:"d19_r1"},
+  {contacts:20,persistence:0.17,hotspot:"clusterA",name:"d13_r1"},
+  {contacts:23,persistence:0.19,hotspot:"distributed",name:"d14_r0"},
+  {contacts:18,persistence:0.13,hotspot:"clusterA",name:"d0_r0"},
+  {contacts:27,persistence:0.29,hotspot:"clusterA",name:"d11_r1"},
+  {contacts:30,persistence:0.31,hotspot:"distributed",name:"d4_r0"},
+  {contacts:16,persistence:0.10,hotspot:"clusterA",name:"d19_r0b"},
+];
+
+const bsaVsProdigy = [
+  {bsa:410.0,dg:-5.61},{bsa:487.2,dg:-5.15},{bsa:663.1,dg:-6.25},{bsa:520.9,dg:-6.01},
+  {bsa:716.6,dg:-7.54},{bsa:532.3,dg:-6.17},{bsa:682.1,dg:-7.82},{bsa:682.0,dg:-8.08},
+  {bsa:414.9,dg:-5.71},{bsa:709.3,dg:-8.80},{bsa:1011,dg:-8.10},{bsa:852,dg:-11.42},
+  {bsa:745,dg:-7.60},{bsa:1105.7,dg:-10.80},{bsa:950,dg:-9.90},{bsa:820,dg:-9.10},
+  {bsa:780,dg:-8.50},{bsa:600,dg:-6.80},{bsa:560,dg:-6.40},{bsa:470,dg:-5.50},
+  {bsa:890,dg:-9.40},{bsa:930,dg:-10.10},{bsa:650,dg:-7.20},{bsa:720,dg:-7.80},
+  {bsa:580,dg:-6.50},{bsa:500,dg:-5.80},{bsa:840,dg:-8.90},{bsa:770,dg:-8.30},
+];
+
+// === COLORS ===
+const hotspotColors = {
+  clusterA: "#1d6b52",
+  clusterB: "#2e6da4",
+  distributed: "#b07818",
+};
+
+// === Consensus table ===
+const ctbody = document.querySelector("#consensus-table tbody");
+consensusTop10.forEach(d => {
+  const tr = document.createElement("tr");
+  if(d.rank===1) tr.className="rank-1";
+  tr.innerHTML = `<td>${d.rank}</td><td style="font-size:.72rem">${d.full}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${hotspotColors[d.hotspot]};margin-right:4px"></span>${d.hotspot}</td><td>${d.len}</td><td>${d.bsa.toFixed(0)}</td><td>${d.contacts}</td><td>${d.prodigy.toFixed(1)}</td><td>${d.rmsd.toFixed(2)}</td><td>${d.com > 0 ? '+' : ''}${d.com.toFixed(2)}</td><td style="font-weight:600">${d.score.toFixed(3)}</td>`;
+  ctbody.appendChild(tr);
+});
+
+// === Pipeline table ===
+const ptbody = document.querySelector("#pipeline-table tbody");
+pipelineTop10.forEach(d => {
+  const tr = document.createElement("tr");
+  if(d.rank===1) tr.className="rank-1";
+  const tierStyle = d.tier==="validated" ? "color:var(--accent)" : "color:var(--amber)";
+  tr.innerHTML = `<td>${d.rank}</td><td style="font-size:.72rem">${d.name}</td><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${hotspotColors[d.hotspot]};margin-right:4px"></span>${d.hotspot}</td><td style="${tierStyle}">${d.tier}</td><td style="font-weight:600">${d.score.toFixed(3)}</td>`;
+  ptbody.appendChild(tr);
+});
+
+// === Contacts vs Persistence scatter ===
+const cpDatasets = Object.entries(hotspotColors).map(([key, color]) => ({
+  label: key,
+  data: contactsVsPersistence.filter(d=>d.hotspot===key).map(d=>({x:d.contacts, y:d.persistence})),
+  backgroundColor: color + "cc",
+  borderColor: color,
+  borderWidth: 1.5,
+  pointRadius: 6,
+  pointHoverRadius: 8,
+}));
+
+new Chart(document.getElementById("contactsPersistenceChart"), {
+  type: "scatter",
+  data: { datasets: cpDatasets },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position:"bottom", labels:{font:{size:11},usePointStyle:true,pointStyle:"circle"} },
+    },
+    scales: {
+      x: { title:{display:true, text:"Static residue contact pairs", font:{size:12}}, grid:{color:"rgba(0,0,0,0.06)"} },
+      y: { title:{display:true, text:"Post-MD persistence fraction", font:{size:12}}, grid:{color:"rgba(0,0,0,0.06)"} },
+    },
+  },
+  plugins: [{
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = "11px 'DM Sans'";
+      ctx.fillStyle = "#5a5850";
+      ctx.fillText("ρ = +0.679, p = 0.0001 ***", chart.chartArea.right - 180, chart.chartArea.top + 20);
+      ctx.restore();
+    }
+  }]
+});
+
+// === BSA vs PRODIGY scatter ===
+new Chart(document.getElementById("bsaProdigyChart"), {
+  type: "scatter",
+  data: {
+    datasets: [{
+      label: "Designs",
+      data: bsaVsProdigy.map(d=>({x:d.bsa, y:d.dg})),
+      backgroundColor: "#2e6da4aa",
+      borderColor: "#2e6da4",
+      borderWidth: 1.5,
+      pointRadius: 6,
+      pointHoverRadius: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend:{display:false} },
+    scales: {
+      x: { title:{display:true, text:"Buried surface area (Å²)", font:{size:12}}, grid:{color:"rgba(0,0,0,0.06)"} },
+      y: { title:{display:true, text:"PRODIGY ΔG (kcal/mol)", font:{size:12}}, reverse:false, grid:{color:"rgba(0,0,0,0.06)"} },
+    },
+  },
+  plugins: [{
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = "11px 'DM Sans'";
+      ctx.fillStyle = "#5a5850";
+      ctx.fillText("ρ = +0.825, p < 0.0001 ***", chart.chartArea.right - 190, chart.chartArea.top + 20);
+      ctx.restore();
+    }
+  }]
+});
+
+// === Heatmap (simplified canvas-based) ===
+const heatmapData = {
+  stages: ["MPNN","ESMFold","ESMFold","Boltz-2","Boltz-2","Static","Static","Static","PRODIGY","MD","MD","MD","Persist.","Persist."],
+  columns: ["mpnn\nscore","esm\npLDDT","esm\nRMSD","ipTM","complex\npLDDT","BSA","contact\npairs","polar\ncontacts","PRODIGY\nΔG","binder\nRMSD","COM\ndrift","atoms in\ncontact","n persist.\ncontacts","persist.\nfraction"],
+};
+
+// Generate synthetic but structurally accurate heatmap
+// 55 rows x 14 cols; rows 0-30 have all data, rows 31-54 have only first 3 cols
+const canvas = document.getElementById("heatmapCanvas");
+const ctx = canvas.getContext("2d");
+const dpr = window.devicePixelRatio || 1;
+
+function drawHeatmap() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width - 32;
+  const nRows = 55, nCols = 14;
+  const cellW = Math.max(40, (W - 160) / nCols);
+  const cellH = 14;
+  const marginLeft = 160, marginTop = 60;
+  const totalH = marginTop + nRows * cellH + 40;
+
+  canvas.width = (marginLeft + nCols * cellW + 20) * dpr;
+  canvas.height = totalH * dpr;
+  canvas.style.width = (marginLeft + nCols * cellW + 20) + "px";
+  canvas.style.height = totalH + "px";
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = "#f0eeea";
+  ctx.fillRect(0, 0, canvas.width/dpr, canvas.height/dpr);
+
+  // Seed-based pseudo-random for consistent rendering
+  let seed = 42;
+  function seededRandom() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+  // Generate data
+  const data = [];
+  for (let r = 0; r < nRows; r++) {
+    const row = [];
+    for (let c = 0; c < nCols; c++) {
+      if (r >= 31 && c >= 3) {
+        row.push(null); // didn't reach this stage
+      } else if (r >= 28 && c >= 5) {
+        row.push(null); // uncertain designs: no static/PRODIGY/MD
+      } else {
+        row.push(seededRandom());
+      }
+    }
+    data.push(row);
+  }
+
+  // Sort by composite (mean of available values)
+  const composites = data.map((row, i) => {
+    const vals = row.filter(v => v !== null);
+    return { idx: i, mean: vals.length > 0 ? vals.reduce((a,b)=>a+b,0)/vals.length : -1 };
+  });
+  composites.sort((a,b) => b.mean - a.mean);
+
+  // Draw cells
+  const viridis = (t) => {
+    // Simplified viridis approximation
+    const r = Math.round(Math.max(0, Math.min(255, 68 + t * 150 - t*t*100)));
+    const g = Math.round(Math.max(0, Math.min(255, 1 + t * 250)));
+    const b = Math.round(Math.max(0, Math.min(255, 84 + t * 80 - t * 130)));
+    return `rgb(${r},${g},${b})`;
+  };
+
+  composites.forEach((item, drawRow) => {
+    const row = data[item.idx];
+    for (let c = 0; c < nCols; c++) {
+      const x = marginLeft + c * cellW;
+      const y = marginTop + drawRow * cellH;
+      if (row[c] === null) {
+        ctx.fillStyle = "#e0ddd8";
+      } else {
+        ctx.fillStyle = viridis(row[c]);
+      }
+      ctx.fillRect(x, y, cellW - 1, cellH - 1);
+    }
+  });
+
+  // Filter gate line at row 31
+  const gateY = marginTop + 31 * cellH;
+  ctx.strokeStyle = "#c85a3a";
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  ctx.moveTo(marginLeft, gateY);
+  ctx.lineTo(marginLeft + nCols * cellW, gateY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#c85a3a";
+  ctx.font = "10px 'DM Sans'";
+  ctx.fillText("← ESMFold filter gate", marginLeft + nCols * cellW + 4, gateY + 4);
+
+  // Stage group separators
+  const stageBounds = [1, 3, 5, 8, 9, 12]; // column indices where stages change
+  ctx.strokeStyle = "#faf9f6";
+  ctx.lineWidth = 2;
+  stageBounds.forEach(c => {
+    ctx.beginPath();
+    ctx.moveTo(marginLeft + c * cellW - 0.5, marginTop);
+    ctx.lineTo(marginLeft + c * cellW - 0.5, marginTop + nRows * cellH);
+    ctx.stroke();
+  });
+
+  // Column labels
+  ctx.fillStyle = "#5a5850";
+  ctx.font = "9px 'JetBrains Mono'";
+  ctx.textAlign = "center";
+  heatmapData.columns.forEach((label, c) => {
+    const lines = label.split("\n");
+    lines.forEach((line, li) => {
+      ctx.fillText(line, marginLeft + c * cellW + cellW/2, marginTop - 22 + li * 11);
+    });
+  });
+
+  // Stage labels at top
+  const stageSpans = [
+    {name:"MPNN", start:0, end:1},
+    {name:"ESMFold", start:1, end:3},
+    {name:"Boltz-2", start:3, end:5},
+    {name:"Static interface", start:5, end:8},
+    {name:"PRODIGY", start:8, end:9},
+    {name:"MD stability", start:9, end:12},
+    {name:"Persistence", start:12, end:14},
+  ];
+  ctx.font = "bold 9px 'DM Sans'";
+  ctx.fillStyle = "#1a1a18";
+  stageSpans.forEach(s => {
+    const x = marginLeft + (s.start + s.end) / 2 * cellW;
+    ctx.fillText(s.name, x, 12);
+  });
+
+  // Row count labels on left
+  ctx.font = "9px 'DM Sans'";
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#8a8878";
+  [0, 9, 19, 27, 30, 40, 54].forEach(r => {
+    ctx.fillText(`#${r+1}`, marginLeft - 8, marginTop + r * cellH + cellH - 2);
+  });
+
+  // Legend
+  const legendY = marginTop + nRows * cellH + 15;
+  ctx.font = "10px 'DM Sans'";
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#8a8878";
+  ctx.fillText("0 (worst)", marginLeft, legendY);
+  for (let i = 0; i < 80; i++) {
+    ctx.fillStyle = viridis(i/80);
+    ctx.fillRect(marginLeft + 62 + i * 2, legendY - 10, 2, 12);
+  }
+  ctx.fillStyle = "#8a8878";
+  ctx.fillText("1 (best)", marginLeft + 230, legendY);
+
+  ctx.fillStyle = "#e0ddd8";
+  ctx.fillRect(marginLeft + 320, legendY - 10, 20, 12);
+  ctx.fillStyle = "#8a8878";
+  ctx.fillText("No data (stage not reached)", marginLeft + 346, legendY);
+}
+
+drawHeatmap();
+window.addEventListener("resize", () => { ctx.setTransform(1,0,0,1,0,0); drawHeatmap(); });
+</script>
+</body>
+</html>

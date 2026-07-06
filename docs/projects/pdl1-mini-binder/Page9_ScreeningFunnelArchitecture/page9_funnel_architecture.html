@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screening Funnel Architecture — PD-L1 Mini-Binder Campaign</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--purple:#6b5b95;--purple-light:#eee8f5;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+a:hover{border-bottom-color:var(--accent)}
+.subtitle{font-size:1.05rem;color:var(--tx2);margin-bottom:2rem;font-family:var(--serif);font-style:italic}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2rem}
+.tag{font-size:.75rem;font-weight:500;padding:3px 10px;border-radius:20px;border:1px solid var(--bg3);color:var(--tx3);background:var(--bg2)}
+.tag.primary{background:var(--accent-light);color:var(--accent2);border-color:var(--accent-light)}
+
+.callout{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:.75rem 1rem;margin:1.5rem 0;font-size:.875rem;color:var(--tx2)}
+.callout.insight{background:var(--amber-light);border-left-color:var(--amber)}
+.callout.key{background:var(--accent-light);border-left-color:var(--accent)}
+
+/* Funnel */
+.funnel{display:flex;flex-direction:column;align-items:center;margin:2rem 0;gap:0}
+.funnel-stage{display:flex;align-items:center;gap:12px;width:100%;max-width:700px;position:relative}
+.funnel-bar{height:44px;border-radius:var(--radius);display:flex;align-items:center;padding:0 16px;transition:all .3s;cursor:default;position:relative}
+.funnel-bar:hover{filter:brightness(1.05)}
+.funnel-count{font-family:var(--mono);font-weight:600;font-size:.85rem;color:#fff;white-space:nowrap}
+.funnel-label{font-size:.78rem;font-weight:500;color:var(--tx2);min-width:130px;text-align:right}
+.funnel-arrow{width:100%;display:flex;justify-content:center;padding:2px 0}
+.funnel-arrow svg{width:20px;height:14px;fill:var(--bg3)}
+.funnel-meta{font-size:.7rem;color:var(--tx3);margin-left:8px;font-family:var(--mono)}
+
+/* Evidence family grid */
+.ef-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:1.5rem 0}
+.ef-card{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem;border:1px solid var(--bg3)}
+.ef-name{font-weight:600;font-size:.9rem;color:var(--tx);margin-bottom:4px}
+.ef-question{font-size:.82rem;color:var(--tx2);font-style:italic;margin-bottom:8px}
+.ef-metrics{font-size:.75rem;color:var(--tx3)}
+.ef-type{display:inline-block;font-size:.65rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:10px;margin-bottom:6px}
+.ef-type.filter{background:var(--coral-light);color:var(--coral)}
+.ef-type.priority{background:var(--accent-light);color:var(--accent2)}
+.ef-type.both{background:var(--amber-light);color:var(--amber)}
+
+/* Archetype cards */
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:1.5rem 0}
+.arch-card{background:var(--bg2);border-radius:var(--radius-lg);padding:1rem;border-left:3px solid var(--bg3)}
+.arch-name{font-weight:600;font-size:.88rem;color:var(--tx);margin-bottom:4px}
+.arch-desc{font-size:.82rem;color:var(--tx2);margin-bottom:6px}
+.arch-why{font-size:.75rem;color:var(--tx3);font-style:italic}
+.arch-card.consensus{border-left-color:var(--accent)}
+.arch-card.interface{border-left-color:var(--blue)}
+.arch-card.dynamics{border-left-color:var(--amber)}
+.arch-card.develop{border-left-color:var(--purple)}
+.arch-card.compact{border-left-color:var(--coral)}
+.arch-card.control{border-left-color:var(--tx3)}
+
+/* DBTL loop */
+.dbtl{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:2rem 0;position:relative}
+.dbtl-step{text-align:center;padding:1.25rem .75rem;position:relative}
+.dbtl-step:not(:last-child)::after{content:"→";position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:1.2rem;color:var(--bg3);z-index:1}
+.dbtl-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:1.1rem;font-weight:700}
+.dbtl-name{font-weight:600;font-size:.88rem;margin-bottom:4px}
+.dbtl-desc{font-size:.75rem;color:var(--tx3)}
+
+/* Experimental matrix */
+.exp-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0}
+.exp-table th{text-align:left;font-weight:600;color:var(--tx3);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--bg3)}
+.exp-table td{padding:8px 10px;border-bottom:1px solid var(--bg3);color:var(--tx2);font-size:.82rem}
+.exp-table tr:hover{background:var(--bg2)}
+
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);font-size:.78rem;color:var(--tx3);text-align:center}
+footer a{color:var(--tx3)}
+
+@media(max-width:640px){
+.page{padding:1rem}
+h1{font-size:1.5rem}
+.dbtl{grid-template-columns:1fr 1fr;gap:8px}
+.dbtl-step:nth-child(2)::after{display:none}
+.ef-grid{grid-template-columns:1fr}
+.arch-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to project hub</a>
+
+<h1>How do you architect a screening funnel?</h1>
+<p class="subtitle">Using multiple imperfect models to allocate resources, preserve informative diversity, and generate the experimental data needed to determine which predictions are actually useful.</p>
+
+<div class="tag-row">
+<span class="tag primary">Retrospective synthesis</span>
+<span class="tag primary">Decision architecture</span>
+<span class="tag">DBTL cycle</span>
+<span class="tag">Evidence families</span>
+<span class="tag">Experimental design</span>
+</div>
+
+<h2>The naive model breaks down</h2>
+
+<p>The straightforward approach to computational protein design is: generate many candidates, calculate many scores, test the highest-ranked. This campaign shows why that model is insufficient. The tools disagree — ESMFold recovery tells you nothing about Boltz-2 complex confidence (ρ = −0.004). Some metrics are redundant — PRODIGY ΔG is largely recapitulating buried surface area (ρ = +0.825). Rankings depend on weighting — the NB11 consensus scorecard and the pipeline retrospective composite produce different leaders from the same data. Model calibration may not transfer — Prot2Prop was trained on natural proteins, not de novo mini-binders.</p>
+
+<p>The problem is not scoring. The problem is decision architecture: how to convert multiple imperfect and partially independent signals into an intelligent allocation of experimental resources.</p>
+
+<h2>This campaign's funnel</h2>
+
+<div class="funnel">
+<div class="funnel-stage">
+<div class="funnel-label">Backbone generation</div>
+<div class="funnel-bar" style="background:var(--accent);width:100%"><div class="funnel-count">240 backbones</div></div>
+<div class="funnel-meta">RFdiffusion</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Sequence design</div>
+<div class="funnel-bar" style="background:var(--accent);width:85%;opacity:.9"><div class="funnel-count">~1900 sequences</div></div>
+<div class="funnel-meta">ProteinMPNN (8/backbone)</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Fold validation</div>
+<div class="funnel-bar" style="background:var(--blue);width:68%"><div class="funnel-count">55 pass ESMFold filters</div></div>
+<div class="funnel-meta">pLDDT > 80, RMSD < 2 Å</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Structural filtering</div>
+<div class="funnel-bar" style="background:var(--blue);width:52%;opacity:.9"><div class="funnel-count">31 pass fingerprinting</div></div>
+<div class="funnel-meta">Interface geometry + hotspot check</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Complex prediction</div>
+<div class="funnel-bar" style="background:var(--amber);width:42%"><div class="funnel-count">28 Boltz-validated</div></div>
+<div class="funnel-meta">Boltz-2 ipTM + pose agreement</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">MD simulation</div>
+<div class="funnel-bar" style="background:var(--amber);width:42%;opacity:.9"><div class="funnel-count">28 with trajectories</div></div>
+<div class="funnel-meta">1 ns AMBER14/TIP3P</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Multi-metric scoring</div>
+<div class="funnel-bar" style="background:var(--coral);width:42%"><div class="funnel-count">28 fully scored</div></div>
+<div class="funnel-meta">Static + PRODIGY + MD + persistence</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Developability screen</div>
+<div class="funnel-bar" style="background:var(--purple);width:92%"><div class="funnel-count">55 screened (sequence-only)</div></div>
+<div class="funnel-meta">Prot2Prop — runs on all designs</div>
+</div>
+<div class="funnel-arrow"><svg viewBox="0 0 20 14"><path d="M10 14L0 0h20z"/></svg></div>
+<div class="funnel-stage">
+<div class="funnel-label">Experimental panel</div>
+<div class="funnel-bar" style="background:var(--tx);width:20%"><div class="funnel-count">8–15 candidates</div></div>
+<div class="funnel-meta">Diverse panel, not just top N</div>
+</div>
+</div>
+
+<p>Notice that the developability screen runs on all 55 designs, not just the 28 that survived to MD. Sequence-level models are cheap enough to apply early and broadly. A revised funnel might move Prot2Prop earlier — flagging probable expression failures before investing in Boltz-2 or MD — though this depends on whether its predictions prove accurate for de novo designs.</p>
+
+<h2>Separate filters from prioritization metrics</h2>
+
+<p>Filters remove candidates that fail minimum viability requirements: a backbone that does not recapitulate in ESMFold, a sequence that fails to form any interface contacts, a Boltz-2 prediction with an alternative binding pose. These are hard gates. Prioritization metrics help choose among surviving candidates: PRODIGY ΔG, MD persistence, predicted solubility. These should remain continuous ranking signals, not become additional gates, unless experimentally calibrated for the relevant protein class.</p>
+
+<p>The distinction matters because a strict gate on a prioritization metric will eliminate unusual but informative candidates. The 25-residue binder at consensus rank 2 has modest BSA (487 Å²) — a BSA gate at 500 Å² would have killed it despite its excellent dynamic stability.</p>
+
+<h2>Group metrics by biological question</h2>
+
+<p>Not every column in a scoring matrix should act as an independent vote. Metrics that answer the same biological question belong to the same evidence family. Giving each family equal voice — rather than each column — prevents accidental over-weighting of categories that contain more individual metrics.</p>
+
+<div class="ef-grid">
+<div class="ef-card">
+<span class="ef-type filter">Filter</span>
+<div class="ef-name">Backbone & fold recovery</div>
+<div class="ef-question">Did the designed sequence retain the intended structure?</div>
+<div class="ef-metrics">ESMFold pLDDT, ESMFold RMSD to design, ProteinMPNN score</div>
+</div>
+<div class="ef-card">
+<span class="ef-type filter">Filter</span>
+<div class="ef-name">Complex prediction</div>
+<div class="ef-question">Does an independent model recover the proposed interaction?</div>
+<div class="ef-metrics">Boltz-2 ipTM, complex pLDDT, pose agreement</div>
+</div>
+<div class="ef-card">
+<span class="ef-type both">Filter + priority</span>
+<div class="ef-name">Interface geometry</div>
+<div class="ef-question">Is the modeled interface physically plausible and extensive?</div>
+<div class="ef-metrics">BSA, residue contact pairs, polar close-contacts, hotspot coverage</div>
+</div>
+<div class="ef-card">
+<span class="ef-type priority">Priority</span>
+<div class="ef-name">Affinity proxy</div>
+<div class="ef-question">Does the interface resemble stronger known complexes?</div>
+<div class="ef-metrics">PRODIGY ΔG / Kd (note: strongly correlated with BSA, ρ = +0.825)</div>
+</div>
+<div class="ef-card">
+<span class="ef-type priority">Priority</span>
+<div class="ef-name">Dynamic stability</div>
+<div class="ef-question">Does the complex remain coherent during simulation?</div>
+<div class="ef-metrics">Binder RMSD, COM drift, atoms in contact, binder RMSF</div>
+</div>
+<div class="ef-card">
+<span class="ef-type priority">Priority</span>
+<div class="ef-name">Contact persistence</div>
+<div class="ef-question">Do the designed contacts survive thermal stress?</div>
+<div class="ef-metrics">n persistent contacts, persistence fraction (correlated with static contacts, ρ = +0.679)</div>
+</div>
+<div class="ef-card">
+<span class="ef-type priority">Priority</span>
+<div class="ef-name">Monomer developability</div>
+<div class="ef-question">Can the protein be produced and handled?</div>
+<div class="ef-metrics">Prot2Prop: production, solubility, thermostability, aggregation, expression, folding</div>
+</div>
+</div>
+
+<div class="callout insight">
+Two evidence families contain internal redundancies. The affinity proxy (PRODIGY) is largely recapitulating interface geometry (BSA), so these might be merged into a single "interface quality" family. Contact persistence correlates with static contacts — they address the same question at different timescales. Recognizing these overlaps prevents double-counting.
+</div>
+
+<h2>Select a panel, not merely the top N</h2>
+
+<p>An intelligent experimental panel tests multiple hypotheses, not one. The best learning set is not necessarily the top ten rows of a composite leaderboard — it is a set of candidates that spans the informative diversity of the design space and allows the experimental results to discriminate which computational signals actually matter.</p>
+
+<div class="arch-grid">
+<div class="arch-card consensus">
+<div class="arch-name">Consensus candidates</div>
+<div class="arch-desc">Strong across most evidence families. The safest bets if the pipeline is well-calibrated.</div>
+<div class="arch-why">Tests whether computational consensus translates to experimental success.</div>
+</div>
+<div class="arch-card interface">
+<div class="arch-name">Interface-forward candidates</div>
+<div class="arch-desc">High BSA, many contacts, strong PRODIGY ΔG — but possibly lower developability.</div>
+<div class="arch-why">Tests whether interface extent drives binding, even at the cost of monomer producibility.</div>
+</div>
+<div class="arch-card dynamics">
+<div class="arch-name">Dynamics-forward candidates</div>
+<div class="arch-desc">Low binder RMSD, minimal COM drift, high contact persistence under MD.</div>
+<div class="arch-why">Tests whether MD stability predicts experimental binding better than static scoring.</div>
+</div>
+<div class="arch-card develop">
+<div class="arch-name">Developability-forward candidates</div>
+<div class="arch-desc">Favorable production, solubility, and aggregation predictions, even if structural scores are moderate.</div>
+<div class="arch-why">Tests whether producibility is the binding constraint — designs that do not express cannot bind.</div>
+</div>
+<div class="arch-card compact">
+<div class="arch-name">Compact or unusual candidates</div>
+<div class="arch-desc">Short binders (25 aa), unconventional hotspot strategies, or architectures underrepresented in the top composite ranks.</div>
+<div class="arch-why">Tests whether the pipeline's preference for longer, interface-heavy designs reflects a real physics advantage or a scoring bias.</div>
+</div>
+<div class="arch-card control">
+<div class="arch-name">Borderline or negative controls</div>
+<div class="arch-desc">Candidates near computational thresholds, selected to calibrate where the pipeline's discrimination breaks down.</div>
+<div class="arch-why">Without borderline cases, every success confirms the pipeline and every failure is uninformative.</div>
+</div>
+</div>
+
+<h2>Close the design–build–test–learn loop</h2>
+
+<p>The computational pipeline produces hypotheses. Experiments test them. Structured data preserves the context. A feedback model guides the next round. This is not a one-pass process — it is a loop, and the critical next step is experimental calibration.</p>
+
+<div class="dbtl">
+<div class="dbtl-step">
+<div class="dbtl-icon" style="background:var(--accent-light);color:var(--accent2)">D</div>
+<div class="dbtl-name">Design</div>
+<div class="dbtl-desc">RFdiffusion generates backbones. ProteinMPNN designs sequences. Structure predictors validate folds.</div>
+</div>
+<div class="dbtl-step">
+<div class="dbtl-icon" style="background:var(--blue-light);color:var(--blue)">B</div>
+<div class="dbtl-name">Build</div>
+<div class="dbtl-desc">Gene synthesis, codon optimization, construct design, expression host selection, control constructs.</div>
+</div>
+<div class="dbtl-step">
+<div class="dbtl-icon" style="background:var(--amber-light);color:var(--amber)">T</div>
+<div class="dbtl-name">Test</div>
+<div class="dbtl-desc">Expression, purification, SEC, binding assays (BLI/SPR), competition with PD-1, thermal stability.</div>
+</div>
+<div class="dbtl-step">
+<div class="dbtl-icon" style="background:var(--coral-light);color:var(--coral)">L</div>
+<div class="dbtl-name">Learn</div>
+<div class="dbtl-desc">Which predictions were correct? Which tools were informative? What should the next design round change?</div>
+</div>
+</div>
+
+<h3>The questions the next campaign must answer</h3>
+
+<table class="exp-table">
+<thead><tr><th>Experimental outcome</th><th>Computational observables to test against</th></tr></thead>
+<tbody>
+<tr><td>Soluble expression yield</td><td>Prot2Prop production / expression / solubility; ESMFold pLDDT; binder length</td></tr>
+<tr><td>Monomeric behavior (SEC)</td><td>Prot2Prop aggregation propensity; predicted folding stability</td></tr>
+<tr><td>Thermal stability (Tm)</td><td>Prot2Prop thermostability; folding stability; MD binder RMSD</td></tr>
+<tr><td>Binding to PD-L1</td><td>Boltz-2 ipTM; interface geometry (BSA, contacts); hotspot coverage</td></tr>
+<tr><td>Binding affinity (Kd)</td><td>PRODIGY ΔG; BSA; contact count; contact persistence</td></tr>
+<tr><td>PD-1 competition</td><td>Binding pose agreement; epitope engagement; hotspot fidelity</td></tr>
+</tbody>
+</table>
+
+<p>The retrospective should ask: which observables predict expression? Which predict binding success? Which predict affinity among confirmed binders? Does MD add information beyond static contacts? Does Boltz-2 confidence add information beyond interface size? Which metrics are redundant? Which tools should move earlier or later in the next funnel? Which outputs should be removed because they add cost without predictive value?</p>
+
+<h2>What we observed in this campaign</h2>
+
+<p>The cross-stage correlation analysis revealed a specific pattern of independence and redundancy that shapes the funnel architecture.</p>
+
+<div style="background:var(--bg2);border-radius:var(--radius-lg);padding:1.25rem;border:1px solid var(--bg3);margin:1.5rem 0">
+<h3 style="margin-top:0">Three largely independent evidence families emerged</h3>
+
+<p style="margin-bottom:.75rem"><strong style="color:var(--accent2)">Fold quality</strong> — ProteinMPNN score, ESMFold pLDDT, ESMFold RMSD. Does the sequence encode a well-folded monomer? Weakly correlated with everything downstream.</p>
+
+<p style="margin-bottom:.75rem"><strong style="color:var(--blue)">Interface engagement</strong> — BSA, contacts, PRODIGY ΔG, MD persistence, Boltz-2 ipTM. Does the binder make and maintain contact with PD-L1? Internally correlated (BSA↔PRODIGY, contacts↔persistence) but largely independent of fold quality and developability.</p>
+
+<p style="margin-bottom:0"><strong style="color:var(--purple)">Monomer developability</strong> — Prot2Prop solubility, expression, folding, thermostability, aggregation, production. Will the protein actually produce and behave? Mostly independent of the structural pipeline, with one notable anticorrelation: production probability vs. interface contacts (ρ = −0.530).</p>
+</div>
+
+<p>The low cross-correlations between these families mean they filter on different failure modes. A design that passes all three has survived independent challenges. That is the strongest case for experimental testing — not because any individual score is trustworthy, but because agreement across orthogonal methods reduces the odds of chasing a computational artifact.</p>
+
+<h2>Avoid false precision from a master score</h2>
+
+<p>Composite scores are useful for exploration but they embed choices: which observables are included, how each is transformed, how missing values are handled, whether correlated metrics are counted repeatedly, how many columns represent each evidence family. The NB11 consensus scorecard and the NB12 augmented pipeline composite produce different top-10 lists from the same underlying data. Neither is wrong — they answer different questions with different implicit priorities.</p>
+
+<p>The score should be treated as a decision aid, not an objective truth. The ranking that matters is the one that produces the most informative experimental panel — and that judgment requires domain knowledge that no composite formula encodes automatically.</p>
+
+<h2>What this means</h2>
+
+<div class="callout key">
+A screening funnel should not be designed to make computational predictions look decisive. It should use imperfect models to allocate resources, preserve informative diversity, and generate the experimental data needed to determine which predictions are actually useful. The objective is not a more elaborate ranking — it is a closed design–build–test–learn system in which each campaign improves the architecture of the next.
+</div>
+
+<footer>
+Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/">PD-L1 mini-binder design campaign</a>
+</footer>
+
+</div>
+</body>
+</html>

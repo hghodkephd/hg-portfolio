@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affinity &amp; Complex Stability Scoring — PD-L1 Mini-Binder Campaign</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;1,400&amp;family=DM+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#faf9f6;--bg2:#f0eeea;--bg3:#e6e3dc;
+--tx:#1a1a18;--tx2:#5a5850;--tx3:#8a8878;
+--accent:#1d6b52;--accent2:#0f4a38;--accent-light:#e1f0ea;
+--coral:#c85a3a;--coral-light:#faeae4;
+--blue:#2e6da4;--blue-light:#e6f0fa;
+--amber:#b07818;--amber-light:#faf0da;
+--purple:#6b5b95;--purple-light:#eee8f5;
+--mono:"JetBrains Mono",monospace;
+--sans:"DM Sans",system-ui,sans-serif;
+--serif:"Source Serif 4",Georgia,serif;
+--radius:6px;--radius-lg:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:-.02em;margin-bottom:.25rem}
+h2{font-family:var(--serif);font-weight:600;font-size:1.35rem;letter-spacing:-.01em;margin:3rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--bg3)}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.5rem 0 .5rem;color:var(--tx)}
+p{margin-bottom:1rem;color:var(--tx2);font-size:.938rem}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+a:hover{border-bottom-color:var(--accent)}
+.subtitle{font-size:1.05rem;color:var(--tx2);margin-bottom:2rem;font-family:var(--serif);font-style:italic}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:2rem}
+.tag{font-size:.75rem;font-weight:500;padding:3px 10px;border-radius:20px;border:1px solid var(--bg3);color:var(--tx3);background:var(--bg2)}
+.tag.primary{background:var(--accent-light);color:var(--accent2);border-color:var(--accent-light)}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:1.5rem 0}
+.metric-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;text-align:center}
+.metric-value{font-size:1.5rem;font-weight:600;color:var(--tx);font-family:var(--mono)}
+.metric-label{font-size:.7rem;color:var(--tx3);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.metric-card.accent{background:var(--accent-light)}
+.metric-card.accent .metric-value{color:var(--accent2)}
+.callout{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:.75rem 1rem;margin:1.5rem 0;font-size:.875rem;color:var(--tx2)}
+.callout.insight{background:var(--amber-light);border-left-color:var(--amber)}
+.callout.key{background:var(--accent-light);border-left-color:var(--accent)}
+.design-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:1rem 0}
+.design-table th{text-align:left;font-weight:600;color:var(--tx3);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:2px solid var(--bg3)}
+.design-table td{padding:8px 10px;border-bottom:1px solid var(--bg3);color:var(--tx2);font-family:var(--mono);font-size:.76rem;vertical-align:top}
+.design-table tr:hover{background:var(--bg2)}
+.design-table .rank-1{background:var(--accent-light)}
+.design-table .rank-1 td{color:var(--accent2)}
+.table-scroll{overflow-x:auto;margin:1rem 0}
+.corr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:1.5rem 0}
+.corr-card{background:var(--bg2);border-radius:var(--radius);padding:.75rem 1rem;border:1px solid var(--bg3)}
+.corr-pair{font-size:.78rem;font-weight:600;color:var(--tx);margin-bottom:4px}
+.corr-value{font-family:var(--mono);font-size:.85rem;font-weight:600}
+.corr-interp{font-size:.75rem;color:var(--tx3);margin-top:4px}
+.corr-card.strong{border-left:3px solid var(--accent)}
+.corr-card.weak{border-left:3px solid var(--bg3)}
+.corr-card.none{border-left:3px solid var(--coral);opacity:.78}
+.figure-wrap{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius-lg);padding:1rem;margin:1.5rem 0}
+.figure-wrap img{display:block;width:100%;height:auto;border-radius:4px}
+.figure-title{font-size:.8rem;font-weight:600;color:var(--tx2);margin-bottom:.75rem}
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1.5rem 0}
+.profile-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius);padding:1rem}
+.profile-rank{font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.profile-name{font-family:var(--mono);font-size:.72rem;line-height:1.45;margin:.35rem 0 .65rem;overflow-wrap:anywhere}
+.profile-card p{font-size:.8rem;margin:0}
+footer{margin-top:4rem;padding-top:1.5rem;border-top:1px solid var(--bg3);font-size:.78rem;color:var(--tx3);text-align:center}
+footer a{color:var(--tx3)}
+@media(max-width:760px){.profile-grid{grid-template-columns:1fr}.corr-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.page{padding:1rem}h1{font-size:1.5rem}.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="page">
+<a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/" style="font-size:.82rem;color:var(--tx3);display:inline-block;margin-bottom:1.5rem">← Back to project hub</a>
+<h1>Affinity and complex stability scoring</h1>
+<p class="subtitle">Which candidates form the most credible modeled complexes — and do the scoring methods agree?</p>
+<div class="tag-row">
+<span class="tag primary">PRODIGY</span><span class="tag primary">OpenMM</span><span class="tag primary">MDTraj</span><span class="tag">Boltz-2</span><span class="tag">BioPython</span><span class="tag">Shrake-Rupley BSA</span><span class="tag">Contact persistence</span>
+</div>
+<div class="callout">These scores are not experimental affinities. They are comparative triage features — different lenses on modeled complex quality. The output is a prioritized shortlist of hypotheses, not validated binders.</div>
+
+<h2>The scoring problem</h2>
+<p>Twenty-eight designs survived the full computational pipeline: RFdiffusion backbone generation, ProteinMPNN sequence design, ESMFold fold validation, structural filtering, Boltz-2 complex prediction, interface fingerprinting, and 1 ns molecular dynamics simulations. Each design now has metrics from multiple analyses. The question is whether those metrics tell a consistent story — and what happens when they do not.</p>
+<p>Five evidence types were assembled for each design. Boltz-2 complex confidence asks whether an independent predictor recovers a plausible complex from sequence alone. Static interface geometry describes the physical extent of the minimized interface. PRODIGY provides an empirical affinity-like score. MD-derived metrics test whether the modeled complex remains structurally coherent during short simulation. Post-MD contact persistence measures which designed interactions remain populated over the trajectory.</p>
+<div class="metrics-grid">
+<div class="metric-card accent"><div class="metric-value">28</div><div class="metric-label">Designs scored</div></div>
+<div class="metric-card"><div class="metric-value">5</div><div class="metric-label">Evidence types</div></div>
+<div class="metric-card"><div class="metric-value">14</div><div class="metric-label">Retrospective metrics</div></div>
+<div class="metric-card"><div class="metric-value">100%</div><div class="metric-label">Complete evidence coverage</div></div>
+</div>
+
+<h2>Cross-stage agreement is limited</h2>
+<p>If every pipeline stage measured the same underlying property, its outputs would be strongly correlated. They are not. Most cross-stage relationships are weak or absent, indicating that the stages contribute partly independent information.</p>
+<div class="corr-grid">
+<div class="corr-card strong"><div class="corr-pair">BSA rank → PRODIGY affinity rank</div><div class="corr-value" style="color:var(--accent)">ρ = +0.825 (p &lt; 0.0001) ***</div><div class="corr-interp">PRODIGY largely recapitulates interface size. These are not independent signals.</div></div>
+<div class="corr-card strong"><div class="corr-pair">Static contacts → MD persistence</div><div class="corr-value" style="color:var(--accent)">ρ = +0.679 (p = 0.0001) ***</div><div class="corr-interp">Richer static contact networks tend to remain more populated during short MD.</div></div>
+<div class="corr-card weak"><div class="corr-pair">PRODIGY affinity rank → persistence</div><div class="corr-value" style="color:var(--amber)">ρ = +0.407 (p = 0.0316) *</div><div class="corr-interp">Modest agreement, consistent with the relationship between interface extent and persistence.</div></div>
+<div class="corr-card none"><div class="corr-pair">MPNN score → ESMFold pLDDT</div><div class="corr-value" style="color:var(--tx3)">ρ = −0.237 (p = 0.0820) ns</div><div class="corr-interp">Sequence-design confidence does not predict fold quality in this set.</div></div>
+<div class="corr-card none"><div class="corr-pair">ESMFold RMSD → Boltz ipTM</div><div class="corr-value" style="color:var(--tx3)">ρ = −0.004 (p = 0.9828) ns</div><div class="corr-interp">Monomer fold recovery and complex-prediction confidence are effectively unrelated.</div></div>
+<div class="corr-card none"><div class="corr-pair">Boltz ipTM → PRODIGY affinity rank</div><div class="corr-value" style="color:var(--tx3)">ρ = +0.118 (p = 0.5491) ns</div><div class="corr-interp">Complex confidence and affinity-like scoring provide different information.</div></div>
+<div class="corr-card none"><div class="corr-pair">Boltz ipTM → MD RMSD rank</div><div class="corr-value" style="color:var(--tx3)">ρ = +0.252 (p = 0.1964) ns</div><div class="corr-interp">Boltz-2 confidence does not predict short-MD structural stability.</div></div>
+</div>
+<div class="callout insight">The non-correlations are as informative as the correlations. Sequence confidence, fold recovery, complex plausibility, interface extent, affinity-like scoring, and dynamic coherence expose different failure modes. No single metric captures the whole screening problem.</div>
+
+<h2>Static contacts predict dynamic persistence</h2>
+<p>The strongest workflow-level finding is the relationship between static residue-level contacts and post-MD persistence. Designs that begin with richer contact networks in the minimized structure tend to retain more persistent contacts during molecular dynamics. The Spearman correlation (ρ = +0.679, p = 0.0001) makes static fingerprinting a useful low-cost triage feature before committing to more expensive simulation.</p>
+<p>This does not make static geometry a substitute for MD. It means the static screen contains information that survives the transition to dynamics.</p>
+
+<h2>PRODIGY largely tracks interface size</h2>
+<p>PRODIGY predicts binding free energy from interfacial contact features. Across these designs, the rank-normalized PRODIGY affinity score correlates strongly with buried surface area (ρ = +0.825). The practical implication is that PRODIGY contributes less independent information than Boltz confidence or MD stability; much of its ranking is already encoded in interface extent.</p>
+<p>The predicted ΔG values span −5.2 to −11.4 kcal/mol, with a mean of −8.2 ± 1.8 kcal/mol. For this workflow, the relative ordering is more useful than the absolute values.</p>
+
+<h2>Consensus ranking: the downstream scorecard</h2>
+<p>The downstream scorecard averages seven rank-normalized features: buried surface area, residue contact pairs, polar close contacts, Boltz-2 ipTM, PRODIGY ΔG, binder RMSD, and absolute center-of-mass drift. Every design had complete static, PRODIGY, and MD evidence.</p>
+<div class="table-scroll"><table class="design-table">
+<thead><tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>BSA</th><th>Contacts</th><th>PRODIGY ΔG</th><th>RMSD</th><th>COM drift</th><th>Score</th></tr></thead>
+<tbody>
+<tr class="rank-1"><td>1</td><td>len100_clusterA_noise0__design_16_0_rank6</td><td>clusterA</td><td>966.7</td><td>52</td><td>−10.11</td><td>1.37</td><td>+0.11</td><td>0.812</td></tr>
+<tr><td>2</td><td>len100_distributed_noise0__design_5_0_rank0</td><td>distributed</td><td>896.4</td><td>44</td><td>−10.43</td><td>1.55</td><td>+0.18</td><td>0.804</td></tr>
+<tr><td>3</td><td>len100_clusterB_noise05__design_13_0_rank0</td><td>clusterB</td><td>1105.7</td><td>48</td><td>−10.65</td><td>1.50</td><td>−0.27</td><td>0.783</td></tr>
+<tr><td>4</td><td>len50_clusterA_noise05__design_0_0_rank0</td><td>clusterA</td><td>986.3</td><td>33</td><td>−9.62</td><td>1.47</td><td>+0.28</td><td>0.743</td></tr>
+<tr><td>5</td><td>len70_clusterA_noise0__design_3_0_rank7</td><td>clusterA</td><td>1011.2</td><td>47</td><td>−8.06</td><td>1.47</td><td>+0.10</td><td>0.720</td></tr>
+<tr><td>6</td><td>len70_distributed_noise0__design_17_0_rank1</td><td>distributed</td><td>964.4</td><td>40</td><td>−9.81</td><td>1.41</td><td>−0.28</td><td>0.706</td></tr>
+<tr><td>7</td><td>len100_clusterB_noise05__design_0_0_rank1</td><td>clusterB</td><td>868.3</td><td>41</td><td>−11.37</td><td>1.51</td><td>+0.51</td><td>0.672</td></tr>
+<tr><td>8</td><td>len70_clusterB_noise0__design_19_0_rank1</td><td>clusterB</td><td>804.8</td><td>31</td><td>−8.47</td><td>1.26</td><td>−0.08</td><td>0.653</td></tr>
+<tr><td>9</td><td>len70_clusterB_noise0__design_15_0_rank2</td><td>clusterB</td><td>895.2</td><td>33</td><td>−9.21</td><td>1.32</td><td>+0.37</td><td>0.646</td></tr>
+<tr><td>10</td><td>len100_clusterA_noise05__design_14_0_rank3</td><td>clusterA</td><td>850.0</td><td>34</td><td>−7.76</td><td>1.56</td><td>+0.18</td><td>0.635</td></tr>
+</tbody></table></div>
+<div class="callout insight">The top 10 span all three hotspot strategies: four clusterA, four clusterB, and two distributed designs. No single hotspot configuration dominates once static geometry, complex confidence, affinity-like scoring, and MD stability are integrated.</div>
+
+<h2>The leaders win in different ways</h2>
+<div class="profile-grid">
+<div class="profile-card"><div class="profile-rank">Consensus rank 1</div><div class="profile-name">len100_clusterA_noise0__design_16_0_rank6</div><p>The richest static contact network among the leaders: 52 residue contacts, 966.7 Å² BSA, ipTM 0.919, binder RMSD 1.37 Å, and minimal COM drift.</p></div>
+<div class="profile-card"><div class="profile-rank">Consensus rank 2</div><div class="profile-name">len100_distributed_noise0__design_5_0_rank0</div><p>Slightly smaller interface, but the strongest overall Boltz confidence among the top three (ipTM 0.941) and a favorable PRODIGY score.</p></div>
+<div class="profile-card"><div class="profile-rank">Consensus rank 3</div><div class="profile-name">len100_clusterB_noise05__design_13_0_rank0</div><p>The largest buried interface in the leading trio at 1105.7 Å², with 48 contacts and strong affinity-like scoring despite lower ipTM than ranks 1 and 2.</p></div>
+</div>
+<p>The point is not that one metric selects a winner. Similar composite scores arise from different evidence profiles, which is exactly what a useful experimental shortlist should preserve.</p>
+
+<h2>Pipeline retrospective: all 55 designs</h2>
+<p>The retrospective matrix places all 55 designs from the parameter-sensitivity study on a common scale. Fourteen quantitative metrics spanning seven pipeline stages are rank-normalized to [0, 1], where 1 is best. Designs that did not reach a stage remain blank, making attrition and evidence coverage visible in the same figure.</p>
+<div class="figure-wrap"><div class="figure-title">Retrospective pipeline matrix — all 55 designs, rank-normalized</div><img src="11_pipeline_heatmap.png" alt="Rank-normalized retrospective heatmap for all 55 PD-L1 mini-binder designs across seven pipeline stages"></div>
+
+<h3>Pipeline composite: substantial agreement at the top</h3>
+<p>The full-pipeline composite averages all available stage-level metrics. It does not produce an unrelated set of winners. The same two designs occupy the top two positions, although their order is reversed, and four of the top five appear in both rankings. Differences emerge where upstream model confidence and downstream interface or MD evidence weight candidates differently.</p>
+<div class="table-scroll"><table class="design-table">
+<thead><tr><th>Rank</th><th>Design</th><th>Hotspot</th><th>Boltz tier</th><th>Composite</th></tr></thead>
+<tbody>
+<tr class="rank-1"><td>1</td><td>len100_distributed_noise0__design_5_0_rank0</td><td>distributed</td><td>validated</td><td>0.818</td></tr>
+<tr><td>2</td><td>len100_clusterA_noise0__design_16_0_rank6</td><td>clusterA</td><td>validated</td><td>0.794</td></tr>
+<tr><td>3</td><td>len70_clusterA_noise0__design_3_0_rank7</td><td>clusterA</td><td>validated</td><td>0.737</td></tr>
+<tr><td>4</td><td>len70_distributed_noise0__design_17_0_rank1</td><td>distributed</td><td>validated</td><td>0.680</td></tr>
+<tr><td>5</td><td>len100_clusterB_noise05__design_0_0_rank1</td><td>clusterB</td><td>validated</td><td>0.663</td></tr>
+<tr><td>6</td><td>len100_clusterB_noise05__design_13_0_rank0</td><td>clusterB</td><td>validated</td><td>0.631</td></tr>
+<tr><td>7</td><td>len70_clusterB_noise0__design_17_0_rank0</td><td>clusterB</td><td>validated</td><td>0.592</td></tr>
+<tr><td>8</td><td>len70_clusterB_noise0__design_15_0_rank2</td><td>clusterB</td><td>validated</td><td>0.585</td></tr>
+<tr><td>9</td><td>len70_clusterB_noise0__design_19_0_rank1</td><td>clusterB</td><td>validated</td><td>0.583</td></tr>
+<tr><td>10</td><td>len100_distributed_noise0__design_18_0_rank1</td><td>distributed</td><td>uncertain</td><td>0.570</td></tr>
+</tbody></table></div>
+
+<h2>What this means</h2>
+<div class="callout key">Structural screening narrows the field, but the surviving designs remain supported by different combinations of evidence. The two scorecards converge on several leaders while preserving diversity across hotspot strategy, interface architecture, model confidence, affinity-like scoring, and dynamic behavior. That is a more useful basis for experimental prioritization than declaring a single computational winner.</div>
+
+<footer>Harshad Ghodke, PhD · <a href="https://hghodkephd.github.io/hg-portfolio/">Portfolio</a> · <a href="https://github.com/hghodkephd">GitHub</a> · Part of the <a href="https://hghodkephd.github.io/hg-portfolio/projects/pdl1-mini-binder/">PD-L1 mini-binder design campaign</a></footer>
+</div>
+</body>
+</html>
